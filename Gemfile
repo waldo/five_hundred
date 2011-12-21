@@ -2,8 +2,7 @@ source "http://rubygems.org"
 
 group :test do
   gem "rspec"
-  gem "guard"
+  gem "growl"
+  gem "guard", "~>0.8.8"
   gem "guard-rspec"
-  gem "rb-fsevent"
-  gem "growl_notify"
 end

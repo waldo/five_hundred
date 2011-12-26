@@ -3,7 +3,7 @@ require "spec_helper"
 describe "team" do
   context "join" do
     it "should work" do
-      Team.new.join(Player.new)
+      Team.new.join(Player.new).players.count.should == 1
     end
 
     it "shouldn't allow more than 2 players" do

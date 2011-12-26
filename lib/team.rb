@@ -29,4 +29,9 @@ private
   def add_player(p)
     @players << p if players_required and !already_joined(p)
   end
+
+# class
+  def self.empty
+    NullObject.new
+  end
 end

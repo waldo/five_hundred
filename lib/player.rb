@@ -7,7 +7,11 @@ class Player
   end
 
   def assign_cards(cards)
-    @cards = cards
+    @cards += cards
+  end
+  
+  def remove_cards(cards)
+    @cards -= cards
   end
 
   def assign_bid(bid)

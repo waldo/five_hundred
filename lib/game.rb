@@ -9,6 +9,7 @@ class Game
     @dealer_order = reset_order.rotate!(rand(4))
     @bidder_order = @dealer_order.rotate
     @playing_order = reset_order
+    @winning_bidder = Player.empty
   end
 
   def join(player, team=Team.empty)
@@ -34,6 +35,13 @@ class Game
       @highest_bid = new_bid unless new_bid.passed?
       next_bidder!
       bidding_complete
+    end
+  end
+
+  def discard(discarded_cards)
+    if discarded_cards.count == 3
+      @winning_bidder.remove_cards(discarded_cards)
+      @state = :playing
     end
   end
 
@@ -95,6 +103,9 @@ private
   def bidding_complete
     if ready_for_kitty?
       @state = :kitty
+      @winning_bidder = current_bidder
+      @winning_bidder.assign_cards(@kitty)
+      @kitty = []
     elsif everyone_passed?
       redeal
     end

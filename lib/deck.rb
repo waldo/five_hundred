@@ -68,7 +68,16 @@ class Deck
     "Jo" => { rank: 100, suit: :none },
   }
 
-  def self.create_card(code)
+  def self.card(code)
     Card.new(code, Deck.card_definitions[code][:rank], Deck.card_definitions[code][:suit])
+  end
+
+  def self.cards(codes)
+    cards = []
+    codes.each do |c|
+      cards << Deck.card(c)
+    end
+
+    cards
   end
 end

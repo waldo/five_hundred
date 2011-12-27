@@ -1,8 +1,9 @@
 class Bid
-  attr_reader :code
+  attr_reader :code, :suit
 
   def initialize(code)
     @code = code
+    @suit = Bid.all[code][:suit]
   end
 
   def >(other_bid)
@@ -27,34 +28,34 @@ class Bid
   class << self; attr_accessor :all end
   
   @all = {
-    "6s"    => {points:   40},
-    "6c"    => {points:   60},
-    "6d"    => {points:   80},
-    "6h"    => {points:  100},
-    "6nt"   => {points:  120},
-    "7s"    => {points:  140},
-    "7c"    => {points:  160},
-    "7d"    => {points:  180},
-    "7h"    => {points:  200},
-    "7nt"   => {points:  220},
-    "cm"    => {precondition:  ["7s","7c","7d","7h","7nt"], points:  250},
-    "8s"    => {points:  240},
-    "8c"    => {points:  260},
-    "8d"    => {points:  280},
-    "8h"    => {points:  300},
-    "8nt"   => {points:  320},
-    "9s"    => {points:  340},
-    "9c"    => {points:  360},
-    "9d"    => {points:  380},
-    "9h"    => {points:  400},
-    "9nt"   => {points:  420},
-    "10s"   => {points:  440},
-    "10c"   => {points:  460},
-    "10d"   => {points:  480},
-    "10h"   => {points:  500},
-    "om"    => {points:  500},
-    "10nt"  => {points:  520},
-    "pass"  => true,
+    "6s"    => {points:   40, suit: :spades},
+    "6c"    => {points:   60, suit: :clubs},
+    "6d"    => {points:   80, suit: :diamonds},
+    "6h"    => {points:  100, suit: :hearts},
+    "6nt"   => {points:  120, suit: :none},
+    "7s"    => {points:  140, suit: :spades},
+    "7c"    => {points:  160, suit: :clubs},
+    "7d"    => {points:  180, suit: :diamonds},
+    "7h"    => {points:  200, suit: :hearts},
+    "7nt"   => {points:  220, suit: :none},
+    "cm"    => {precondition:  ["7s","7c","7d","7h","7nt"], points:  250, suit: :none},
+    "8s"    => {points:  240, suit: :spades},
+    "8c"    => {points:  260, suit: :clubs},
+    "8d"    => {points:  280, suit: :diamonds},
+    "8h"    => {points:  300, suit: :hearts},
+    "8nt"   => {points:  320, suit: :none},
+    "9s"    => {points:  340, suit: :spades},
+    "9c"    => {points:  360, suit: :clubs},
+    "9d"    => {points:  380, suit: :diamonds},
+    "9h"    => {points:  400, suit: :hearts},
+    "9nt"   => {points:  420, suit: :none},
+    "10s"   => {points:  440, suit: :spades},
+    "10c"   => {points:  460, suit: :clubs},
+    "10d"   => {points:  480, suit: :diamonds},
+    "10h"   => {points:  500, suit: :hearts},
+    "om"    => {points:  500, suit: :none},
+    "10nt"  => {points:  520, suit: :none},
+    "pass"  => {pass: true, suit: :none},
   }
 
   def self.empty

@@ -1,5 +1,5 @@
 class Game
-  attr_reader :state, :teams, :highest_bid
+  attr_reader :state, :teams, :highest_bid, :tricks
 
   def initialize
     @state = :setup
@@ -10,8 +10,9 @@ class Game
     @bidder_order = @dealer_order.rotate
     @playing_order = reset_order
     @winning_bidder = Player.empty
+    @tricks = []
   end
-
+  
   def join(player, team=Team.empty)
     team = pick_team(team)
     team.join(player) unless already_joined(player)
@@ -28,7 +29,7 @@ class Game
   def players
     [@teams.first.players.first, @teams.last.players.first, @teams.first.players.last, @teams.last.players.last]
   end
-
+  
   def bid(new_bid)
     if bid_valid(new_bid)
       current_bidder.assign_bid(new_bid)
@@ -44,7 +45,16 @@ class Game
       @state = :playing
     end
   end
-
+  
+  def play_card(card)
+    if @state == :playing and current_player.cards.include?(card)
+      current_player.remove_cards(card)
+      @tricks.first.play(card, current_player)
+      next_player!
+      trick_complete
+    end
+  end
+  
   def current_dealer
     players[@dealer_order[0]]
   end
@@ -67,6 +77,18 @@ class Game
 
   def set_current_bidder(p)
     @bidder_order.rotate!(@bidder_order.index(players.index(p)))
+  end
+  
+  def current_player
+    if @playing_order.count > 0
+      players[@playing_order[0]]
+    else
+      Player.empty
+    end
+  end
+
+  def set_current_player(p)
+    @playing_order.rotate!(@playing_order.index(players.index(p)))
   end
 
 private
@@ -100,20 +122,32 @@ private
     ready &&= @state == :setup
   end
 
+  def redeal
+    @state = :setup
+    deal
+  end
+
   def bidding_complete
     if ready_for_kitty?
       @state = :kitty
       @winning_bidder = current_bidder
       @winning_bidder.assign_cards(@kitty)
       @kitty = []
+      set_current_player(@winning_bidder)
+      @tricks << Trick.new(@highest_bid.suit)
     elsif everyone_passed?
       redeal
     end
   end
+  
+  def bid_valid(new_bid)
+    return false if new_bid.nil? or self.state != :bidding
+    return true if highest_bid.nil?
+    new_bid > highest_bid
+  end
 
-  def redeal
-    @state = :setup
-    deal
+  def everyone_passed?
+    @bidder_order.count == 0
   end
 
   def ready_for_kitty?
@@ -123,22 +157,20 @@ private
     ready ||= @highest_bid.max_bid?
   end
 
-  def everyone_passed?
-    @bidder_order.count == 0
-  end
-
-  def bid_valid(new_bid)
-    return false if new_bid.nil? or self.state != :bidding
-    return true if highest_bid.nil?
-    new_bid > highest_bid
+  def trick_complete
+    if @playing_order.count == 0
+      @tricks.last.winner.team.add_trick_won
+      @playing_order = reset_order
+      set_current_player(@tricks.last.winner)
+    end
   end
 
   def reset_order
     [0,1,2,3]
   end
 
-  def next_player(order)
-    players[order[1]] unless order.count < 1
+  def next_player(order=@playing_order)
+    players[order[1]] unless order.count < 2
   end
 
   def next_dealer!
@@ -151,5 +183,9 @@ private
     else
       @bidder_order.rotate!
     end
+  end
+
+  def next_player!
+    @playing_order.delete_at(0)
   end
 end

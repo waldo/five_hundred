@@ -46,6 +46,14 @@ class Card
     bower_check(trump_suit, :hearts, :diamonds)
   end
 
+  def to_s
+    "code: #{@code}, rank: #{@rank}, suit: #{suit}"
+  end
+
+  def ==(other)
+    self.to_s == other.to_s
+  end
+
 private
   def bower_check(trump_suit, suit_a, suit_b)
     trump_suit == suit_a and @suit == suit_b and rank == 11

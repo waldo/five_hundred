@@ -1,8 +1,9 @@
 class Team
-  attr_reader :players
+  attr_reader :players, :tricks_won
 
   def initialize
     @players = []
+    @tricks_won = 0
   end
 
   def join(new_player)
@@ -24,10 +25,17 @@ class Team
   def already_joined(p)
     @players.include?(p)
   end
+  
+  def add_trick_won
+    @tricks_won += 1
+  end
 
 private
   def add_player(p)
-    @players << p if players_required and !already_joined(p)
+    if players_required and !already_joined(p)
+      @players << p
+      p.team = self
+    end
   end
 
 # class

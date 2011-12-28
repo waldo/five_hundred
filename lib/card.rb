@@ -47,7 +47,7 @@ class Card
   end
 
   def to_s
-    "code: #{@code}, rank: #{@rank}, suit: #{suit}"
+    "#{@code}"
   end
 
   def ==(other)

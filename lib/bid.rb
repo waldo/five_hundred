@@ -24,6 +24,14 @@ class Bid
     @code == "10nt"
   end
 
+  def to_s
+    @code
+  end
+
+  def ==(other)
+    @code == other.code
+  end
+
 # class
   class << self; attr_accessor :all end
   

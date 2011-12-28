@@ -15,6 +15,7 @@ shared_context "mocked game" do
     @players = []; 4.times do @players << double("Player").as_null_object end
     @teams = [Team.new, Team.new]
 
+    @game.stub(:teams) do @teams end
     @game.stub(:players) do @players end
     @game.stub(:next_dealer) do @players.first end
     @game.stub(:current_dealer) do @players.last end

@@ -22,16 +22,4 @@ describe "team" do
       t.players.count.should == 1
     end
   end
-
-  context "should store tricks won" do
-    it "initially as zero" do
-      Team.new.tricks_won.should == 0
-    end
-
-    it "and increment them" do
-      t = Team.new
-      t.add_trick_won
-      t.tricks_won.should == 1
-    end
-  end
 end

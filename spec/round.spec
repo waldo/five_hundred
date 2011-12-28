@@ -216,14 +216,7 @@ describe "round" do
 
       @r.current_player.should == @players[1]
     end
-    
-    it "should count how many tricks are won by each team" do
-      discard_cards!
-      play_trick!
 
-      @players[3].team.tricks_won.should == 1
-    end
-    
     it "should have trick winner play the first card of all except first trick" do
       discard_cards!
       play_trick!

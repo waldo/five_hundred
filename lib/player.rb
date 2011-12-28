@@ -26,14 +26,12 @@ class Player
     end
   end
 
-  def assign_bid(bid)
-    @bids << bid
+  def suits_excluding_joker(trump_suit)
+    @cards.map do |c|
+      c.card_suit(trump_suit) unless c.joker?
+    end
   end
-
-  def passed?
-    @bids.last.passed? if @bids.count > 0
-  end
-
+  
 # class
   def self.empty
     NullObject.new

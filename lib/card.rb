@@ -4,6 +4,7 @@ class Card
   @@ace_rank = 14
   @@right_bower = 99
   @@left_bower = 98
+  @@opposite_suits = {:spades => :clubs, :clubs => :spades, :diamonds => :hearts, :hearts => :diamonds}
 
   def initialize(code, rank, suit)
     @code = code
@@ -25,6 +26,18 @@ class Card
     end
 
     val
+  end
+  
+  def card_suit(trump_suit)
+    suit = @suit
+    suit = @@opposite_suits[@suit] if left_bower?(trump_suit)
+    suit = trump_suit if joker? and @suit == :none
+    suit
+  end
+  
+  def set_joker_suit(suit)
+    @suit = suit if joker?
+    self
   end
 
   def joker?

@@ -4,20 +4,32 @@ require "spec_helper"
 describe "round" do
   include_context "mocked game"
   include_context "named cards"
+  include_context "named bids"
 
   before(:each) do
     @r = Round.new(@game)
     @pass = Bid.new("pass")
   end
   
-  def discard_cards!
-    @r.discard(@kitty_cards)
+  def discard_cards!(for_player=@players[1])
+    @r.discard(for_player.cards.slice(0..2))
   end
   
   def play_trick!(cards=[@eight_spades,@ten_spades,@ace_spades,@five_spades], set_current=1)
-    @r.set_current_player(@players[set_current]) unless set_current.nil?
+    @r.send(:set_current_player, @players[set_current]) unless set_current.nil?
     cards.each do |c|
       @r.play_card(c)
+    end
+  end
+
+  def bid!(bids, first_bidder=nil)
+    @r.send(:set_current_bidder, first_bidder) unless first_bidder.nil?
+    if bids.respond_to?(:each)
+      bids.each do |b|
+        @r.bid(b)
+      end
+    else
+      @r.bid(bids)
     end
   end
 
@@ -40,159 +52,137 @@ describe "round" do
   end
 
   context "bidding" do
-    before(:each) do
-      @six_hearts = Bid.new("6h")
-      @seven_spades = Bid.new("7s")
-      @eight_spades = Bid.new("8s")
-      @closed_misere = Bid.new("cm")
-      @ten_no_trumps = Bid.new("10nt")
-    end
-  
     it "should accept inital bid" do
       @r.state.should == :bidding
-      @r.bid(@six_hearts)
-      @r.highest_bid.should == @six_hearts
+      bid!(@bid_6h)
+      @r.highest_bid.should == @bid_6h
     end
 
     it "should set a new current bidder once a player has bid" do
-      old_bidder = @r.current_bidder
-      @r.bid(@six_hearts)
-      @r.current_bidder.should_not == old_bidder
-      @r.current_bidder.should == @r.game.players[(@r.game.players.index(old_bidder) + 1) % 4]
+      bid!(@bid_6h, @players[0])
+      @r.current_bidder.should_not == @players[0]
+      @r.current_bidder.should == @players[1]
     end
 
     it "should have first player as next bidder if last player is current bidder" do
-      @r.set_current_bidder(@r.game.players.last)
-      @r.next_bidder.nil?.should == false
-      @r.next_bidder.should == @r.game.players[(@r.game.players.index(@r.current_bidder) + 1) % 4]
+      @r.send(:set_current_bidder, @players[3])
+      @r.next_bidder.should == @players[0]
     end
 
     it "should accept higher bid" do
-      @r.bid(@six_hearts)
-      @r.bid(@seven_spades)
-      @r.highest_bid.should == @seven_spades
+      bid!([@bid_6h, @bid_7s])
+      @r.highest_bid.should == @bid_7s
     end
 
     it "shouldn't accept lower bid" do
-      @r.bid(@seven_spades)
-      @r.bid(@six_hearts)
-      @r.highest_bid.should == @seven_spades
+      bid!([@bid_7s, @bid_6h])
+      @r.highest_bid.should == @bid_7s
     end
     
     it "shouldn't accept nil as a bid" do
-      @r.bid(@seven_spades)
-      @r.bid(nil)
-      @r.highest_bid.should == @seven_spades
+      bid!([@bid_7s, nil])
+      @r.highest_bid.should == @bid_7s
     end
 
     it "shouldn't accept closed misére unless bid is over 6" do
-      @r.bid(@six_hearts)
-      @r.bid(@closed_misere)
-      @r.highest_bid.should == @six_hearts
-      @r.bid(@seven_spades)
-      @r.bid(@closed_misere)
-      @r.highest_bid.should == @closed_misere
+      bid!([@bid_6h, @bid_cm])
+      @r.highest_bid.should == @bid_6h
+
+      bid!([@bid_7s, @bid_cm])
+      @r.highest_bid.should == @bid_cm
     end
     
     it "should accept 8S bid over closed misére" do
-      @r.bid(@seven_spades)
-      @r.bid(@closed_misere)
-      @r.highest_bid.should == @closed_misere
-      @r.bid(@eight_spades)
-      @r.highest_bid.should == @eight_spades
+      bid!([@bid_7s, @bid_cm])
+      @r.highest_bid.should == @bid_cm
+
+      bid!(@bid_8s)
+      @r.highest_bid.should == @bid_8s
     end
     
     it "shouldn't accept closed misére if bids are 8 or over" do
-      @r.bid(@eight_spades)
-      @r.bid(@closed_misere)
-      @r.highest_bid.should == @eight_spades
+      bid!([@bid_8s, @bid_cm])
+      @r.highest_bid.should == @bid_8s
     end
 
     it "should accept pass" do
-      @r.bid(@pass)
+      bid!(@pass, @players[0])
       @r.highest_bid.nil?.should == true
-      second_bidder = @r.current_bidder
+      bid!([@bid_7s, @pass])
+      @r.highest_bid.should == @bid_7s
 
-      @r.bid(@seven_spades)
-      @r.bid(@pass)
-      @r.highest_bid.should == @seven_spades
-
-      @r.bid(@eight_spades)
-      @r.highest_bid.should == @eight_spades
-      @r.current_bidder.should == second_bidder
+      bid!(@bid_8s)
+      @r.highest_bid.should == @bid_8s
+      @r.current_bidder.should == @players[1]
     end
 
     it "shouldn't accept bid outside of bidding game state" do
-      @r.bid(@pass)
-      @r.bid(@pass)
-      @r.bid(@pass)
-      @r.bid(@pass)
-      @r.bid(@six_hearts)
+      bid!([@pass, @pass, @pass, @pass, @bid_6h])
       @r.highest_bid.nil?.should == true
     end
 
     it "should end if there is a bid and 3 players pass" do
-      @r.bid(@pass)
-      @r.bid(@pass)
-      @r.bid(@pass)
+      bid!([@pass, @pass, @pass])
       @r.state.should == :bidding
-      @r.bid(@six_hearts)
+      bid!(@bid_6h)
       @r.state.should == :kitty
     end
 
     it "should end if 10 no trumps is called" do
-      @r.bid(@pass)
-      @r.bid(@pass)
-      bid_winner = @r.current_bidder
-      @r.bid(@ten_no_trumps)
-      @r.winning_bidder.should == bid_winner
+      bid!([@pass, @pass, @bid_10nt], @players[0])
+      @r.winning_bidder.should == @players[2]
       @r.state.should == :kitty
     end
 
     it "should end if all 4 players pass" do
-      @r.bid(@pass)
-      @r.bid(@pass)
-      @r.bid(@pass)
-      @r.bid(@pass)
+      bid!([@pass, @pass, @pass, @pass])
       @r.everyone_passed?.should == true
       @r.state.should == :complete
     end
     
     it "should assign the correct winning bidder" do
-      @r.bid(@pass)
-      @r.bid(@pass)
-      @r.bid(@pass)
-      @r.bid(@six_hearts)
+      bid!([@pass, @pass, @pass, @bid_6h], @players[0])
       @r.winning_bidder.should == @players[3]
     end
   end
   
-  context "kitty" do
-    before(:each) do
-      @r.bid(Bid.new("6h"))
-      @r.bid(@pass)
-      @r.bid(@pass)
-    end
-
+  context "kitty assignment" do
     it "should give 3 cards to winning bidder" do
       @players[0].should_receive(:assign_cards)
-      @r.bid(@pass)
+      bid!([@bid_6h, @pass, @pass, @pass], @players[0])
       @r.state.should == :kitty
+    end
+  end
+
+  context "kitty discard" do
+    before(:each) do
+      bid!([@bid_6h, @pass, @pass, @pass], @players[0])
     end
 
     it "should have winning bidder give back exactly 3 cards" do
-      @r.discard(@kitty_cards)
+      @players[0].should_receive(:remove_cards)
+      @r.discard(@players[0].cards.slice(0..2))
       @r.state.should == :playing
+    end
+
+    it "should only discard cards in the winning bidder's hand" do
+      @players[0].should_receive(:remove_cards).exactly(0).times
+      @r.discard([@ace_spades, @ace_clubs, @ace_diamonds])
+      @r.state.should == :kitty
+    end
+
+    it "should only discard 3 different cards" do
+      @players[0].should_receive(:remove_cards).exactly(0).times
+      @r.discard([@four_diamonds, @four_diamonds, @four_diamonds])
+      @r.state.should == :kitty
+      @r.discard([@four_diamonds, @five_diamonds, @four_diamonds])
+      @r.state.should == :kitty
     end
   end
   
   context "playing" do
     before(:each) do
-      @r.set_current_bidder(@players.first)
-      @r.bid(@pass)
-      @r.bid(Bid.new("6h"))
-      @r.bid(@pass)
-      @r.bid(@pass)
+      bid!([@pass, @bid_6h, @pass, @pass], @players[0])
     end
 
     it "shouldn't let player play a card until game is in playing state" do
@@ -203,7 +193,7 @@ describe "round" do
 
     it "should let player play a card" do
       discard_cards!
-      @players[1].should_receive(:remove_cards).with(@seven_spades)
+      @players[1].should_receive(:remove_cards).with(@players[1].cards.first)
       @r.play_card(@seven_spades)
     end
     
@@ -264,12 +254,7 @@ describe "round" do
 
   context "playing misere" do
     before(:each) do
-      @r.set_current_bidder(@r.game.players.first)
-      @r.bid(Bid.new("7s"))
-      @r.bid(Bid.new("cm"))
-      @r.bid(@pass)
-      @r.bid(@pass)
-      @r.bid(@pass)
+      bid!([@bid_7s, @bid_cm, @pass, @pass, @pass], @players[0])
     end
     
     it "should ensure the misere bidder's partner is skipped" do
@@ -291,13 +276,9 @@ describe "round" do
     
     it "should end round if misere bidder wins a trick" do
       @r = Round.new(@game)
-      @r.set_current_bidder(@r.game.players.first)
-      @r.bid(@pass)
-      @r.bid(@pass)
-      @r.bid(@pass)
-      @r.bid(Bid.new("om"))
+      bid!([@pass, @pass, @pass, @bid_om], @players[0])
 
-      discard_cards!
+      discard_cards!(@players[3])
       play_trick!([@king_diamonds, @four_diamonds, @nine_diamonds], nil)
 
       @r.tricks.count.should == 1
@@ -308,12 +289,11 @@ describe "round" do
 
   context "playing Joker in NT or misere" do
     before(:each) do
-      @r.set_current_bidder(@r.game.players.first)
-      @r.bid(Bid.new("10nt"))
+      bid!(@bid_10nt, @players[0])
+      discard_cards!(@players[0])
     end
 
     it "as first card in suit" do
-      discard_cards!
       play_trick!([@four_hearts, @seven_hearts, @nine_hearts], nil)
       @r.play_card(@joker)
       @r.tricks.first.cards.count.should == 3
@@ -326,7 +306,6 @@ describe "round" do
     end
 
     it "as second card in suit not allowed" do
-      discard_cards!
       @players[3].stub(:cards) do Deck.cards(%w{Qh Ks Kd Kh As Ad Ah Jo}) end
       play_trick!([@five_clubs, @seven_clubs, @ten_clubs, @queen_hearts], nil)
       
@@ -337,7 +316,6 @@ describe "round" do
     end
 
     it "as last card in suit" do
-      discard_cards!
       @players[3].stub(:cards) do Deck.cards(%w{Qh Ks Kd As Ad Jo}) end
       play_trick!([@five_clubs, @seven_clubs, @ten_clubs, @queen_hearts], nil)
       @players[3].stub(:cards) do Deck.cards(%w{Ks Kd As Ad Jo}) end
@@ -350,7 +328,6 @@ describe "round" do
     end
 
     it "as second last card in suit not allowed" do
-      discard_cards!
       @players[3].stub(:cards) do Deck.cards(%w{Qh Ks Kd Kh As Ad Jo}) end
       play_trick!([@five_clubs, @seven_clubs, @ten_clubs, @queen_hearts], nil)
       @players[3].stub(:cards) do Deck.cards(%w{Ks Kd Kh As Ad Jo}) end
@@ -365,7 +342,6 @@ describe "round" do
     end
 
     it "after declaring suit void not allowed" do
-      discard_cards!
       @players[3].stub(:cards) do Deck.cards(%w{Qh Ks Kd As Ad Jo}) end
       play_trick!([@five_clubs, @seven_clubs, @ten_clubs, @queen_hearts], nil)
 
@@ -386,39 +362,32 @@ describe "round" do
 
   context "should determine" do
     before(:each) do
-      @r.set_current_bidder(@r.game.players.first)
-      @r.bid(Bid.new("6nt"))
-      @r.bid(@pass)
-      @r.bid(@pass)
-      @r.bid(@pass)
+      bid!([@bid_6nt, @pass, @pass, @pass], @players[0])
+      discard_cards!(@players[0])
     end
 
     it "played cards correctly for a player" do
-      discard_cards!
       play_trick!([@four_hearts, @seven_hearts, @nine_hearts, @queen_hearts], nil)
       play_trick!([@ace_diamonds, @four_diamonds, @seven_diamonds, @nine_diamonds], nil)
-      @r.played_cards(@players[0]).count.should == 2
-      @r.played_cards(@players[0]).should == [@four_hearts, @four_diamonds]
+      @r.send(:played_cards, @players[0]).count.should == 2
+      @r.send(:played_cards, @players[0]).should == [@four_hearts, @four_diamonds]
     end
 
     it "played suits correctly for a player" do
-      discard_cards!
       play_trick!([@four_hearts, @seven_hearts, @nine_hearts, @queen_hearts], nil)
       play_trick!([@ace_diamonds, @four_diamonds, @seven_diamonds, @nine_diamonds], nil)
-      @r.played_suits(@players[0]).should include(:hearts)
-      @r.played_suits(@players[0]).should include(:diamonds)
+      @r.send(:played_suits, @players[0]).should include(:hearts)
+      @r.send(:played_suits, @players[0]).should include(:diamonds)
     end
 
     it "voided suits correctly for a player" do
-      discard_cards!
       @players[3].stub(:cards) do Deck.cards(%w{Qh Ks Kd As Ad Jo}) end
       play_trick!([@five_clubs, @seven_clubs, @ten_clubs, @queen_hearts], nil)
-      @r.voided_suits(@players[3]).should include(:clubs)
+      @r.send(:voided_suits, @players[3]).should include(:clubs)
 
       @players[3].stub(:cards) do Deck.cards(%w{Ks Kd As Ad Jo}) end
       play_trick!([@nine_hearts, @king_diamonds, @four_hearts, @seven_hearts], nil)
-      @r.voided_suits(@players[3]).should include(:hearts)
+      @r.send(:voided_suits, @players[3]).should include(:hearts)
     end
-
   end
 end

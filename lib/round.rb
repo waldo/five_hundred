@@ -12,6 +12,7 @@ class Round
     @winning_bidder = Player.empty
     @bids = {}; @game.players.each do |p| @bids[p] = [] end
     @tricks = []
+    @tricks_won = {}; @game.teams.each do |t| @tricks_won[t] = 0 end
 
     @game.players.each do |p|
       p.assign_cards(deck.deal)
@@ -215,9 +216,9 @@ class Round
 
   def trick_complete
     if @playing_order.count == 0
-      @tricks.last.winner.team.add_trick_won
+      @tricks_won[@tricks.last.winner.team] += 1
       if round_complete?
-        @state = :complete
+        round_complete!
       else
         set_current_player(@tricks.last.winner)
         @tricks << Trick.new(trump_suit)
@@ -231,4 +232,16 @@ class Round
     complete ||= (trump_suit == :misere and @tricks.last.winner == @winning_bidder)
   end
   private :round_complete?
+
+  def round_complete!
+    @state = :complete
+  end
+  private :round_complete!
+
+  def score_for(team)
+    role = :non_bidder
+    role = :bidder if @winning_bidder.team == team
+
+    @highest_bid.score_with(@tricks_won[team], role)
+  end
 end

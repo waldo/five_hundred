@@ -2,8 +2,12 @@ class Bid
   attr_reader :code, :suit
 
   def initialize(code)
-    @code = code
-    @suit = Bid.all[code][:suit]
+    b = Bid.all[code]
+
+    @code =             code
+    @suit =             b[:suit]
+    @tricks_required =  b[:tricks_required]
+    @points =           b[:points]
   end
 
   def >(other_bid)
@@ -16,12 +20,52 @@ class Bid
     Bid.all.keys.index(self.code) > Bid.all.keys.index(other_bid.code)
   end
 
+  def score_with(tricks, role=:bidder)
+    pts = score_non_bidder(tricks)
+    pts = score_bidder(tricks) if role == :bidder
+    pts
+  end
+
+  def score_non_bidder(tricks)
+    pts = 0
+    pts = tricks * 10 if !misere?
+    pts
+  end
+  private :score_non_bidder
+
+  def score_bidder(tricks)
+    pts = @points
+    pts = Bid.slam_points if tricks == 10 and @points < Bid.slam_points
+    pts = -pts if bid_failed?(tricks)
+    pts
+  end
+  private :score_bidder
+
+  def bid_failed?(tricks)
+    failed_misere?(tricks) or failed_normal?(tricks)
+  end
+  private :bid_failed?
+
+  def failed_misere?(tricks)
+    misere? and tricks != 0
+  end
+  private :failed_misere?
+
+  def failed_normal?(tricks)
+    tricks < @tricks_required
+  end
+  private :failed_normal?
+
   def passed?
     @code == "pass"
   end
 
   def max_bid?
     @code == "10nt"
+  end
+
+  def misere?
+    @suit == :misere
   end
 
   def to_s
@@ -33,36 +77,38 @@ class Bid
   end
 
 # class
-  class << self; attr_accessor :all end
-  
+  class << self; attr_accessor :slam_points, :all end
+
+  @slam_points = 250
+
   @all = {
-    "6s"    => {points:   40, suit: :spades},
-    "6c"    => {points:   60, suit: :clubs},
-    "6d"    => {points:   80, suit: :diamonds},
-    "6h"    => {points:  100, suit: :hearts},
-    "6nt"   => {points:  120, suit: :none},
-    "7s"    => {points:  140, suit: :spades},
-    "7c"    => {points:  160, suit: :clubs},
-    "7d"    => {points:  180, suit: :diamonds},
-    "7h"    => {points:  200, suit: :hearts},
-    "7nt"   => {points:  220, suit: :none},
-    "cm"    => {precondition:  ["7s","7c","7d","7h","7nt"], points:  250, suit: :misere},
-    "8s"    => {points:  240, suit: :spades},
-    "8c"    => {points:  260, suit: :clubs},
-    "8d"    => {points:  280, suit: :diamonds},
-    "8h"    => {points:  300, suit: :hearts},
-    "8nt"   => {points:  320, suit: :none},
-    "9s"    => {points:  340, suit: :spades},
-    "9c"    => {points:  360, suit: :clubs},
-    "9d"    => {points:  380, suit: :diamonds},
-    "9h"    => {points:  400, suit: :hearts},
-    "9nt"   => {points:  420, suit: :none},
-    "10s"   => {points:  440, suit: :spades},
-    "10c"   => {points:  460, suit: :clubs},
-    "10d"   => {points:  480, suit: :diamonds},
-    "10h"   => {points:  500, suit: :hearts},
-    "om"    => {points:  500, suit: :misere},
-    "10nt"  => {points:  520, suit: :none},
+    "6s"    => {tricks_required:  6, points:   40, suit: :spades},
+    "6c"    => {tricks_required:  6, points:   60, suit: :clubs},
+    "6d"    => {tricks_required:  6, points:   80, suit: :diamonds},
+    "6h"    => {tricks_required:  6, points:  100, suit: :hearts},
+    "6nt"   => {tricks_required:  6, points:  120, suit: :none},
+    "7s"    => {tricks_required:  7, points:  140, suit: :spades},
+    "7c"    => {tricks_required:  7, points:  160, suit: :clubs},
+    "7d"    => {tricks_required:  7, points:  180, suit: :diamonds},
+    "7h"    => {tricks_required:  7, points:  200, suit: :hearts},
+    "7nt"   => {tricks_required:  7, points:  220, suit: :none},
+    "cm"    => {tricks_required:  0, points:  250, suit: :misere, precondition:  ["7s","7c","7d","7h","7nt"],},
+    "8s"    => {tricks_required:  8, points:  240, suit: :spades},
+    "8c"    => {tricks_required:  8, points:  260, suit: :clubs},
+    "8d"    => {tricks_required:  8, points:  280, suit: :diamonds},
+    "8h"    => {tricks_required:  8, points:  300, suit: :hearts},
+    "8nt"   => {tricks_required:  8, points:  320, suit: :none},
+    "9s"    => {tricks_required:  9, points:  340, suit: :spades},
+    "9c"    => {tricks_required:  9, points:  360, suit: :clubs},
+    "9d"    => {tricks_required:  9, points:  380, suit: :diamonds},
+    "9h"    => {tricks_required:  9, points:  400, suit: :hearts},
+    "9nt"   => {tricks_required:  9, points:  420, suit: :none},
+    "10s"   => {tricks_required: 10, points:  440, suit: :spades},
+    "10c"   => {tricks_required: 10, points:  460, suit: :clubs},
+    "10d"   => {tricks_required: 10, points:  480, suit: :diamonds},
+    "10h"   => {tricks_required: 10, points:  500, suit: :hearts},
+    "om"    => {tricks_required:  0, points:  500, suit: :misere},
+    "10nt"  => {tricks_required: 10, points:  520, suit: :none},
     "pass"  => {pass: true, suit: :none},
   }
 

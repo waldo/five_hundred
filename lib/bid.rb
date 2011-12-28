@@ -38,7 +38,7 @@ class Bid
     "7d"    => {points:  180, suit: :diamonds},
     "7h"    => {points:  200, suit: :hearts},
     "7nt"   => {points:  220, suit: :none},
-    "cm"    => {precondition:  ["7s","7c","7d","7h","7nt"], points:  250, suit: :none},
+    "cm"    => {precondition:  ["7s","7c","7d","7h","7nt"], points:  250, suit: :misere},
     "8s"    => {points:  240, suit: :spades},
     "8c"    => {points:  260, suit: :clubs},
     "8d"    => {points:  280, suit: :diamonds},
@@ -53,7 +53,7 @@ class Bid
     "10c"   => {points:  460, suit: :clubs},
     "10d"   => {points:  480, suit: :diamonds},
     "10h"   => {points:  500, suit: :hearts},
-    "om"    => {points:  500, suit: :none},
+    "om"    => {points:  500, suit: :misere},
     "10nt"  => {points:  520, suit: :none},
     "pass"  => {pass: true, suit: :none},
   }

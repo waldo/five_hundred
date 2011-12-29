@@ -235,6 +235,7 @@ class Round
 
   def round_complete!
     @state = :complete
+    @game.round_complete
   end
   private :round_complete!
 
@@ -243,5 +244,9 @@ class Round
     role = :bidder if @winning_bidder.team == team
 
     @highest_bid.score_with(@tricks_won[team], role)
+  end
+
+  def bid_achieved_for(team)
+    @highest_bid.bid_achieved?(@tricks_won[team]) if @winning_bidder.team == team
   end
 end

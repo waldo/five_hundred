@@ -17,17 +17,17 @@ class Team
     self
   end
 
-  def players_required
+  def players_required?
     @players.count < 2
   end
 
-  def already_joined(p)
+  def already_joined?(p)
     @players.include?(p)
   end
 
 private
   def add_player(p)
-    if players_required and !already_joined(p)
+    if players_required? and !already_joined?(p)
       @players << p
       p.team = self
     end

@@ -50,7 +50,7 @@ describe "game" do
     end
   end
 
-  context "deal" do
+  context "start first round" do
     it "should assign a player as the 'dealer'" do
       add_players
       @g.players.should include(@g.current_dealer)
@@ -60,6 +60,92 @@ describe "game" do
     it "shouldn't happen if there are 3 players" do
       add_players(3)
       @g.state.should_not == :bidding
+    end
+  end
+
+  context "round complete -" do
+    def round_stub!(scores, bids_achieved, winning_bidder=@g.players.first)
+      @g.teams.each_with_index do |t,i|
+        @round.stub(:score_for).with(t)     { scores[i] }
+        @round.stub(:bid_achieved?).with(t) { bids_achieved[i] }
+      end
+
+      @round.stub(:winning_bidder) { winning_bidder }
+    end
+
+    before(:each) do
+      add_players
+      @round = double("Round")
+      @g.send(:__test__override_rounds, [@round])
+    end
+    context "should end the game" do
+      context "when team achieved their bid and total score is 500+ points" do
+        it "" do
+          round_stub!([500, -200], [true, nil])
+
+          @g.round_complete
+          @g.rounds.count.should == 1
+          @g.state.should == :complete
+          @g.winner.should == @g.teams.first
+        end
+
+        it "across multiple rounds" do
+          @g.send(:__test__override_rounds, [@round, @round, @round])
+          round_stub!([180, 20], [true, nil])
+
+          @g.round_complete
+          @g.rounds.count.should == 3
+          @g.state.should == :complete
+          @g.winner.should == @g.teams.first
+        end
+
+        it "even though other team has a higher score" do
+          round_stub!([520, 500], [nil, true], @g.players.last)
+
+          @g.round_complete
+          @g.rounds.count.should == 1
+          @g.state.should == :complete
+          @g.winner.should == @g.teams.last
+        end
+      end
+
+      context "unless team is over 500 but" do
+        it "didn't achieve the bid" do
+          round_stub!([520, 480], [false, nil])
+
+          @g.round_complete
+          @g.rounds.count.should == 2
+          @g.state.should == :in_progress
+          @g.winner.should == []
+        end
+
+        it "but the other team bid" do
+          round_stub!([480, 520], [true, nil])
+
+          @g.round_complete
+          @g.rounds.count.should == 2
+          @g.state.should == :in_progress
+          @g.winner.should == []
+        end
+      end
+      
+      it "when team drops below -500 points" do
+        round_stub!([-500, -490], [false, nil])
+  
+        @g.round_complete
+        @g.rounds.count.should == 1
+        @g.state.should == :complete
+        @g.winner.should == @g.teams.last
+      end
+    end
+
+    it "start a new round when game is not over" do
+      round_stub!([480, 480], [true, nil])
+
+      @g.round_complete
+      @g.rounds.count.should == 2
+      @g.state.should == :in_progress
+      @g.winner.should == []
     end
   end
 end

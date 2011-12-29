@@ -34,27 +34,26 @@ class Bid
   private :score_non_bidder
 
   def score_bidder(tricks)
-    pts = @points
+    pts = -@points
+    pts = @points if bid_achieved?(tricks)
     pts = Bid.slam_points if tricks == 10 and @points < Bid.slam_points
-    pts = -pts if bid_failed?(tricks)
     pts
   end
   private :score_bidder
 
-  def bid_failed?(tricks)
-    failed_misere?(tricks) or failed_normal?(tricks)
+  def bid_achieved?(tricks)
+    achieved_misere?(tricks) or achieved_normal?(tricks)
   end
-  private :bid_failed?
 
-  def failed_misere?(tricks)
-    misere? and tricks != 0
+  def achieved_misere?(tricks)
+    misere? and tricks == 0
   end
-  private :failed_misere?
+  private :achieved_misere?
 
-  def failed_normal?(tricks)
-    tricks < @tricks_required
+  def achieved_normal?(tricks)
+    !misere? and tricks >= @tricks_required
   end
-  private :failed_normal?
+  private :achieved_normal?
 
   def passed?
     @code == "pass"

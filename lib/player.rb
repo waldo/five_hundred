@@ -12,7 +12,7 @@ class Player
     @cards += cards_to_add
   end
 
-  def clear_cards
+  def clear_cards!
     @cards = []
   end
 
@@ -31,7 +31,7 @@ class Player
       c.card_suit(trump_suit) unless c.joker?
     end
   end
-  
+
 # class
   def self.empty
     NullObject.new

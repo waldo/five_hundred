@@ -47,6 +47,9 @@ class Game
   private :start_playing_when_ready
 
   def play!
+    players.each do |p|
+      p.clear_cards!
+    end
     @rounds << Round.new(self)
     @state = :in_progress
   end

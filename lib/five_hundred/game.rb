@@ -95,7 +95,7 @@ module FiveHundred
     end
 
     def bid_achieved?(team)
-      @rounds.last.winning_bidder.team == team and @rounds.last.bid_achieved?(team)
+      @rounds.last.winning_bidder.team == team and @rounds.last.bid_achieved_for?(team)
     end
     private :bid_achieved?
 

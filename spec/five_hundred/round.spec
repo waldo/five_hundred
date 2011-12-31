@@ -389,6 +389,8 @@ module FiveHundred
 
         @r.score_for(@players[0].team).should == 100
         @r.score_for(@players[1].team).should == 40
+        @r.bid_achieved_for?(@players[0].team).should == true
+        @r.bid_achieved_for?(@players[1].team).should == nil
       end
     end
   end

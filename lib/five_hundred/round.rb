@@ -248,7 +248,7 @@ module FiveHundred
       @highest_bid.score_with(@tricks_won[team], role)
     end
 
-    def bid_achieved_for(team)
+    def bid_achieved_for?(team)
       @highest_bid.bid_achieved?(@tricks_won[team]) if @winning_bidder.team == team
     end
   end

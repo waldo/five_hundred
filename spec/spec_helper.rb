@@ -1,9 +1,8 @@
-ROOT = File.expand_path(File.join(File.dirname(__FILE__), ".."))
-
+# encoding: UTF-8
 require "rspec"
+require "five_hundred"
 
-Dir[File.join(ROOT, "lib/*.rb")].each { |f| require f }
-Dir[File.join(ROOT, "spec/shared/*.rb")].each { |f| require f }
+Dir["./spec/support/*.rb"].each { |f| require f }
 
 RSpec.configure do |config|
   config.mock_with :rspec

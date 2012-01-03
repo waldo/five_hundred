@@ -36,5 +36,9 @@ module FiveHundred
       end
       return @players[@cards.index(max_card)]
     end
+
+    def led_suit
+      cards.first.suit if cards.count > 0
+    end
   end
 end

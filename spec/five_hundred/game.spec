@@ -75,8 +75,10 @@ module FiveHundred
       before(:each) do
         add_players
         @round = double("Round")
-        @g.send(:__test__override_rounds, [@round])
+        
+        @g.instance_variable_set(:@rounds, [@round])
       end
+
       context "should end the game" do
         context "when team achieved their bid and total score is 500+ points" do
           it "" do
@@ -89,7 +91,7 @@ module FiveHundred
           end
 
           it "across multiple rounds" do
-            @g.send(:__test__override_rounds, [@round, @round, @round])
+            @g.instance_variable_set(:@rounds, [@round, @round, @round])
             round_stub!([180, 20], [true, nil])
 
             @g.round_complete

@@ -93,7 +93,7 @@ module FiveHundred
     def score_for(team)
       @rounds.map{ |r| r.score_for(team) }.reduce(0, :+)
     end
-
+    
     def bid_achieved?(team)
       @rounds.last.winning_bidder.team == team and @rounds.last.bid_achieved_for?(team)
     end
@@ -122,10 +122,5 @@ module FiveHundred
       @dealer_order.rotate!
     end
     private :next_dealer!
-
-    def __test__override_rounds(rounds)
-      @rounds = rounds
-    end
-    private :__test__override_rounds
   end
 end

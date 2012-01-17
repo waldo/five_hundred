@@ -11,6 +11,10 @@ module FiveHundred
       @team = Team.empty
     end
 
+    def request(type, g)
+      @request = type
+    end
+
     def assign_cards(cards_to_add)
       @cards += cards_to_add
     end

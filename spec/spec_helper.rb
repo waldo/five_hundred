@@ -2,6 +2,7 @@
 require "rspec"
 require "five_hundred"
 require "five_hundred/ai"
+require "five_hundred/wrapper"
 
 Dir["./spec/support/*.rb"].each { |f| require f }
 

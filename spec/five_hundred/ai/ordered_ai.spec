@@ -30,7 +30,9 @@ module FiveHundred
           bid.code == "10h"
         end
 
-        it "kitty with 3 random cards from your hand" do
+        it "kitty with 3 random low cards from your hand" do
+          @ai.clear_cards!
+          @ai.assign_cards([Deck.card("Jo"), Deck.card("Jh"), Deck.card("Jd"), Deck.card("Ah"), Deck.card("Kh"), Deck.card("Qh"), Deck.card("10h"), Deck.card("9h"), Deck.card("8h"), Deck.card("7h"), ])
           win_bid!(@bid_6h, @ai)
 
           cards = @ai.request(:kitty, @g)
@@ -38,6 +40,7 @@ module FiveHundred
           cards.each do |c|
             @ai.cards.should include(c)
           end
+          @ai.cards.should include(Deck.card("Jo"))
         end
 
         it "play with a card from your hand" do

@@ -14,7 +14,7 @@ module FiveHundred
         msg(:new_round)
         # add players to game
         @player = Player.new
-        [AI::RandomAI.new, AI::RandomAI.new, AI::RandomAI.new, @player].each do |p| @game.join(p) end
+        [AI::OrderedAI.new, AI::OrderedAI.new, AI::OrderedAI.new, @player].each do |p| @game.join(p) end
         # run until player request
         @current_round = @game.rounds.last
 
@@ -32,7 +32,6 @@ module FiveHundred
         end
 
         while !player_request?
-          debugger
           if @current_round.state == :bidding
             if @current_round.current_bidder == @player
               msg(:request_player_bid)

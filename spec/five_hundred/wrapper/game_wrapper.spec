@@ -3,40 +3,34 @@ require "spec_helper"
 module FiveHundred
   module Wrapper
     describe "game wrapper" do
-      def set_current_bidder(bidder_position=0)
-        @gw.instance_variable_get(:@current_round).send(:set_current_bidder, @gw.instance_variable_get(:@game).players[bidder_position])
-      end
-
-      def set_bid_winner(bidder_position=0)
-        @gw.instance_variable_get(:@current_round).instance_variable_set(:@state, :kitty)
-        @gw.instance_variable_get(:@current_round).instance_variable_set(:@winning_bidder, @gw.instance_variable_get(:@game).players[bidder_position])
-      end
-
-
       before(:each) do
-        @game = double("Game")
-        @round = double("Round")
+        @game = double("Game").as_null_object
+        @round = double("Round").as_null_object
         @game.stub(:rounds).and_return([@round])
         @gw = GameWrapper.new
         @gw.instance_variable_set(:@game, @game)
-        @gw.run!
       end
 
       context "message queue" do
         it "should have new round" do
+          @round.stub(:state).and_return(:bidding)
+          @round.stub(:current_bidder).and_return(@gw.instance_variable_get(:@player))
+          @gw.run!
           @gw.messages.first.msg.should == :new_round
           @gw.has_messages?.should == true
         end
 
         it "should have ai bid" do
-          set_current_bidder
+          pending
+          @round.stub(:state).and_return(:bidding)
+          @round.stub(:current_bidder).and_return(:ai)
           @gw.run!
 
           @gw.messages[1].msg.should == :ai_bid
         end
 
         it "should have request player bid" do
-
+          pending
           set_current_bidder(3)
           @gw.run!
 
@@ -44,6 +38,7 @@ module FiveHundred
         end
 
         it "should have ai kitty" do
+          pending
           set_bid_winner
           @gw.run!
 

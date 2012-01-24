@@ -6,49 +6,84 @@ module FiveHundred
       before(:each) do
         @game = double("Game").as_null_object
         @round = double("Round").as_null_object
-        @game.stub(:rounds).and_return([@round])
+        @ai = double("Player").as_null_object
         @gw = GameWrapper.new
         @gw.instance_variable_set(:@game, @game)
+        @gw.instance_variable_set(:@current_round, @round)
       end
 
       context "message queue" do
         it "should have new round" do
-          @round.stub(:state).and_return(:bidding)
-          @round.stub(:current_bidder).and_return(@gw.instance_variable_get(:@player))
-          @gw.run!
           @gw.messages.first.msg.should == :new_round
           @gw.has_messages?.should == true
         end
 
         it "should have ai bid" do
-          pending
           @round.stub(:state).and_return(:bidding)
-          @round.stub(:current_bidder).and_return(:ai)
-          @gw.run!
+          @round.stub(:current_bidder).and_return(@ai)
+          @round.should_receive(:bid)
+          @game.stub_chain(:players, :find).and_return(3)
+          bid = double("Bid").as_null_object
+          bid.stub(:code).and_return("6s")
+          @ai.should_receive(:request).with(:bid, @game).and_return(bid)
+          @gw.send(:run)
 
-          @gw.messages[1].msg.should == :ai_bid
+          @gw.messages.last.msg.should == :ai_bid
+          @gw.messages.last.player_position.should == 3
+          @gw.messages.last.bid.should == "6s"
         end
 
         it "should have request player bid" do
-          pending
-          set_current_bidder(3)
-          @gw.run!
+          @round.stub(:state).and_return(:bidding)
+          @round.stub(:current_bidder).and_return(@gw.instance_variable_get(:@player))
+          @gw.send(:run)
 
-          @gw.messages[1].msg.should == :request_player_bid
+          @gw.messages.last.msg.should == :request_player_bid
         end
 
         it "should have ai kitty" do
-          pending
-          set_bid_winner
-          @gw.run!
+          @round.stub(:state).and_return(:kitty)
+          @round.stub(:winning_bidder).and_return(@ai)
+          @round.should_receive(:discard)
+          @gw.send(:run)
 
-          @gw.messages.any? do |m| m.msg == :ai_kitty end.should == true
+          @gw.messages.last.msg.should == :ai_kitty
         end
 
-        it "should request player kitty"
-        it "should have ai play card"
-        it "should request player play card"
-        it "should have trick over"
+        it "should request player kitty" do
+          @round.stub(:state).and_return(:kitty)
+          @round.stub(:winning_bidder).and_return(@gw.instance_variable_get(:@player))
+          @gw.send(:run)
+
+          @gw.messages.last.msg.should == :request_player_kitty
+        end
+
+        it "should have ai play card" do
+          @round.stub(:state).and_return(:playing)
+          @round.stub(:current_player).and_return(@ai)
+          @round.should_receive(:play_card)
+          @game.stub_chain(:players, :find).and_return(3)
+          @ai.should_receive(:request).with(:play, @game).and_return("Qd")
+          @gw.send(:run)
+
+          @gw.messages.last.msg.should == :ai_play_card
+          @gw.messages.last.player_position.should == 3
+          @gw.messages.last.card.should == "Qd"
+        end
+
+        it "should request player play card" do
+          @round.stub(:state).and_return(:playing)
+          @round.stub(:current_player).and_return(@gw.instance_variable_get(:@player))
+          @gw.send(:run)
+
+          @gw.messages.last.msg.should == :request_player_play_card
+        end
+
+        it "should have trick over" do
+          pending
+          @round.stub(:state).and_return(:playing)
+        end
+
         it "should have round over"
         it "should have game over"
       end

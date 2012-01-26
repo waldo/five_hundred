@@ -1,5 +1,6 @@
 # encoding: UTF-8
 require "ostruct"
+require "pry-nav"
 
 module FiveHundred
   module Wrapper
@@ -26,30 +27,59 @@ module FiveHundred
       end
 
       def run
-        # check_round_change
+        binding.pry
+        check_trick_change
+        check_round_change
+        check_game_over
         step
-        # check_over
       end
       private :run
+
+      def check_trick_change
+        if new_trick?
+          msg(:trick_over, { :position => @game.players.find(@current_trick.winner) })
+        end
+
+        @current_trick = @current_round.tricks.last
+      end
+      private :check_trick_change
+
+      def new_trick?
+        @current_trick != @current_round.tricks.last && !@current_trick.nil?
+      end
+      private :new_trick?
+
+      def check_round_change
+        if new_round?
+          msg(:round_over)
+          @current_round = @game.rounds.last
+        end
+      end
+      private :check_round_change
+
+      def new_round?
+        @current_round != @game.rounds.last
+      end
+      private :new_round?
+
+      def check_game_over
+        if game_over?
+          msg(:game_over)
+        end
+      end
+      private :check_game_over
+
+      def game_over?
+        @game.state == :complete
+      end
+      private :game_over?
 
       def step
         bidding_step if @current_round.state == :bidding
         kitty_step if @current_round.state == :kitty
         play_step if @current_round.state == :playing
       end
-
-      # def check_round_change
-      #   unless @current_round == @game.rounds.last
-      #     msg(:new_round)
-      #     @current_round = @game.rounds.last
-      #   end
-      #   # if @game.state == :complete
-      #   #   msg(:game_over)
-      #   # end
-      # end
-
-      # def check_over
-      # end
+      private :step
 
       def bidding_step
         current_bidder = @current_round.current_bidder
@@ -61,6 +91,7 @@ module FiveHundred
           msg(:ai_bid, { :position => @game.players.find(current_bidder), :bid => bid.code })
         end
       end
+      private :bidding_step
 
       def kitty_step
         winning_bidder = @current_round.winning_bidder
@@ -72,6 +103,7 @@ module FiveHundred
           msg(:ai_kitty)
         end
       end
+      private :kitty_step
 
       def play_step
         current_player = @current_round.current_player
@@ -83,15 +115,7 @@ module FiveHundred
           msg(:ai_play_card, { :position => @game.players.find(current_player), :card => card })
         end
       end
-
-      # def run_step
-      #   bidding_step if @current_round.state == :bidding
-      #     elsif @current_round.state == :kitty
-      #     # elsif @current_round.state == :playing
-      #     #   card = @current_round.current_player.request(:play, @game)
-      #     #   @current_round.play_card(card)
-      #     end
-      # end
+      private :play_step
 
       def player_request?
         [:request_player_bid, :request_player_kitty, :request_player_play_card, :round_over, :game_over].include? @messages.last.msg if has_messages?

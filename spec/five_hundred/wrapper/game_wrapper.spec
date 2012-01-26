@@ -6,7 +6,13 @@ module FiveHundred
       before(:each) do
         @game = double("Game").as_null_object
         @round = double("Round").as_null_object
+        @next_round = double("Round").as_null_object
         @ai = double("Player").as_null_object
+        @trick = double("Trick").as_null_object
+        @next_trick = double("Trick").as_null_object
+
+        @game.stub(:rounds).and_return([@round])
+
         @gw = GameWrapper.new
         @gw.instance_variable_set(:@game, @game)
         @gw.instance_variable_set(:@current_round, @round)
@@ -80,12 +86,30 @@ module FiveHundred
         end
 
         it "should have trick over" do
-          pending
-          @round.stub(:state).and_return(:playing)
+          @gw.instance_variable_set(:@current_trick, @trick)
+          @round.stub(:tricks).and_return([@next_trick])
+          @trick.stub(:nil?).and_return(false)
+          @game.stub_chain(:players, :find).and_return(0)
+          @gw.send(:check_trick_change)
+
+          @gw.messages.last.msg.should == :trick_over
+          @gw.messages.last.player_position.should == 0
         end
 
-        it "should have round over"
-        it "should have game over"
+        it "should have round over" do
+          @game.stub(:rounds).and_return([@next_round])
+          @gw.send(:check_round_change)
+
+          @gw.messages.last.msg.should == :round_over
+        end
+
+        it "should have game over" do
+          @game.stub(:state).and_return(:complete)
+          @gw.send(:check_game_over)
+
+          @gw.messages.last.msg.should == :game_over
+        end
+
       end
 
       context "should access game state for" do

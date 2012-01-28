@@ -8,7 +8,12 @@ module FiveHundred
     it "should be true if 7s > 6h" do
       (@bid_7s > @bid_6h).should == true
     end
-  
+
+    it "should have closed misere as smaller than the empty bid" do
+      (@bid_cm   > @bid_empty).should  == false
+      (@bid_empty > @bid_cm).should    == false
+    end
+
     it "should allow you to bid closed misere at the right time" do
       (@bid_cm  > @bid_6nt).should == false
       (@bid_cm  > @bid_7s ).should == true
@@ -19,8 +24,8 @@ module FiveHundred
     end
 
     it "of any type should be greater than the empty bid" do
-      (@bid_6s > Bid.empty).should == true
-      (Bid.empty > @bid_6d).should == false
+      (@bid_6s > @bid_empty).should == true
+      (@bid_empty > @bid_6d).should == false
     end
 
     context "bidder" do

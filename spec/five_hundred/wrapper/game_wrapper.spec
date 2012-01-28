@@ -3,6 +3,8 @@ require "spec_helper"
 module FiveHundred
   module Wrapper
     describe "game wrapper" do
+      include_context "named cards"
+      include_context "named bids"
       before(:each) do
         @game = double("Game").as_null_object
         @round = double("Round").as_null_object
@@ -10,6 +12,7 @@ module FiveHundred
         @ai = double("Player").as_null_object
         @trick = double("Trick").as_null_object
         @next_trick = double("Trick").as_null_object
+        @player = double("Player").as_null_object
 
         @game.stub(:rounds).and_return([@round])
 
@@ -113,12 +116,50 @@ module FiveHundred
       end
 
       context "should access game state for" do
-        it "game scores"
-        it "round scores"
-        it "player's cards"
-        it "kitty cards"
-        it "valid bids"
-        it "valid cards to play"
+        it "game scores" do
+          @game.stub(:teams).and_return(["Team 1 mock", "Team 2 mock"])
+          @game.should_receive(:score_for).with("Team 1 mock").and_return("300")
+          @game.should_receive(:score_for).with("Team 2 mock").and_return("-40")
+
+          @gw.game_score_at_team_position(0) == "300"
+          @gw.game_score_at_team_position(1) == "-40"
+        end
+
+        it "round scores" do
+          @game.stub(:teams).and_return(["Team 1 mock", "Team 2 mock"])
+          @round.should_receive(:score_for).with("Team 1 mock").and_return("-400")
+          @round.should_receive(:score_for).with("Team 2 mock").and_return("20")
+
+          @gw.round_score_at_team_position(0) == "-400"
+          @gw.round_score_at_team_position(1) == "20"
+        end
+
+        it "player's cards" do
+          @player.stub(:cards).and_return([@joker, @ace_hearts, @ten_hearts])
+          @gw.instance_variable_set(:@player, @player)
+
+          @gw.get_card_codes.should == ["Jo", "Ah", "10h"]
+        end
+
+        it "kitty cards" do
+          @player.stub(:kitty_cards).and_return([@joker, @six_spades, @ten_diamonds])
+          @gw.instance_variable_set(:@player, @player)
+
+          @gw.get_kitty_card_codes.should == ["Jo", "6s", "10d"]
+        end
+
+        it "valid bids" do
+          @round.should_receive(:valid_bids).and_return([@pass, @bid_10d, @bid_10h, @bid_om, @bid_10nt])
+
+          @gw.valid_bids.should == ["pass", "10d", "10h", "om", "10nt"]
+        end
+
+        it "valid cards to play" do
+          @round.should_receive(:valid_cards).and_return([@six_spades, @seven_spades, @ace_spades, @joker])
+
+          @gw.valid_cards.should == ["6s", "7s", "As", "Jo"]
+        end
+
         it "round's highest bid"
         it "round's tricks won per team"
         it "game winner"

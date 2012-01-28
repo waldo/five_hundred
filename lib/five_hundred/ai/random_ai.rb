@@ -15,7 +15,7 @@ module FiveHundred
 
       def request_kitty(g)
         starting_ix = rand(10)
-        @cards.slice(starting_ix..(starting_ix + 2))
+        (@cards + @kitty).slice(starting_ix..(starting_ix + 2))
       end
 
       def request_play(g)

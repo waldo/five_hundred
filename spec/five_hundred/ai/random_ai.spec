@@ -28,7 +28,7 @@ module FiveHundred
           cards = @ai.request(:kitty, @g)
           cards.count.should == 3
           cards.each do |c|
-            @ai.cards.should include(c)
+            (@ai.cards + @ai.kitty).should include(c)
           end
         end
 

@@ -20,8 +20,9 @@ module FiveHundred
       end
     end
 
-    def play_trick!(cards=[@eight_spades,@ten_spades,@ace_spades,@five_spades], player_going_first=@players[1])
+    def play_trick!(cards=[@eight_spades, @ten_spades, @ace_spades, @five_spades], player_going_first=@players[1])
       @r.send(:set_current_player, player_going_first) unless player_going_first.nil?
+
       cards.each do |c|
         @r.play_card(c)
       end

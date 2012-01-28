@@ -22,11 +22,11 @@ module FiveHundred
       end
 
       def request_kitty
-        @cards.sort_by {|c| c.card_value_none_led(@r.trump_suit)}.slice(0..2)
+        @cards.sort_by {|c| c.rank(@r.trump_suit)}.slice(0..2)
       end
 
       def request_play
-        cards = @cards.sort_by {|c| -c.card_value_none_led(@r.trump_suit)}
+        cards = @cards.sort_by {|c| -c.rank(@r.trump_suit)}
 
         if [:misere, :none].include?(@r.trump_suit)
           most_of = suits_by_card_count.detect { |suit, count| suit != :none }.first

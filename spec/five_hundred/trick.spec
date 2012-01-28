@@ -21,7 +21,7 @@ module FiveHundred
         play_trick!([@six_spades, @king_spades, @ace_spades, @nine_spades])
         @trick.winner.should == @players[2]
       end
-  
+
       it "if a player trumps in with the highest trump" do
         play_trick!([@six_spades, @five_clubs, @ace_spades, @nine_spades])
         @trick.winner.should == @players[1]
@@ -30,17 +30,17 @@ module FiveHundred
         play_trick!([@six_spades, @five_clubs, @ace_spades, @six_clubs])
         @trick.winner.should == @players[3]
       end
-  
+
       it "where Joker is the highest card" do
         play_trick!([@six_spades, @five_clubs, @ace_spades, @joker])
         @trick.winner.should == @players[3]
       end
-  
+
       it "if a non-led suit is higher than a card in the led suit" do
         play_trick!([@six_spades, @king_spades, @ace_hearts, @nine_spades])
         @trick.winner.should == @players[1]
       end
-  
+
       it "with a left and right bower" do
         play_trick!([@six_clubs, @king_spades, @ace_clubs, @jack_clubs])
         @trick.winner.should == @players[3]
@@ -71,35 +71,40 @@ module FiveHundred
       end
 
       it "off suit if they have a card in the suit led" do
+        @players[1].stub(:has_suit).and_return(true)
         @trick.play(@six_clubs, @players[0])
         @trick.valid_play?(@eight_diamonds, @players[1]).should == false
       end
     end
-  
+
     context "with left bower" do
       it "where spades is trumps, Jc should not be played as a club" do
+        @players[2].stub(:has_suit).and_return(true)
         @trick = Trick.new(:spades)
         @trick.play(@six_clubs, @players[0])
         @trick.valid_play?(@jack_clubs, @players[2]).should == false
       end
-    
+
       it "where hearts is trumps and Jd is your last trump, Jd must be played" do
+        @players[2].stub(:has_suit).and_return(true)
         @trick = Trick.new(:hearts)
         @trick.play(@six_hearts, @players[0])
         @players[2].stub(:cards) do Deck.cards(%w{9d 10s 10c 10d Js Jc Jd}) end
-        @trick.valid_play?(@jack_spades, @players[2]).should == false      
+        @trick.valid_play?(@jack_spades, @players[2]).should == false
         @trick.valid_play?(@jack_diamonds, @players[2]).should == true
       end
     end
 
     context "with joker" do
       it "where spades is trumps, Jo should not be played as a club" do
+        @players[3].stub(:has_suit).and_return(true)
         @trick = Trick.new(:spades)
         @trick.play(@six_clubs, @players[0])
         @trick.valid_play?(@joker, @players[3]).should == false
       end
-    
+
       it "where trump suit is led and Jo is your last trump, Jo must be played" do
+        @players[3].stub(:has_suit).and_return(true)
         @trick = Trick.new(:hearts)
         @trick.play(@six_hearts, @players[0])
         @players[3].stub(:cards) do Deck.cards(%w{Ks Kc Kd As Ac Ad Jo}) end
@@ -111,16 +116,18 @@ module FiveHundred
         @trick = Trick.new(:spades)
         @trick.play(@six_hearts, @players[0])
         @players[3].stub(:cards) do Deck.cards(%w{Ks Kc Kd As Ac Ad Jo}) end
+        @players[3].stub(:has_suit).with(:hearts).and_return(false)
         @trick.valid_play?(@joker, @players[3]).should == true
       end
-    
+
       it "where Jo is led in NT, other players must follow suit" do
+        @players[0].stub(:has_suit).and_return(true, false)
         @trick = Trick.new(:none)
         @trick.play(@joker.set_joker_suit(:hearts), @players[3])
         @trick.valid_play?(@five_clubs, @players[0]).should == false
         @trick.valid_play?(@five_hearts, @players[0]).should == true
       end
-    
+
       it "suit must be specified if leading with Jo for NT or misere" do
         @trick = Trick.new(:none)
         @trick.valid_play?(@joker, @players[3]).should == false

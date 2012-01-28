@@ -14,8 +14,6 @@ module FiveHundred
     end
 
     def >(other_bid)
-      return true if other_bid.nil?
-
       if self.code == "cm" and !Bid.all["cm"][:precondition].include?(other_bid.code)
         return false
       end
@@ -58,6 +56,10 @@ module FiveHundred
     end
     private :achieved_normal?
 
+    def empty?
+      @code == "empty"
+    end
+
     def passed?
       @code == "pass"
     end
@@ -84,50 +86,39 @@ module FiveHundred
     @slam_points = 250
 
     @all = {
-      "6s"    => {tricks_required:  6, points:   40, suit: :spades},
-      "6c"    => {tricks_required:  6, points:   60, suit: :clubs},
-      "6d"    => {tricks_required:  6, points:   80, suit: :diamonds},
-      "6h"    => {tricks_required:  6, points:  100, suit: :hearts},
-      "6nt"   => {tricks_required:  6, points:  120, suit: :none},
-      "7s"    => {tricks_required:  7, points:  140, suit: :spades},
-      "7c"    => {tricks_required:  7, points:  160, suit: :clubs},
-      "7d"    => {tricks_required:  7, points:  180, suit: :diamonds},
-      "7h"    => {tricks_required:  7, points:  200, suit: :hearts},
-      "7nt"   => {tricks_required:  7, points:  220, suit: :none},
-      "cm"    => {tricks_required:  0, points:  250, suit: :misere, precondition:  ["7s","7c","7d","7h","7nt"],},
-      "8s"    => {tricks_required:  8, points:  240, suit: :spades},
-      "8c"    => {tricks_required:  8, points:  260, suit: :clubs},
-      "8d"    => {tricks_required:  8, points:  280, suit: :diamonds},
-      "8h"    => {tricks_required:  8, points:  300, suit: :hearts},
-      "8nt"   => {tricks_required:  8, points:  320, suit: :none},
-      "9s"    => {tricks_required:  9, points:  340, suit: :spades},
-      "9c"    => {tricks_required:  9, points:  360, suit: :clubs},
-      "9d"    => {tricks_required:  9, points:  380, suit: :diamonds},
-      "9h"    => {tricks_required:  9, points:  400, suit: :hearts},
-      "9nt"   => {tricks_required:  9, points:  420, suit: :none},
-      "10s"   => {tricks_required: 10, points:  440, suit: :spades},
-      "10c"   => {tricks_required: 10, points:  460, suit: :clubs},
-      "10d"   => {tricks_required: 10, points:  480, suit: :diamonds},
-      "10h"   => {tricks_required: 10, points:  500, suit: :hearts},
-      "om"    => {tricks_required:  0, points:  500, suit: :misere},
-      "10nt"  => {tricks_required: 10, points:  520, suit: :none},
-      "pass"  => {pass: true, suit: :none},
+      "empty" => { tricks_required:  0, points:   0, suit: :none },
+      "6s"    => { tricks_required:  6, points:   40, suit: :spades },
+      "6c"    => { tricks_required:  6, points:   60, suit: :clubs },
+      "6d"    => { tricks_required:  6, points:   80, suit: :diamonds },
+      "6h"    => { tricks_required:  6, points:  100, suit: :hearts },
+      "6nt"   => { tricks_required:  6, points:  120, suit: :none },
+      "7s"    => { tricks_required:  7, points:  140, suit: :spades },
+      "7c"    => { tricks_required:  7, points:  160, suit: :clubs },
+      "7d"    => { tricks_required:  7, points:  180, suit: :diamonds },
+      "7h"    => { tricks_required:  7, points:  200, suit: :hearts },
+      "7nt"   => { tricks_required:  7, points:  220, suit: :none },
+      "cm"    => { tricks_required:  0, points:  250, suit: :misere, precondition: ["7s","7c","7d","7h","7nt"] },
+      "8s"    => { tricks_required:  8, points:  240, suit: :spades },
+      "8c"    => { tricks_required:  8, points:  260, suit: :clubs },
+      "8d"    => { tricks_required:  8, points:  280, suit: :diamonds },
+      "8h"    => { tricks_required:  8, points:  300, suit: :hearts },
+      "8nt"   => { tricks_required:  8, points:  320, suit: :none },
+      "9s"    => { tricks_required:  9, points:  340, suit: :spades },
+      "9c"    => { tricks_required:  9, points:  360, suit: :clubs },
+      "9d"    => { tricks_required:  9, points:  380, suit: :diamonds },
+      "9h"    => { tricks_required:  9, points:  400, suit: :hearts },
+      "9nt"   => { tricks_required:  9, points:  420, suit: :none },
+      "10s"   => { tricks_required: 10, points:  440, suit: :spades },
+      "10c"   => { tricks_required: 10, points:  460, suit: :clubs },
+      "10d"   => { tricks_required: 10, points:  480, suit: :diamonds },
+      "10h"   => { tricks_required: 10, points:  500, suit: :hearts },
+      "om"    => { tricks_required:  0, points:  500, suit: :misere },
+      "10nt"  => { tricks_required: 10, points:  520, suit: :none },
+      "pass"  => { tricks_required:  0, points:    0, suit: :none, pass: true },
     }
 
-    def self.empty
-      empty = NullObject.new
-      mod = Module.new do
-        def >(bid)
-          false
-        end
-        def passed?
-          false
-        end
-        def max_bid?
-          false
-        end
-      end
-      empty.extend(mod)
+    def self.all_bids
+      Bid.all.map {|key, val| Bid.new(key) }
     end
   end
 end

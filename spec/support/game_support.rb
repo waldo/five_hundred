@@ -4,7 +4,7 @@ module FiveHundred
   shared_context "game support" do
     before do
       def add_players(num=4)
-        num.times do @g.join(Player.new) end
+        num.times { @g.join(Player.new) }
       end
 
       @fixed_cards = [
@@ -16,19 +16,20 @@ module FiveHundred
       @kitty_cards = Deck.cards(%w{Qs Qc Qd});
 
       @game = double("Game").as_null_object
-      @players = []; 4.times do @players << double("Player").as_null_object end
+      @players = []; 4.times { @players << double("Player").as_null_object }
       @teams = [Team.new, Team.new]
 
-      @game.stub(:teams) do @teams end
-      @game.stub(:players) do @players end
-      @game.stub(:next_dealer) do @players.first end
-      @game.stub(:current_dealer) do @players.last end
+      @game.stub(:teams).and_return(@teams)
+      @game.stub(:players).and_return(@players)
+      @game.stub(:next_dealer).and_return(@players.first)
+      @game.stub(:current_dealer).and_return(@players.last)
 
 
       @fixed_cards.each_with_index do |c,i|
-        @players[i].stub(:cards) do c end
-        @players[i].stub(:team) do @teams[i%2] end
-        @players[i].stub(:team) do @teams[i%2] end
+        @players[i].stub(:cards).and_return(c)
+        @players[i].stub(:team).and_return(@teams[i%2])
+        @players[i].stub(:team).and_return(@teams[i%2])
+        @players[i].stub(:has_suit).and_return(false)
       end
     end
   end

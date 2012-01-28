@@ -3,13 +3,13 @@
 module FiveHundred
   class Round
     attr_reader :game, :state, :highest_bid, :tricks, :winning_bidder
-  
+
     def initialize(game)
       deck = Deck.new
       @game = game
       @state = :bidding
       @kitty = deck.deal(3)
-      @highest_bid = Bid.empty
+      @highest_bid = Bid.new("empty")
       @bidder_order = reset_order
       set_current_bidder(@game.next_dealer)
       @winning_bidder = Player.empty
@@ -47,8 +47,7 @@ module FiveHundred
     end
 
     def bid_valid(new_bid)
-      return false if new_bid.nil? or self.state != :bidding
-      return true if @highest_bid.nil?
+      return false if new_bid.nil? || self.state != :bidding
       new_bid > @highest_bid
     end
     private :bid_valid
@@ -56,12 +55,12 @@ module FiveHundred
     def bidding_complete
       if ready_for_kitty?
         @state = :kitty
-        if @bids[current_bidder].count > 0 and @bids[current_bidder].last.passed?
+        if @bids[current_bidder].count > 0 && @bids[current_bidder].last.passed?
           @winning_bidder = next_bidder
         else
           @winning_bidder = current_bidder
         end
-        @winning_bidder.assign_cards(@kitty)
+        @winning_bidder.assign_kitty(@kitty)
         @kitty = []
         set_current_player(@winning_bidder)
         @tricks << Trick.new(trump_suit)
@@ -73,7 +72,7 @@ module FiveHundred
 
     def ready_for_kitty?
       ready = passed_count == 3
-      ready &&= !@highest_bid.nil?
+      ready &&= !@highest_bid.empty?
       ready ||= @highest_bid.max_bid?
     end
     private :ready_for_kitty?
@@ -112,7 +111,7 @@ module FiveHundred
     def passed_count
       pass = 0
       @bids.each do |key, bid_list|
-        pass += 1 if bid_list.count > 0 and bid_list.last.passed?
+        pass += 1 if bid_list.count > 0 && bid_list.last.passed?
       end
 
       pass
@@ -120,7 +119,7 @@ module FiveHundred
     private :passed_count
 
     def next_bidder!
-      if @bids[current_bidder].count > 0 and @bids[current_bidder].last.passed?
+      if @bids[current_bidder].count > 0 && @bids[current_bidder].last.passed?
         @bidder_order.delete_at(0)
       else
         @bidder_order.rotate!
@@ -131,6 +130,7 @@ module FiveHundred
     def discard(cards)
       if discard_valid?(cards)
         @winning_bidder.remove_cards(cards)
+        @winning_bidder.merge_kitty
         @state = :playing
       end
     end
@@ -147,7 +147,7 @@ module FiveHundred
     private :discard_valid?
 
     def play_card(card)
-      if @state == :playing and @tricks.last.valid_play?(card, current_player) and joker_rules_ok?(card)
+      if @state == :playing && @tricks.last.valid_play?(card, current_player) && joker_rules_ok?(card)
         @tricks.last.play(card, current_player)
         next_player!
         trick_complete
@@ -163,21 +163,19 @@ module FiveHundred
     end
 
     def joker_rules_ok?(card)
-      ok = true
-      ok &&= valid_joker?(card.suit) if card.joker?
-      ok
+      !card.joker? || valid_joker?(card.suit)
     end
 
     def valid_joker?(joker_suit)
       valid =   !played_suits(current_player).include?(joker_suit)
-      valid ||= !current_player.suits_excluding_joker(trump_suit).include?(joker_suit) and !voided_suits(current_player).include?(joker_suit)
+      valid ||= !current_player.suits_excluding_joker(trump_suit).include?(joker_suit) && !voided_suits(current_player).include?(joker_suit)
     end
     private :valid_joker?
 
     def played_suits(player)
       played_suits = []
       played_cards(player).each_with_index do |c,i|
-        played_suits.push(c.card_suit(@tricks[i].trump_suit))
+        played_suits.push(c.suit(@tricks[i].trump_suit))
       end
       played_suits
     end
@@ -197,7 +195,7 @@ module FiveHundred
     def voided_suits(player)
       voided_suits = []
       @tricks.each do |t|
-        voided_suits.push(t.cards.first.card_suit(trump_suit)) if guard_voided_suits(t, player)
+        voided_suits.push(t.cards.first.suit(trump_suit)) if guard_voided_suits(t, player)
       end
       voided_suits
     end
@@ -207,10 +205,10 @@ module FiveHundred
       player_ix = t.players.index(player)
       guard = t.cards.count > 0
       guard &&= !player_ix.nil?
-      guard &&= (t.cards.first.card_suit(trump_suit) != t.cards[player_ix].card_suit(trump_suit))
+      guard &&= (t.cards.first.suit(trump_suit) != t.cards[player_ix].suit(trump_suit))
     end
     private :guard_voided_suits
-  
+
     def next_player!
       @playing_order.delete_at(0)
     end
@@ -250,6 +248,10 @@ module FiveHundred
 
     def bid_achieved_for?(team)
       @highest_bid.bid_achieved?(@tricks_won[team]) if @winning_bidder.team == team
+    end
+
+    def valid_bids
+      Bid.all_bids.select {|b| bid_valid(b) }
     end
   end
 end

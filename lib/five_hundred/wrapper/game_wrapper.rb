@@ -1,6 +1,5 @@
 # encoding: UTF-8
 require "ostruct"
-require "pry-nav"
 
 module FiveHundred
   module Wrapper
@@ -27,7 +26,6 @@ module FiveHundred
       end
 
       def run
-        binding.pry
         check_trick_change
         check_round_change
         check_game_over
@@ -133,6 +131,36 @@ module FiveHundred
         os.bid = param[:bid]
         os.card = param[:card]
         @messages << os
+      end
+
+      def game_score_at_team_position(team_position)
+        team = @game.teams[team_position]
+        @game.score_for(team)
+      end
+
+      def round_score_at_team_position(team_position)
+        team = @game.teams[team_position]
+        @current_round.score_for(team)
+      end
+
+      def get_card_codes
+        cards = @player.cards
+        cards.map{ |c| c.code }
+      end
+
+      def get_kitty_card_codes
+        cards = @player.kitty_cards
+        cards.map{ |c| c.code }
+      end
+
+      def valid_bids
+        bids = @current_round.valid_bids
+        bids.map{ |b| b.code }
+      end
+
+      def valid_cards
+        cards = @current_round.valid_cards
+        cards.map{ |c| c.code }
       end
     end
   end

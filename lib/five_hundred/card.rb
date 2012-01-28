@@ -1,8 +1,8 @@
-# encoding: UTF-8
+  # encoding: UTF-8
 
 module FiveHundred
   class Card
-    attr_reader :code, :rank, :suit
+    attr_reader :code
 
     @@ace_rank = 14
     @@right_bower = 99
@@ -14,24 +14,17 @@ module FiveHundred
       @rank = rank
       @suit = suit
     end
-  
-    def card_value(led_suit, trump_suit)
-      val = 0
 
-      if (@suit == led_suit and suit != trump_suit) or joker?
-        val = @rank
-      elsif right_bower?(trump_suit)
-        val = @@right_bower
-      elsif left_bower?(trump_suit)
-        val = @@left_bower
-      elsif trump?(trump_suit)
-        val = @rank + @@ace_rank
+    def rank_with_led(led_suit, trump_suit)
+      val = 0
+      if [led_suit, trump_suit].include?(self.suit(trump_suit))
+        val = rank(trump_suit)
       end
 
       val
     end
-  
-    def card_value_none_led(trump_suit)
+
+    def rank(trump_suit=nil)
       val = @rank
       if right_bower?(trump_suit)
         val = @@right_bower
@@ -43,14 +36,14 @@ module FiveHundred
 
       val
     end
-  
-    def card_suit(trump_suit)
-      suit = @suit
-      suit = @@opposite_suits[@suit] if left_bower?(trump_suit)
-      suit = trump_suit if joker? and @suit == :none
-      suit
+
+    def suit(trump_suit=nil)
+      current_suit = @suit
+      current_suit = @@opposite_suits[@suit] if left_bower?(trump_suit)
+      current_suit = trump_suit if joker? && @suit == :none unless trump_suit.nil?
+      current_suit
     end
-  
+
     def set_joker_suit(suit)
       @suit = suit if joker?
       self

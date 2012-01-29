@@ -18,18 +18,25 @@ module FiveHundred
       card.rank.should == 6
     end
 
-    it "should know the joker" do
-      @joker.joker?.should == true
-    end
+    context "joker" do
+      it "should know the joker" do
+        @joker.joker?.should == true
+      end
 
-    it "should override the joker's suit" do
-      card = @joker
-      card.set_joker_suit(:spades)
-      card.suit.should == :spades
+      it "should override the joker's suit" do
+        card = @joker
+        card.set_joker_suit(:spades)
+        card.suit.should == :spades
 
-      other_card = @queen_diamonds
-      other_card.set_joker_suit(:spades)
-      other_card.suit.should_not == :spades
+        other_card = @queen_diamonds
+        other_card.set_joker_suit(:spades)
+        other_card.suit.should_not == :spades
+      end
+
+      it "should produce the four versions of the joker" do
+        variations = @joker.joker_suit_variations
+        variations.map(&:suit).should == [:spades, :clubs, :diamonds, :hearts]
+      end
     end
 
     context "should recognise bowers" do

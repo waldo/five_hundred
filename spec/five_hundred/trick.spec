@@ -71,7 +71,6 @@ module FiveHundred
       end
 
       it "off suit if they have a card in the suit led" do
-        @players[1].stub(:has_suit).and_return(true)
         @trick.play(@six_clubs, @players[0])
         @trick.valid_play?(@eight_diamonds, @players[1]).should == false
       end
@@ -79,14 +78,12 @@ module FiveHundred
 
     context "with left bower" do
       it "where spades is trumps, Jc should not be played as a club" do
-        @players[2].stub(:has_suit).and_return(true)
         @trick = Trick.new(:spades)
         @trick.play(@six_clubs, @players[0])
         @trick.valid_play?(@jack_clubs, @players[2]).should == false
       end
 
       it "where hearts is trumps and Jd is your last trump, Jd must be played" do
-        @players[2].stub(:has_suit).and_return(true)
         @trick = Trick.new(:hearts)
         @trick.play(@six_hearts, @players[0])
         @players[2].stub(:cards) do Deck.cards(%w{9d 10s 10c 10d Js Jc Jd}) end
@@ -97,14 +94,12 @@ module FiveHundred
 
     context "with joker" do
       it "where spades is trumps, Jo should not be played as a club" do
-        @players[3].stub(:has_suit).and_return(true)
         @trick = Trick.new(:spades)
         @trick.play(@six_clubs, @players[0])
         @trick.valid_play?(@joker, @players[3]).should == false
       end
 
       it "where trump suit is led and Jo is your last trump, Jo must be played" do
-        @players[3].stub(:has_suit).and_return(true)
         @trick = Trick.new(:hearts)
         @trick.play(@six_hearts, @players[0])
         @players[3].stub(:cards) do Deck.cards(%w{Ks Kc Kd As Ac Ad Jo}) end
@@ -116,12 +111,10 @@ module FiveHundred
         @trick = Trick.new(:spades)
         @trick.play(@six_hearts, @players[0])
         @players[3].stub(:cards) do Deck.cards(%w{Ks Kc Kd As Ac Ad Jo}) end
-        @players[3].stub(:has_suit).with(:hearts).and_return(false)
         @trick.valid_play?(@joker, @players[3]).should == true
       end
 
       it "where Jo is led in NT, other players must follow suit" do
-        @players[0].stub(:has_suit).and_return(true, false)
         @trick = Trick.new(:none)
         @trick.play(@joker.set_joker_suit(:hearts), @players[3])
         @trick.valid_play?(@five_clubs, @players[0]).should == false

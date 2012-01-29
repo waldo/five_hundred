@@ -12,18 +12,8 @@ module FiveHundred
       @cards.slice!(0...num)
     end
 
-    def self.set_of_cards
-      cards = []
-
-      Deck.card_definitions.each do |key, val|
-        cards << Card.new(key, val[:rank], val[:suit])
-      end
-
-      cards
-    end
-
   # class
-    class << self; attr_accessor :card_definitions end
+    class << self; attr_accessor :card_definitions, :joker_special_definitions end
 
     @card_definitions = {
       "4d" => { rank: 4, suit: :diamonds },
@@ -70,6 +60,16 @@ module FiveHundred
       "Ah" => { rank: 14, suit: :hearts },
       "Jo" => { rank: 100, suit: :none },
     }
+
+    def self.set_of_cards
+      cards = []
+
+      Deck.card_definitions.each do |key, val|
+        cards << Card.new(key, val[:rank], val[:suit])
+      end
+
+      cards
+    end
 
     def self.card(code)
       Card.new(code, Deck.card_definitions[code][:rank], Deck.card_definitions[code][:suit])

@@ -1,4 +1,5 @@
 # encoding: UTF-8
+# require "pry-nav"
 
 module FiveHundred
   class Trick
@@ -17,10 +18,18 @@ module FiveHundred
     end
 
     def valid_play?(card, player)
+      # binding.pry
       valid = true
-      valid &&= card.suit(@trump_suit) == @cards.first.suit(@trump_suit) if @cards.count > 0 and player.has_suit(@cards.first.suit(@trump_suit))
+      valid &&= card.suit(@trump_suit) == @cards.first.suit(@trump_suit) if @cards.count > 0 and suits_in_hand(player)
       valid &&= (card.joker? and [:misere, :none].include?(@trump_suit) and @cards.count == 0 ) ? card.suit != :none : true
       valid &&= player.cards.include?(card)
+    end
+
+    def suits_in_hand(player)
+      suits = player.cards.map do |c|
+        c.suit(@trump_suit)
+      end
+      suits.include?(@cards.first.suit(@trump_suit))
     end
 
     def winner

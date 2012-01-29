@@ -29,7 +29,6 @@ module FiveHundred
         @players[i].stub(:cards).and_return(c)
         @players[i].stub(:team).and_return(@teams[i%2])
         @players[i].stub(:team).and_return(@teams[i%2])
-        @players[i].stub(:has_suit).and_return(false)
       end
     end
   end

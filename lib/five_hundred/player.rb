@@ -45,15 +45,6 @@ module FiveHundred
       @kitty = []
     end
 
-    def has_suit(suit)
-      suits = @cards.map do |c|
-        c.suit(suit)
-      end
-
-      suits.include?(suit)
-    end
-
-
     def suits_excluding_joker(trump_suit)
       @cards.map do |c|
         c.suit(trump_suit) unless c.joker?

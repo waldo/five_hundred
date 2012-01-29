@@ -147,11 +147,15 @@ module FiveHundred
     private :discard_valid?
 
     def play_card(card)
-      if @state == :playing && @tricks.last.valid_play?(card, current_player) && joker_rules_ok?(card)
+      if valid_play?(card)
         @tricks.last.play(card, current_player)
         next_player!
         trick_complete
       end
+    end
+
+    def valid_play?(card)
+      @state == :playing && @tricks.last.valid_play?(card, current_player) && joker_rules_ok?(card)
     end
 
     def current_player
@@ -252,6 +256,21 @@ module FiveHundred
 
     def valid_bids
       Bid.all_bids.select {|b| bid_valid(b) }
+    end
+
+    def valid_cards
+      cards = []
+      current_player.cards.each do |c|
+        if valid_play?(c)
+          cards << c
+        elsif [:none, :misere].include?(trump_suit) && c.joker?
+          c.joker_suit_variations.each do |j|
+            cards << j if valid_play?(j)
+          end
+        end
+      end
+
+      cards
     end
   end
 end

@@ -1,5 +1,6 @@
 # encoding: UTF-8
 require "spec_helper"
+#require "pry-nav"
 
 module FiveHundred
   describe "round" do
@@ -284,7 +285,6 @@ module FiveHundred
       end
 
       it "as first card in suit" do
-        @players[3].stub(:has_suit).and_return(true)
         play_trick!([@four_hearts, @seven_hearts, @nine_hearts], nil)
         @r.play_card(@joker)
         @r.tricks.first.cards.count.should == 3
@@ -379,6 +379,32 @@ module FiveHundred
         @players[3].stub(:cards) do Deck.cards(%w{Ks Kd As Ad Jo}) end
         play_trick!([@nine_hearts, @king_diamonds, @four_hearts, @seven_hearts], nil)
         @r.send(:voided_suits, @players[3]).should include(:hearts)
+      end
+
+      context "valid cards" do
+        it "should accept joker without suit in no trumps when suit is implied" do
+          @players[1].stub(:cards) do Deck.cards(%w{Qh Ks Kd As Ad Jo}) end
+          # binding.pry
+          play_trick!([@four_hearts], nil)
+
+          @r.valid_cards.should == [
+            @queen_hearts,
+            @joker,
+          ]
+
+        end
+
+        it "should offer 4 joker suit selection as valid cards when leading (as suit is not implied)" do
+          @players[0].stub(:cards) do Deck.cards(%w{Ks Kd As Ad Jo}) end
+
+          @r.valid_cards.should == [
+            @king_spades,
+            @king_diamonds,
+            @ace_spades,
+            @ace_diamonds,
+            @joker.joker_suit_variations,
+          ].flatten
+        end
       end
     end
 

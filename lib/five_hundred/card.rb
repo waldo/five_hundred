@@ -80,5 +80,17 @@ module FiveHundred
       trump_suit == suit_a and @suit == suit_b and rank == 11
     end
     private :bower_check
+
+    def joker_suit_variations
+      variations = []
+      if joker?
+        [:spades, :clubs, :diamonds, :hearts].each do |suit|
+          new_joker = self.clone
+          variations << new_joker.set_joker_suit(suit)
+        end
+      end
+
+      variations
+    end
   end
 end

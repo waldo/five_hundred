@@ -1,6 +1,5 @@
 # encoding: UTF-8
 require "spec_helper"
-#require "pry-nav"
 
 module FiveHundred
   describe "round" do
@@ -384,7 +383,6 @@ module FiveHundred
       context "valid cards" do
         it "should accept joker without suit in no trumps when suit is implied" do
           @players[1].stub(:cards) do Deck.cards(%w{Qh Ks Kd As Ad Jo}) end
-          # binding.pry
           play_trick!([@four_hearts], nil)
 
           @r.valid_cards.should == [
@@ -472,7 +470,6 @@ module FiveHundred
           @pass,
         ]
       end
-
 
       it "shouldn't contain closed misére unless bid is in the sevens" do
         @r.bid(@bid_6h)

@@ -254,6 +254,10 @@ module FiveHundred
       @highest_bid.bid_achieved?(@tricks_won[team]) if @winning_bidder.team == team
     end
 
+    def tricks_won_for(team)
+      @tricks_won[team]
+    end
+
     def valid_bids
       Bid.all_bids.select {|b| bid_valid(b) }
     end

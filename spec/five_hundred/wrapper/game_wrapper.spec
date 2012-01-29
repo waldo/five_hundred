@@ -160,15 +160,54 @@ module FiveHundred
           @gw.valid_cards.should == ["6s", "7s", "As", "Jo"]
         end
 
-        it "round's highest bid"
-        it "round's tricks won per team"
-        it "game winner"
+        it "round's highest bid" do
+          @game.stub(:teams).and_return(["Team 1 mock", "Team 2 mock"])
+          @round.stub_chain(:winning_bidder, :team).and_return("Team 1 mock")
+          @round.stub(:highest_bid).and_return(@bid_8h)
+
+          @gw.bid_at_team_position(0).should == "8h"
+          @gw.bid_at_team_position(1).should == ""
+        end
+
+        it "round's tricks won per team" do
+          @game.stub(:teams).and_return(["Team 1 mock", "Team 2 mock"])
+          @round.stub(:tricks_won_for).with("Team 1 mock").and_return("4")
+          @round.stub(:tricks_won_for).with("Team 2 mock").and_return("2")
+
+          @gw.tricks_won_at_team_position(0) == "4"
+          @gw.tricks_won_at_team_position(1) == "2"
+        end
+
+        it "game winner" do
+          @game.stub(:players).and_return(@player * 4)
+          @player.stub(:team).and_return("Team 1 mock", "Team 2 mock", "Team 1 mock", "Team 2 mock")
+          @game.stub(:winner).and_return("Team 2 mock")
+
+          @gw.game_winner_at_player_position(0) == false
+          @gw.game_winner_at_player_position(1) == true
+          @gw.game_winner_at_player_position(2) == false
+          @gw.game_winner_at_player_position(3) == true
+        end
       end
 
       context "should accept" do
-        it "player bid"
-        it "player discard kitty"
-        it "player play card"
+        it "player bid" do
+          @round.should_receive(:bid).with(@bid_6h)
+
+          @gw.player_bid("6h")
+        end
+
+        it "player discard kitty" do
+          @round.should_receive(:discard).with([@five_diamonds, @ten_clubs, @nine_clubs])
+
+          @gw.player_discard_kitty(["5d", "10c", "9c"])
+        end
+
+        it "player play card" do
+          @round.should_receive(:play_card).with(@five_diamonds)
+
+          @gw.player_play_card("5d")
+        end
       end
     end
   end

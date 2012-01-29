@@ -120,6 +120,19 @@ module FiveHundred
       end
       private :player_request?
 
+      def player_bid(bid_code)
+        @current_round.bid(Bid.new(bid_code))
+      end
+
+      def player_discard_kitty(card_codes)
+        cards = card_codes.map {|code| Deck.card(code) }
+        @current_round.discard(cards)
+      end
+
+      def player_play_card(card_code)
+        @current_round.play_card(Deck.card(card_code))
+      end
+
       def has_messages?
         @messages.length > 0
       end
@@ -161,6 +174,22 @@ module FiveHundred
       def valid_cards
         cards = @current_round.valid_cards
         cards.map{ |c| c.code }
+      end
+
+      def bid_at_team_position(team_position)
+        team = @game.teams[team_position]
+        return "" unless @current_round.winning_bidder.team == team
+        @current_round.highest_bid.code
+      end
+
+      def tricks_won_at_team_position(team_position)
+        team = @game.teams[team_position]
+        @current_round.tricks_won_for(team)
+      end
+
+      def game_winner_at_player_position(player_position)
+        team = @game.players[player_position].team
+        @game.winner == team
       end
     end
   end

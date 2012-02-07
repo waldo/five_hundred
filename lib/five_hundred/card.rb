@@ -30,7 +30,7 @@ module FiveHundred
         val = @@right_bower
       elsif left_bower?(trump_suit)
         val = @@left_bower
-      elsif trump?(trump_suit)
+      elsif trump?(trump_suit) and !joker?
         val = @rank + @@ace_rank
       end
 
@@ -54,7 +54,8 @@ module FiveHundred
     end
 
     def trump?(trump_suit)
-      @suit == trump_suit
+      return false if [:none, :misere].include?(trump_suit)
+      @suit == trump_suit or left_bower?(trump_suit) or right_bower?(trump_suit) or joker?
     end
 
     def right_bower?(trump_suit)

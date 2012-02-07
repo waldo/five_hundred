@@ -19,11 +19,12 @@ module FiveHundred
     end
 
     context "joker" do
-      it "should know the joker" do
+      it "should know it's the joker" do
         @joker.joker?.should == true
+        @six_hearts.joker?.should == false
       end
 
-      it "should override the joker's suit" do
+      it "should allow suit override" do
         card = @joker
         card.set_joker_suit(:spades)
         card.suit.should == :spades
@@ -33,7 +34,7 @@ module FiveHundred
         other_card.suit.should_not == :spades
       end
 
-      it "should produce the four versions of the joker" do
+      it "should have four suit variations of itself" do
         variations = @joker.joker_suit_variations
         variations.map(&:suit).should == [:spades, :clubs, :diamonds, :hearts]
       end
@@ -66,12 +67,16 @@ module FiveHundred
     it "should know trumps" do
       @six_hearts.trump?(:hearts).should == true
       @six_hearts.trump?(:spades).should == false
+      @jack_hearts.trump?(:hearts).should == true
+      @jack_diamonds.trump?(:hearts).should == true
+      @jack_diamonds.trump?(:spades).should == false
     end
 
     context "recognise suits" do
       it "- normal" do
-        @six_hearts.suit.should == :hearts
-        @six_hearts.suit.should_not == :spades
+        @six_hearts.suit(:spades).should == :hearts
+        @six_hearts.suit(:hearts).should == :hearts
+        @six_hearts.suit(:clubs).should_not == :clubs
       end
 
       it "- bowers" do
@@ -97,7 +102,7 @@ module FiveHundred
       end
     end
 
-    context "value" do
+    context "rank" do
       it "- normal" do
         @ace_diamonds.rank.should == 14
       end

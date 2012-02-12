@@ -21,26 +21,22 @@ module FiveHundred
       Bid.all.keys.index(self.code) > Bid.all.keys.index(other_bid.code)
     end
 
-    def score_with(tricks, role=:bidder)
-      pts = score_non_bidder(tricks)
-      pts = score_bidder(tricks) if role == :bidder
-      pts
-    end
-
-    def score_non_bidder(tricks)
+    def non_bidder_score(tricks)
       pts = 0
       pts = tricks * 10 if !misere?
       pts
     end
-    private :score_non_bidder
 
-    def score_bidder(tricks)
+    def bidder_score(tricks)
       pts = -@points
-      pts = @points if bid_achieved?(tricks)
-      pts = Bid.slam_points if tricks == 10 and @points < Bid.slam_points
+
+      if bid_achieved?(tricks)
+        pts = @points
+        pts = Bid.slam_points if tricks == 10 and @points < Bid.slam_points
+      end
+
       pts
     end
-    private :score_bidder
 
     def bid_achieved?(tricks)
       achieved_misere?(tricks) or achieved_normal?(tricks)

@@ -244,10 +244,9 @@ module FiveHundred
     private :round_complete!
 
     def score_for(team)
-      role = :non_bidder
-      role = :bidder if @winning_bidder.team == team
-
-      @highest_bid.score_with(@tricks_won[team], role)
+      score = @highest_bid.non_bidder_score(@tricks_won[team])
+      score = @highest_bid.bidder_score(@tricks_won[team]) if @winning_bidder.team == team
+      score
     end
 
     def bid_achieved_for?(team)

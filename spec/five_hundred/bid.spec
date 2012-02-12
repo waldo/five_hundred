@@ -5,16 +5,31 @@ module FiveHundred
   describe "bid" do
     include_context "named bids"
 
-    it "should be true if 7s > 6h" do
+    it "should recognise empty bid" do
+      @bid_empty.empty?.should == true
+      @bid_6h.empty?.should == false
+    end
+
+    it "should recognise pass" do
+      @pass.passed?.should == true
+      @bid_10nt.passed?.should == false
+    end
+
+    it "should recognise maximum bid" do
+      @bid_10nt.max_bid?.should == true
+      @bid_om.max_bid?.should == false
+    end
+
+    it "seven spades should be greater than six hearts" do
       (@bid_7s > @bid_6h).should == true
     end
 
-    it "should have closed misere as smaller than the empty bid" do
-      (@bid_cm   > @bid_empty).should  == false
-      (@bid_empty > @bid_cm).should    == false
+    it "closed misere can't be bid if there's no bid" do
+      (@bid_cm    > @bid_empty).should  == false
+      (@bid_empty > @bid_cm).should     == false
     end
 
-    it "should allow you to bid closed misere at the right time" do
+    it "closed misere only allowed between specific bids" do
       (@bid_cm  > @bid_6nt).should == false
       (@bid_cm  > @bid_7s ).should == true
       (@bid_cm  > @bid_8s ).should == false
@@ -30,46 +45,46 @@ module FiveHundred
 
     context "bidder" do
       it "should win bid points when they win enough tricks" do
-        @bid_7d.score_with(7).should    == 180
-        @bid_7d.score_with(8).should    == 180
+        @bid_7d.bidder_score(7).should    == 180
+        @bid_7d.bidder_score(8).should    == 180
       end
 
       it "should lose bid points when they don't get enough tricks" do
-        @bid_10nt.score_with(7).should  == -520
-        @bid_6h.score_with(5).should    == -100
+        @bid_10nt.bidder_score(7).should  == -520
+        @bid_6h.bidder_score(5).should    == -100
       end
 
-      it "should win 250 points when they win 10 tricks and the bid points worth less than 250 points" do
-        @bid_8s.score_with(10).should   == 250
-        @bid_6h.score_with(10).should   == 250
+      it "should win 250 points when they win 10 tricks and the bid points are worth less than 250 points" do
+        @bid_8s.bidder_score(10).should   == 250
+        @bid_6h.bidder_score(10).should   == 250
       end
 
-      it "should win bid points when they win 10 tricks and the bid points worth more than 250 points" do
-        @bid_8c.score_with(10).should   == 260
-        @bid_8nt.score_with(10).should  == 320
+      it "should win bid points when they win 10 tricks and the bid points are worth more than 250 points" do
+        @bid_8c.bidder_score(10).should   == 260
+        @bid_8nt.bidder_score(10).should  == 320
       end
 
       it "should win bid points when they lose all tricks (misére)" do
-        @bid_cm.score_with(0).should    == 250
-        @bid_om.score_with(0).should    == 500
+        @bid_cm.bidder_score(0).should    == 250
+        @bid_om.bidder_score(0).should    == 500
       end
 
       it "should lose bid points when they win any tricks (misére)" do
-        @bid_cm.score_with(1).should    == -250
-        @bid_om.score_with(10).should   == -500
+        @bid_cm.bidder_score(1).should    == -250
+        @bid_om.bidder_score(10).should   == -500
       end
     end
 
     context "non-bidder" do
-      it "non-bidder should win 10 points per trick" do
-        @bid_8nt.score_with(0, :non_bidder).should ==   0
-        @bid_7nt.score_with(4, :non_bidder).should ==  40
-        @bid_9c.score_with(10, :non_bidder).should == 100
+      it "should win 10 points per trick" do
+        @bid_8nt.non_bidder_score(0).should ==   0
+        @bid_7nt.non_bidder_score(4).should ==  40
+        @bid_9c.non_bidder_score(10).should == 100
       end
 
-      it "non-bidder shouldn't win any points for misére" do
-        @bid_cm.score_with(1, :non_bidder ).should == 0
-        @bid_om.score_with(10, :non_bidder).should == 0
+      it "shouldn't win any points for misére" do
+        @bid_cm.non_bidder_score( 1).should == 0
+        @bid_om.non_bidder_score(10).should == 0
       end
     end
   end

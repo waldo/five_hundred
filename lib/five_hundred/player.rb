@@ -2,13 +2,12 @@
 
 module FiveHundred
   class Player
-    attr_reader :bids, :cards, :kitty
+    attr_reader :cards, :kitty
     attr_accessor :team
 
     def initialize
       @cards = []
       @kitty = []
-      @bids = []
       @team = Team.empty
     end
 
@@ -48,7 +47,7 @@ module FiveHundred
     def suits_excluding_joker(trump_suit)
       @cards.map do |c|
         c.suit(trump_suit) unless c.joker?
-      end
+      end.compact
     end
 
   # class

@@ -10,9 +10,21 @@ module FiveHundred
       @player = Player.new
     end
 
+    it "'s cards can be cleared" do
+      @player.assign_cards([@queen_hearts, @jack_diamonds, @ace_spades, @seven_hearts, @nine_clubs, @ace_hearts, @king_hearts, @eight_hearts, @eight_diamonds, @ten_hearts])
+      @player.assign_kitty([@five_clubs, @nine_hearts, @joker])
+      @player.cards.count.should == 10
+      @player.kitty.count.should == 3
+
+      @player.clear_cards!
+
+      @player.cards.count.should == 0
+      @player.kitty.count.should == 0
+    end
+
     it "'s suits in hand are correct" do
       @player.assign_cards([@five_clubs, @nine_hearts, @joker])
-      @player.suits_excluding_joker(:diamonds).should == [:clubs, :hearts, nil]
+      @player.suits_excluding_joker(:diamonds).should == [:clubs, :hearts]
     end
 
     it "should be able to discard cards from both your hand and kitty" do
@@ -28,6 +40,13 @@ module FiveHundred
       @player.merge_kitty
       @player.cards.count.should == 10
       @player.kitty.count.should == 0
+    end
+
+    it "should be able to discard / play a card" do
+      @player.assign_cards([@queen_hearts, @jack_diamonds, @ace_spades, @seven_hearts, @nine_clubs, @ace_hearts, @king_hearts, @eight_hearts, @eight_diamonds, @ten_hearts])
+      @player.remove_card(@queen_hearts)
+
+      @player.cards.count.should == 9
     end
   end
 end

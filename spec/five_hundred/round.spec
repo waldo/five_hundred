@@ -309,7 +309,7 @@ module FiveHundred
         @players[3].stub(:cards) do Deck.cards(%w{Qh Ks Kd As Ad Jo}) end
         play_trick!([@five_clubs, @seven_clubs, @ten_clubs, @queen_hearts], nil)
         @players[3].stub(:cards) do Deck.cards(%w{Ks Kd As Ad Jo}) end
-        @players[3].stub(:suits_excluding_joker) do [:spades, :diamonds, :spades, :diamonds, nil] end
+        @players[3].stub(:suits_excluding_joker) do [:spades, :diamonds, :spades, :diamonds] end
 
         @r.play_card(@nine_hearts)
         @r.tricks.last.cards.count.should == 1
@@ -321,7 +321,7 @@ module FiveHundred
         @players[3].stub(:cards) do Deck.cards(%w{Qh Ks Kd Kh As Ad Jo}) end
         play_trick!([@five_clubs, @seven_clubs, @ten_clubs, @queen_hearts], nil)
         @players[3].stub(:cards) do Deck.cards(%w{Ks Kd Kh As Ad Jo}) end
-        @players[3].stub(:suits_excluding_joker) do [:spades, :diamonds, :hearts, :spades, :diamonds, nil] end
+        @players[3].stub(:suits_excluding_joker) do [:spades, :diamonds, :hearts, :spades, :diamonds] end
 
         @r.play_card(@nine_hearts)
         @r.tricks.last.cards.count.should == 1
@@ -339,7 +339,7 @@ module FiveHundred
         play_trick!([@nine_hearts, @king_diamonds, @four_hearts, @seven_hearts], nil)
 
         @players[3].stub(:cards) do Deck.cards(%w{Ks As Ad Jo}) end
-        @players[3].stub(:suits_excluding_joker) do [:spades, :spades, :diamonds, nil] end
+        @players[3].stub(:suits_excluding_joker) do [:spades, :spades, :diamonds] end
 
         @r.play_card(@ten_hearts)
         @r.tricks.last.cards.count.should == 1

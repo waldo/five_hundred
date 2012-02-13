@@ -4,7 +4,7 @@ require "spec_helper"
 module FiveHundred
   describe "team" do
     context "join" do
-      it "should work" do
+      it "should succeed" do
         Team.new.join(Player.new).players.count.should == 1
       end
 

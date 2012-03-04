@@ -16,6 +16,7 @@ module FiveHundred
     end
 
     def assign_cards(cards_to_add)
+      clear_cards!
       @cards += cards_to_add
     end
 
@@ -27,6 +28,7 @@ module FiveHundred
       @cards = []
       @kitty = []
     end
+    private :clear_cards!
 
     def remove_cards(cards_to_remove)
       cards_to_remove.each do |c|
@@ -44,13 +46,19 @@ module FiveHundred
       @kitty = []
     end
 
-    def suits_excluding_joker(trump_suit)
-      @cards.map do |c|
-        c.suit(trump_suit) unless c.joker?
-      end.compact
+    def has_card(card)
+      @cards.include?(card)
     end
 
-  # class
+    def suits(trump_suit)
+      @cards.map {|c| c.suit(trump_suit)}
+    end
+
+    def suits_excluding_joker(trump_suit)
+      @cards.map {|c| c.suit(trump_suit) unless c.joker?}.compact
+    end
+
+    # class
     def self.empty
       NullObject.new
     end

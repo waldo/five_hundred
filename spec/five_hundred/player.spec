@@ -10,15 +10,15 @@ module FiveHundred
       @player = Player.new
     end
 
-    it "'s cards can be cleared" do
+    it "'s cards are cleared on new deal" do
       @player.assign_cards([@queen_hearts, @jack_diamonds, @ace_spades, @seven_hearts, @nine_clubs, @ace_hearts, @king_hearts, @eight_hearts, @eight_diamonds, @ten_hearts])
       @player.assign_kitty([@five_clubs, @nine_hearts, @joker])
       @player.cards.count.should == 10
       @player.kitty.count.should == 3
 
-      @player.clear_cards!
+      @player.assign_cards([@queen_hearts])
 
-      @player.cards.count.should == 0
+      @player.cards.count.should == 1
       @player.kitty.count.should == 0
     end
 

@@ -24,7 +24,7 @@ module FiveHundred
       context "message queue" do
         it "should have new round" do
           @gw.messages.first.msg.should == :new_round
-          @gw.has_messages?.should == true
+          @gw.has_messages?.should be_true
         end
 
         it "should have ai bid" do

@@ -11,7 +11,7 @@ module FiveHundred
       @rounds = []
       @winner = []
     end
-  
+
     def join(player, team=Team.empty)
       team = pick_team(team)
       team.join(player) unless already_joined?(player)
@@ -43,16 +43,13 @@ module FiveHundred
     def players
       [@teams.first.players.first, @teams.last.players.first, @teams.first.players.last, @teams.last.players.last]
     end
-  
+
     def start_playing_when_ready
       play! if ready_to_play?
     end
     private :start_playing_when_ready
 
     def play!
-      players.each do |p|
-        p.clear_cards!
-      end
       @rounds << Round.new(self)
       @state = :in_progress
     end
@@ -93,9 +90,9 @@ module FiveHundred
     def score_for(team)
       @rounds.map{ |r| r.score_for(team) }.reduce(0, :+)
     end
-    
+
     def bid_achieved?(team)
-      @rounds.last.winning_bidder.team == team and @rounds.last.bid_achieved_for?(team)
+      current_round.winning_bidder.team == team and current_round.bid_achieved_for?(team)
     end
     private :bid_achieved?
 
@@ -113,7 +110,7 @@ module FiveHundred
     def next_dealer
       players[@dealer_order[1]]
     end
-  
+
     def current_dealer
       players[@dealer_order[0]]
     end
@@ -122,5 +119,9 @@ module FiveHundred
       @dealer_order.rotate!
     end
     private :next_dealer!
+
+    def current_round
+      @rounds.last
+    end
   end
 end

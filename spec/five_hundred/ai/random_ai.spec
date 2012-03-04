@@ -5,15 +5,16 @@ module FiveHundred
   module AI
     describe "ai" do
       include_context "game support"
-      include_context "round support"
       include_context "named bids"
 
       before(:each) do
-        @g = FiveHundred::Game.new
+        @round = double("Round").as_null_object
         @ai = RandomAI.new
-        @g.join(@ai)
-        add_players(3)
-        @r = @g.rounds.last
+
+        @game.stub(:current_round).and_return(@round)
+        @round.stub(:highest_bid).and_return(@bid_6h)
+        @round.stub(:trump_suit).and_return(:hearts)
+        @ai.assign_cards([@joker, @jack_hearts, @jack_diamonds, @ace_hearts, @king_hearts, @queen_hearts, @ten_hearts, @nine_hearts, @eight_hearts, @seven_hearts])
       end
 
       context "should respond to requests for" do
@@ -23,7 +24,8 @@ module FiveHundred
         end
 
         it "kitty with 3 random cards from your hand" do
-          win_bid!(@bid_6h, @ai)
+          @round.stub(:highest_bid).and_return(@bid_6h)
+          @ai.assign_kitty([@five_spades, @five_clubs, @four_diamonds])
 
           cards = @ai.request(:kitty, @g)
           cards.count.should == 3
@@ -33,9 +35,6 @@ module FiveHundred
         end
 
         it "play with a card from your hand" do
-          win_bid!(@bid_6h, @ai)
-          discard_cards!(@ai)
-
           card = @ai.request(:play, @g)
           @ai.cards.should include(card)
         end

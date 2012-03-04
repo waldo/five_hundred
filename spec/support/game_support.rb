@@ -27,6 +27,7 @@ module FiveHundred
 
       @fixed_cards.each_with_index do |c,i|
         @players[i].stub(:cards).and_return(c)
+        @players[i].stub(:has_card).and_return(true)
         @players[i].stub(:team).and_return(@teams[i%2])
         @players[i].stub(:team).and_return(@teams[i%2])
       end

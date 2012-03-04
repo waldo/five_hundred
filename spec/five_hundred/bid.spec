@@ -6,22 +6,22 @@ module FiveHundred
     include_context "named bids"
 
     it "should recognise empty bid" do
-      @bid_empty.empty?.should == true
-      @bid_6h.empty?.should == false
+      @bid_empty.empty?.should be_true
+      @bid_6h.empty?.should be_false
     end
 
     it "should recognise pass" do
-      @pass.passed?.should == true
-      @bid_10nt.passed?.should == false
+      @pass.passed?.should be_true
+      @bid_10nt.passed?.should be_false
     end
 
     it "should recognise maximum bid" do
-      @bid_10nt.max_bid?.should == true
-      @bid_om.max_bid?.should == false
+      @bid_10nt.max_bid?.should be_true
+      @bid_om.max_bid?.should be_false
     end
 
     it "seven spades should be greater than six hearts" do
-      (@bid_7s > @bid_6h).should == true
+      (@bid_7s > @bid_6h).should be_true
     end
 
     it "closed misere can't be bid if there's no bid" do
@@ -30,17 +30,17 @@ module FiveHundred
     end
 
     it "closed misere only allowed between specific bids" do
-      (@bid_cm  > @bid_6nt).should == false
-      (@bid_cm  > @bid_7s ).should == true
-      (@bid_cm  > @bid_8s ).should == false
-      (@bid_6nt > @bid_cm ).should == false
-      (@bid_7s  > @bid_cm ).should == false
-      (@bid_8s  > @bid_cm ).should == true
+      (@bid_cm  > @bid_6nt).should be_false
+      (@bid_cm  > @bid_7s ).should be_true
+      (@bid_cm  > @bid_8s ).should be_false
+      (@bid_6nt > @bid_cm ).should be_false
+      (@bid_7s  > @bid_cm ).should be_false
+      (@bid_8s  > @bid_cm ).should be_true
     end
 
     it "of any type should be greater than the empty bid" do
-      (@bid_6s > @bid_empty).should == true
-      (@bid_empty > @bid_6d).should == false
+      (@bid_6s > @bid_empty).should be_true
+      (@bid_empty > @bid_6d).should be_false
     end
 
     context "bidder" do

@@ -40,7 +40,7 @@ module FiveHundred
         @t1.players.count.should == 2
         @t2.players.count.should == 2
       end
-    
+
       it "should set player order so positions 0 and 1 are not held by the same team" do
         add_players
         [@t1, @t2].each do |t|
@@ -53,7 +53,7 @@ module FiveHundred
       it "should assign a player as the 'dealer'" do
         add_players
         @g.players.should include(@g.current_dealer)
-        @g.current_dealer.nil?.should == false
+        @g.current_dealer.nil?.should be_false
       end
 
       it "shouldn't happen if there are 3 players" do
@@ -75,7 +75,7 @@ module FiveHundred
       before(:each) do
         add_players
         @round = double("Round")
-        
+        @g.stub(:current_round).and_return(@round)
         @g.instance_variable_set(:@rounds, [@round])
       end
 
@@ -129,10 +129,10 @@ module FiveHundred
             @g.winner.should == []
           end
         end
-      
+
         it "when team drops below -500 points" do
           round_stub!([-500, -490], [false, nil])
-  
+
           @g.round_complete
           @g.rounds.count.should == 1
           @g.state.should == :complete

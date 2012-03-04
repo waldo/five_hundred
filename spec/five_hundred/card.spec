@@ -20,8 +20,8 @@ module FiveHundred
 
     context "joker" do
       it "should know it's the joker" do
-        @joker.joker?.should == true
-        @six_hearts.joker?.should == false
+        @joker.joker?.should be_true
+        @six_hearts.joker?.should be_false
       end
 
       it "should allow suit override" do
@@ -43,33 +43,33 @@ module FiveHundred
     context "should recognise bowers" do
       it "- right" do
         @bower_original_suit.each_with_index do |ts, i|
-          @bowers[i].right_bower?(ts).should == true
+          @bowers[i].right_bower?(ts).should be_true
         end
       end
 
       it "- left" do
         [:clubs, :spades, :hearts, :diamonds].each_with_index do |ts, i|
-          @bowers[i].left_bower?(ts).should == true
+          @bowers[i].left_bower?(ts).should be_true
         end
       end
 
       it "- no bowers for misére or no-trumps" do
         @bowers.each do |b|
-          b.right_bower?(:none).should == false
-          b.right_bower?(:misere).should == false
+          b.right_bower?(:none).should be_false
+          b.right_bower?(:misere).should be_false
 
-          b.left_bower?(:none).should == false
-          b.left_bower?(:misere).should == false
+          b.left_bower?(:none).should be_false
+          b.left_bower?(:misere).should be_false
         end
       end
     end
 
     it "should know trumps" do
-      @six_hearts.trump?(:hearts).should == true
-      @six_hearts.trump?(:spades).should == false
-      @jack_hearts.trump?(:hearts).should == true
-      @jack_diamonds.trump?(:hearts).should == true
-      @jack_diamonds.trump?(:spades).should == false
+      @six_hearts.trump?(:hearts).should be_true
+      @six_hearts.trump?(:spades).should be_false
+      @jack_hearts.trump?(:hearts).should be_true
+      @jack_diamonds.trump?(:hearts).should be_true
+      @jack_diamonds.trump?(:spades).should be_false
     end
 
     context "recognise suits" do

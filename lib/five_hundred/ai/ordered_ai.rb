@@ -6,8 +6,8 @@ module FiveHundred
     class OrderedAI < Player
       def request(type, g)
         @g = g
-        @r = g.rounds.last
-        @t = g.rounds.last.tricks.last
+        @r = g.current_round
+        @t = g.current_round.trick_set.current_trick
         self.send("request_#{type}")
       end
 

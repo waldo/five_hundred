@@ -6,4 +6,5 @@ group :test do
   gem "guard-rspec"
   gem "growl"
   gem "rb-fsevent"
+  gem "pry-nav"
 end

@@ -18,14 +18,14 @@ module FiveHundred
         @bidding.valid_bid?(nil).should be_false
       end
 
-      it "should recognise invalid bids" do
-        @bidding.bid(@bid_7d)
-        @bidding.valid_bid?(@bid_7d).should be_false
-      end
-
       it "should set bid" do
         @bidding.bid(@bid_8h)
         @bidding.highest_bid.should == @bid_8h
+      end
+
+      it "should recognise invalid bids" do
+        @bidding.bid(@bid_7d)
+        @bidding.valid_bid?(@bid_7d).should be_false
       end
 
       it "should set a new current bidder once a player has bid" do
@@ -112,15 +112,18 @@ module FiveHundred
           ]
         end
 
-        it "should return all bids after pass bids" do
-          @bidding.bid(@pass)
+        it "should have the same bids before and after pass bids" do
+          @bidding.bid(@bid_10d)
+          @bidding.valid_bids.should == [
+            @bid_10h,
+            @bid_om,
+            @bid_10nt,
+            @pass,
+          ]
+
           @bidding.bid(@pass)
           @bidding.valid_bids.should == [
-            @bid_6s, @bid_6c, @bid_6d, @bid_6h, @bid_6nt,
-            @bid_7s, @bid_7c, @bid_7d, @bid_7h, @bid_7nt,
-            @bid_8s, @bid_8c, @bid_8d, @bid_8h, @bid_8nt,
-            @bid_9s, @bid_9c, @bid_9d, @bid_9h, @bid_9nt,
-            @bid_10s, @bid_10c, @bid_10d, @bid_10h,
+            @bid_10h,
             @bid_om,
             @bid_10nt,
             @pass,

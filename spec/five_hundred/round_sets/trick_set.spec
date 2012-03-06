@@ -16,7 +16,7 @@ module FiveHundred
         @trick_set = TrickSet.new(:hearts, @players.dup)
       end
 
-      it "check if the played card is valid" do
+      it "should check if the played card is valid" do
         @players[0].stub(:has_card).and_return(false)
         @trick_set.valid_play?(@queen_hearts).should be_false
 
@@ -123,13 +123,6 @@ module FiveHundred
           @trick_set.joker_rules?(@joker).should be_false
         end
 
-        it "as first card in suit" do
-          @trick_set.joker_rules?(@joker).should be_false
-
-          @trick_set.joker_rules?(@joker.set_joker_suit(:clubs)).should be_true
-          @trick_set.joker_rules?(@joker.set_joker_suit(:hearts)).should be_true
-        end
-
         it "suit must be specified if led" do
           @trick_set.joker_rules?(@joker).should be_false
           @trick_set.joker_rules?(@joker.set_joker_suit(:clubs)).should be_true
@@ -205,7 +198,7 @@ module FiveHundred
           @trick_set = TrickSet.new(:none, @players.dup)
         end
 
-        it "should accept joker without suit in no trumps when suit is implied" do
+        it "should accept joker with the right suit" do
           @trick_set.play(@four_hearts)
           @trick_set.stub(:current_player).and_return(@players[1])
           @players[1].stub(:cards) do Deck.cards(%w{Qh Ks Kd As Ad Jo}) end
@@ -215,6 +208,7 @@ module FiveHundred
             @joker,
           ]
 
+          @trick_set.valid_cards.map {|c| c.suit(@trick_set.trump_suit) }.should == [:hearts, :hearts]
         end
 
         it "should offer 4 joker suit selection as valid cards when leading (as suit is not implied)" do

@@ -8,18 +8,20 @@ module FiveHundred
     include_context "named bids"
 
     before(:each) do
-      @r = Round.new(@game)
-      @pass = Bid.new("pass")
       @ts = double("TrickSet").as_null_object
+      @players = Array.new(4) { Player.new }
+      @game.stub(:players).and_return(@players)
+      @game.stub(:next_dealer).and_return(@players.first)
+      @game.stub(:current_dealer).and_return(@players.last)
+
+      @r = Round.new(@game)
     end
 
     context "initialising / dealing" do
       it "should distribute cards to each player" do
         @game.players.each do |p|
-          p.should_receive(:assign_cards)
+          p.cards.count.should == 10
         end
-
-        Round.new(@game)
       end
     end
 
@@ -29,48 +31,51 @@ module FiveHundred
       end
 
       it "should accept bid only during bidding phase" do
-        @r.stub(:state).and_return(:bidding)
-        @r.should_receive(:check_after_bid).once
         @r.bid(@bid_6h)
+        @r.highest_bid.should == @bid_6h
 
         @r.stub(:state).and_return(:playing)
-        @r.should_not_receive(:check_after_bid)
         @r.bid(@bid_7d)
+        @r.highest_bid.should_not == @bid_7d
       end
 
       it "should move to kitty assignment state on successful completion of bidding round" do
-        @r.stub(:bidding_complete?).and_return(true)
         @r.bid(@bid_7d)
+        @r.bid(@pass)
+        @r.bid(@pass)
+        @r.bid(@pass)
 
         @r.state.should == :kitty
       end
 
       it "should move to complete state if all players pass" do
-        @r.stub(:everyone_passed?).and_return(true)
+        @r.bid(@pass)
+        @r.bid(@pass)
+        @r.bid(@pass)
         @r.bid(@pass)
 
         @r.state.should == :complete
       end
     end
 
-    context "kitty assignment" do
-      it "should give 3 cards to winning bidder" do
-        @r.stub(:winning_bidder).and_return(@players[3])
-        @players[3].should_receive(:assign_kitty)
-
-        @r.start_kitty_phase!
-        @r.state.should == :kitty
-      end
-    end
-
-    context "kitty discard" do
+    context "kitty" do
       before(:each) do
-        @r.stub(:winning_bidder).and_return(@players[0])
-        @r.stub(:state).and_return(:kitty)
+        @r.bid(@bid_6h)
+        @r.bid(@pass)
+        @r.bid(@pass)
+        @r.bid(@pass)
+      end
+
+      it "should give 3 cards to winning bidder" do
+        @r.start_kitty_phase!
+
+        @game.players[0].kitty.count.should == 3
+        @r.state.should == :kitty
       end
 
       it "should not accept discard unless in the kitty phase" do
-        @r.stub(:state).and_return(:bidding)
+        @r = Round.new(@game)
+
         @r.discard_valid?(@players[0].cards.slice(0..2)).should be_false
       end
 
@@ -91,23 +96,35 @@ module FiveHundred
 
     context "playing" do
       before :each do
-        @r.stub(:state).and_return(:playing)
-        @r.stub(:trick_set).and_return(@ts)
+        @r.bid(@bid_6h)
+        @r.bid(@pass)
+        @r.bid(@pass)
+        @r.bid(@pass)
+        @r.discard!(@players[0].cards.slice(0..2))
       end
 
-      it "should accept play card only during playing phase" do
-        @r.should_receive(:check_after_play).once
-        @r.play(@queen_hearts)
+      it "" do
+        @r.state.should == :playing
+      end
 
-        @r.stub(:state).and_return(:bidding)
-        @r.should_not_receive(:check_after_play)
-        @r.play(@ace_diamonds)
+      it "should give the bid winner the first turn" do
+        @r.trick_set.current_player.should == @r.winning_bidder
+      end
+
+      it "should accept play card only during playing phase, not during bidding phase" do
+        @r.play(@players[0].cards.first)
+
+        @players[0].cards.count.should == 9
+
+        @r = Round.new(@game)
+        @r.play(@players[0].cards.first)
+
+        @players[0].cards.count.should == 10
       end
 
       it "should move to complete state on successful completion of playing round" do
         @r.stub(:tricks_phase_complete?).and_return(true)
         @r.play(@six_hearts)
-        @r.unstub(:state)
 
         @r.state.should == :complete
       end

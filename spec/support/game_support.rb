@@ -16,7 +16,7 @@ module FiveHundred
       @kitty_cards = Deck.cards(%w{Qs Qc Qd});
 
       @game = double("Game").as_null_object
-      @players = []; 4.times { @players << double("Player").as_null_object }
+      @players = Array.new(4) { double("Player").as_null_object }
       @teams = [Team.new, Team.new]
 
       @game.stub(:teams).and_return(@teams)

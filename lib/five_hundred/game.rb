@@ -13,8 +13,8 @@ module FiveHundred
     end
 
     def join(player, team=Team.empty)
-      team = pick_team(team)
-      team.join(player) unless already_joined?(player)
+      actual_team = pick_team(team)
+      actual_team.join(player) unless already_joined?(player)
 
       start_playing_when_ready
 

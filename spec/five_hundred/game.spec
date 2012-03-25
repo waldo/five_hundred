@@ -58,7 +58,7 @@ module FiveHundred
 
       it "shouldn't happen if there are 3 players" do
         add_players(3)
-        @g.state.should_not == :bidding
+        @g.state.should_not == :in_progress
       end
     end
 
@@ -110,26 +110,6 @@ module FiveHundred
           end
         end
 
-        context "unless team is over 500 but" do
-          it "didn't achieve the bid" do
-            round_stub!([520, 480], [false, nil])
-
-            @g.round_complete
-            @g.rounds.count.should == 2
-            @g.state.should == :in_progress
-            @g.winner.should == []
-          end
-
-          it "but the other team bid" do
-            round_stub!([480, 520], [true, nil])
-
-            @g.round_complete
-            @g.rounds.count.should == 2
-            @g.state.should == :in_progress
-            @g.winner.should == []
-          end
-        end
-
         it "when team drops below -500 points" do
           round_stub!([-500, -490], [false, nil])
 
@@ -140,13 +120,35 @@ module FiveHundred
         end
       end
 
-      it "start a new round when game is not over" do
-        round_stub!([480, 480], [true, nil])
+      context "should not end the game" do
+        context "when a team is over 500 but" do
+          it "didn't achieve the bid" do
+            round_stub!([520, 480], [false, nil])
 
-        @g.round_complete
-        @g.rounds.count.should == 2
-        @g.state.should == :in_progress
-        @g.winner.should == []
+            @g.round_complete
+            @g.rounds.count.should == 2
+            @g.state.should == :in_progress
+            @g.winner.should == []
+          end
+
+          it "the other team bid" do
+            round_stub!([480, 520], [true, nil])
+
+            @g.round_complete
+            @g.rounds.count.should == 2
+            @g.state.should == :in_progress
+            @g.winner.should == []
+          end
+        end
+
+        it "and start a new round when game is not over" do
+          round_stub!([480, 480], [true, nil])
+
+          @g.round_complete
+          @g.rounds.count.should == 2
+          @g.state.should == :in_progress
+          @g.winner.should == []
+        end
       end
     end
   end

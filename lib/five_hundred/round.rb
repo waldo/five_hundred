@@ -133,5 +133,13 @@ module FiveHundred
     def valid_cards
       trick_set.valid_cards
     end
+
+    def current_bidder
+      @bidding_set.current_bidder
+    end
+
+    def current_player
+      @trick_set.current_player
+    end
   end
 end

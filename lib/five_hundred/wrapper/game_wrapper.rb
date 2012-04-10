@@ -73,13 +73,13 @@ module FiveHundred
       private :game_over?
 
       def step
-        bidding_step if @current_round.state == :bidding
+        bid_step if @current_round.state == :bidding
         kitty_step if @current_round.state == :kitty
         play_step if @current_round.state == :playing
       end
       private :step
 
-      def bidding_step
+      def bid_step
         current_bidder = @current_round.current_bidder
         if current_bidder == @player
           msg(:request_player_bid)
@@ -89,7 +89,7 @@ module FiveHundred
           msg(:ai_bid, { :position => @game.players.find(current_bidder), :bid => bid.code })
         end
       end
-      private :bidding_step
+      private :bid_step
 
       def kitty_step
         winning_bidder = @current_round.winning_bidder

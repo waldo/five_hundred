@@ -22,12 +22,12 @@ module FiveHundred
       end
 
       context "message queue" do
-        it "should have new round" do
+        it "should have a new round message" do
           @gw.messages.first.msg.should == :new_round
           @gw.has_messages?.should be_true
         end
 
-        it "should have ai bid" do
+        it "should have an ai bid" do
           @round.stub(:state).and_return(:bidding)
           @round.stub(:current_bidder).and_return(@ai)
           @round.should_receive(:bid)

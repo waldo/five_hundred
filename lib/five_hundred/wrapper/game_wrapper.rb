@@ -16,7 +16,7 @@ module FiveHundred
         @player = Player.new
         [AI::OrderedAI.new, AI::OrderedAI.new, AI::OrderedAI.new, @player].each do |p| @game.join(p) end
         # run until player request
-        @current_round = @game.rounds.last
+        @current_round = @game.current_round
 
         self
       end
@@ -50,13 +50,13 @@ module FiveHundred
       def check_round_change
         if new_round?
           msg(:round_over)
-          @current_round = @game.rounds.last
+          @current_round = @game.current_round
         end
       end
       private :check_round_change
 
       def new_round?
-        @current_round != @game.rounds.last
+        @current_round != @game.current_round
       end
       private :new_round?
 

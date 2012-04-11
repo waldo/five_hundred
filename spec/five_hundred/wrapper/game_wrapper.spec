@@ -14,7 +14,8 @@ module FiveHundred
         @next_trick = double("Trick").as_null_object
         @player = double("Player").as_null_object
 
-        @game.stub(:rounds).and_return([@round])
+        # @game.stub(:rounds).and_return([@round])
+        @game.stub(:current_round => @round)
 
         @gw = GameWrapper.new
         @gw.instance_variable_set(:@game, @game)
@@ -27,7 +28,7 @@ module FiveHundred
           @gw.has_messages?.should be_true
         end
 
-        it "should have an ai bid" do
+        it "should have an ai bid message" do
           @round.stub(:state).and_return(:bidding)
           @round.stub(:current_bidder).and_return(@ai)
           @round.should_receive(:bid)
@@ -42,7 +43,7 @@ module FiveHundred
           @gw.messages.last.bid.should == "6s"
         end
 
-        it "should have request player bid" do
+        it "should have a request player bid message" do
           @round.stub(:state).and_return(:bidding)
           @round.stub(:current_bidder).and_return(@gw.instance_variable_get(:@player))
           @gw.send(:run)
@@ -50,7 +51,7 @@ module FiveHundred
           @gw.messages.last.msg.should == :request_player_bid
         end
 
-        it "should have ai kitty" do
+        it "should have an ai kitty message" do
           @round.stub(:state).and_return(:kitty)
           @round.stub(:winning_bidder).and_return(@ai)
           @round.should_receive(:discard)
@@ -59,7 +60,7 @@ module FiveHundred
           @gw.messages.last.msg.should == :ai_kitty
         end
 
-        it "should request player kitty" do
+        it "should have a request player kitty message" do
           @round.stub(:state).and_return(:kitty)
           @round.stub(:winning_bidder).and_return(@gw.instance_variable_get(:@player))
           @gw.send(:run)
@@ -67,7 +68,7 @@ module FiveHundred
           @gw.messages.last.msg.should == :request_player_kitty
         end
 
-        it "should have ai play card" do
+        it "should have an ai play card message" do
           @round.stub(:state).and_return(:playing)
           @round.stub(:current_player).and_return(@ai)
           @round.should_receive(:play_card)
@@ -80,7 +81,7 @@ module FiveHundred
           @gw.messages.last.card.should == "Qd"
         end
 
-        it "should request player play card" do
+        it "should have a request player play card message" do
           @round.stub(:state).and_return(:playing)
           @round.stub(:current_player).and_return(@gw.instance_variable_get(:@player))
           @gw.send(:run)
@@ -88,7 +89,7 @@ module FiveHundred
           @gw.messages.last.msg.should == :request_player_play_card
         end
 
-        it "should have trick over" do
+        it "should have a trick over message" do
           @gw.instance_variable_set(:@current_trick, @trick)
           @round.stub(:tricks).and_return([@next_trick])
           @trick.stub(:nil?).and_return(false)
@@ -99,14 +100,14 @@ module FiveHundred
           @gw.messages.last.player_position.should == 0
         end
 
-        it "should have round over" do
-          @game.stub(:rounds).and_return([@next_round])
+        it "should have a round over message" do
+          @game.stub(:current_round => @next_round)
           @gw.send(:check_round_change)
 
           @gw.messages.last.msg.should == :round_over
         end
 
-        it "should have game over" do
+        it "should have a game over message" do
           @game.stub(:state).and_return(:complete)
           @gw.send(:check_game_over)
 

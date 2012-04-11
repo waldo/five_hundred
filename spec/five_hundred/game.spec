@@ -85,7 +85,6 @@ module FiveHundred
             round_stub!([500, -200], [true, nil])
 
             @g.round_complete
-            @g.rounds.count.should == 1
             @g.state.should == :complete
             @g.winner.should == @g.teams.first
           end
@@ -95,7 +94,6 @@ module FiveHundred
             round_stub!([180, 20], [true, nil])
 
             @g.round_complete
-            @g.rounds.count.should == 3
             @g.state.should == :complete
             @g.winner.should == @g.teams.first
           end
@@ -104,7 +102,6 @@ module FiveHundred
             round_stub!([520, 500], [nil, true], @g.players.last)
 
             @g.round_complete
-            @g.rounds.count.should == 1
             @g.state.should == :complete
             @g.winner.should == @g.teams.last
           end
@@ -114,7 +111,6 @@ module FiveHundred
           round_stub!([-500, -490], [false, nil])
 
           @g.round_complete
-          @g.rounds.count.should == 1
           @g.state.should == :complete
           @g.winner.should == @g.teams.last
         end
@@ -126,7 +122,6 @@ module FiveHundred
             round_stub!([520, 480], [false, nil])
 
             @g.round_complete
-            @g.rounds.count.should == 2
             @g.state.should == :in_progress
             @g.winner.should == []
           end
@@ -135,7 +130,6 @@ module FiveHundred
             round_stub!([480, 520], [true, nil])
 
             @g.round_complete
-            @g.rounds.count.should == 2
             @g.state.should == :in_progress
             @g.winner.should == []
           end
@@ -145,7 +139,6 @@ module FiveHundred
           round_stub!([480, 480], [true, nil])
 
           @g.round_complete
-          @g.rounds.count.should == 2
           @g.state.should == :in_progress
           @g.winner.should == []
         end

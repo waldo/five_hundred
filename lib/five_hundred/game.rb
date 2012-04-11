@@ -2,7 +2,7 @@
 
 module FiveHundred
   class Game
-    attr_reader :state, :teams, :rounds, :winner
+    attr_reader :state, :teams, :winner
 
     def initialize
       @state = :setup

@@ -94,11 +94,11 @@ module FiveHundred
       def kitty_step
         winning_bidder = @current_round.winning_bidder
         if winning_bidder == @player
-          msg(:request_player_kitty)
+          msg(:request_player_kitty_discard)
         else
           cards = winning_bidder.request(:kitty, @game)
-          @current_round.discard(cards)
-          msg(:ai_kitty)
+          @current_round.discard_kitty(cards)
+          msg(:ai_kitty_discard)
         end
       end
       private :kitty_step
@@ -116,7 +116,7 @@ module FiveHundred
       private :play_step
 
       def player_request?
-        [:request_player_bid, :request_player_kitty, :request_player_play_card, :round_over, :game_over].include? @messages.last.msg if has_messages?
+        [:request_player_bid, :request_player_kitty_discard, :request_player_play_card, :round_over, :game_over].include? @messages.last.msg if has_messages?
       end
       private :player_request?
 

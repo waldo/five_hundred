@@ -73,17 +73,17 @@ module FiveHundred
       @bidding_set.winning_bidder
     end
 
-    def discard(cards)
+    def discard_kitty(cards)
       discard!(cards) if discard_valid?(cards)
     end
 
-    def discard!(cards)
+    def discard_kitty!(cards)
       winning_bidder.remove_cards(cards)
       winning_bidder.merge_kitty
       @state = :playing
     end
 
-    def discard_valid?(cards)
+    def discard_kitty_valid?(cards)
       state == :kitty && cards.uniq.count == 3 && cards.all? {|c| winning_bidder.cards.include?(c) }
     end
 

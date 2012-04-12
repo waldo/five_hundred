@@ -43,7 +43,7 @@ module FiveHundred
 
             while rnd.state == :kitty and timeout
               cards = rnd.winning_bidder.request(:kitty, g)
-              rnd.discard(cards)
+              rnd.discard_kitty(cards)
             end
 
             while rnd.state == :playing and timeout

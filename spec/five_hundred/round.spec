@@ -76,21 +76,21 @@ module FiveHundred
       it "should not accept discard unless in the kitty phase" do
         @r = Round.new(@game)
 
-        @r.discard_valid?(@players[0].cards.slice(0..2)).should be_false
+        @r.discard_kitty_valid?(@players[0].cards.slice(0..2)).should be_false
       end
 
       it "should have winning bidder give back exactly 3 cards" do
-        @r.discard_valid?(@players[0].cards.slice(0..2)).should be_true
+        @r.discard_kitty_valid?(@players[0].cards.slice(0..2)).should be_true
       end
 
       it "should not accept winning bidder providing 1 or 2 cards" do
-        @r.discard_valid?(@players[0].cards.slice(0..0)).should be_false
-        @r.discard_valid?(@players[0].cards.slice(0..1)).should be_false
+        @r.discard_kitty_valid?(@players[0].cards.slice(0..0)).should be_false
+        @r.discard_kitty_valid?(@players[0].cards.slice(0..1)).should be_false
       end
 
       it "should only discard 3 different cards" do
-        @r.discard_valid?([@four_diamonds, @four_diamonds, @four_diamonds]).should be_false
-        @r.discard_valid?([@four_diamonds, @five_diamonds, @four_diamonds]).should be_false
+        @r.discard_kitty_valid?([@four_diamonds, @four_diamonds, @four_diamonds]).should be_false
+        @r.discard_kitty_valid?([@four_diamonds, @five_diamonds, @four_diamonds]).should be_false
       end
     end
 
@@ -100,7 +100,7 @@ module FiveHundred
         @r.bid(@pass)
         @r.bid(@pass)
         @r.bid(@pass)
-        @r.discard!(@players[0].cards.slice(0..2))
+        @r.discard_kitty!(@players[0].cards.slice(0..2))
       end
 
       it "" do

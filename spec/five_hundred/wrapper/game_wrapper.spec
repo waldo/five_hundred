@@ -54,10 +54,10 @@ module FiveHundred
         it "should have an ai kitty message" do
           @round.stub(:state).and_return(:kitty)
           @round.stub(:winning_bidder).and_return(@ai)
-          @round.should_receive(:discard)
+          @round.should_receive(:discard_kitty)
           @gw.send(:run)
 
-          @gw.messages.last.msg.should == :ai_kitty
+          @gw.messages.last.msg.should == :ai_kitty_discard
         end
 
         it "should have a request player kitty message" do
@@ -65,7 +65,7 @@ module FiveHundred
           @round.stub(:winning_bidder).and_return(@gw.instance_variable_get(:@player))
           @gw.send(:run)
 
-          @gw.messages.last.msg.should == :request_player_kitty
+          @gw.messages.last.msg.should == :request_player_kitty_discard
         end
 
         it "should have an ai play card message" do

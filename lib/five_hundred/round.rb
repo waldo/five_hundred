@@ -4,7 +4,7 @@ require "five_hundred/round_sets/trick_set"
 
 module FiveHundred
   class Round
-    attr_reader :game, :state, :tricks
+    attr_reader :game, :state
 
     def initialize(game)
       @game = game
@@ -140,6 +140,10 @@ module FiveHundred
 
     def current_player
       @trick_set.current_player
+    end
+
+    def current_trick
+      @trick_set.current_trick
     end
   end
 end

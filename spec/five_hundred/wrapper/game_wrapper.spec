@@ -92,7 +92,6 @@ module FiveHundred
         it "should have a trick over message" do
           @gw.instance_variable_set(:@current_trick, @trick)
           @round.stub(:tricks).and_return([@next_trick])
-          @trick.stub(:nil?).and_return(false)
           @game.stub_chain(:players, :find).and_return(0)
           @gw.send(:check_trick_change)
 

@@ -38,12 +38,12 @@ module FiveHundred
           msg(:trick_over, { :position => @game.players.find(@current_trick.winner) })
         end
 
-        @current_trick = @current_round.tricks.last
+        @current_trick = @current_round.current_trick
       end
       private :check_trick_change
 
       def new_trick?
-        @current_trick != @current_round.tricks.last && !@current_trick.nil?
+        !@current_trick.nil? && @current_trick != @current_round.current_trick
       end
       private :new_trick?
 

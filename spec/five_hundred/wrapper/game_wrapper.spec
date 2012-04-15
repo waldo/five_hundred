@@ -14,7 +14,6 @@ module FiveHundred
         @next_trick = double("Trick").as_null_object
         @player = double("Player").as_null_object
 
-        # @game.stub(:rounds).and_return([@round])
         @game.stub(:current_round => @round)
 
         @gw = GameWrapper.new
@@ -112,7 +111,6 @@ module FiveHundred
 
           @gw.messages.last.msg.should == :game_over
         end
-
       end
 
       context "should access game state for" do

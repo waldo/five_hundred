@@ -113,7 +113,7 @@ module FiveHundred
         end
       end
 
-      context "should access game state for" do
+      context "should provide the state of the" do
         it "game scores" do
           @game.stub(:teams).and_return(["Team 1 mock", "Team 2 mock"])
           @game.should_receive(:score_for).with("Team 1 mock").and_return("300")

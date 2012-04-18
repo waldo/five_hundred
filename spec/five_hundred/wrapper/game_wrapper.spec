@@ -196,7 +196,7 @@ module FiveHundred
         end
 
         it "player discard kitty" do
-          @round.should_receive(:discard).with([@five_diamonds, @ten_clubs, @nine_clubs])
+          @round.should_receive(:discard_kitty).with([@five_diamonds, @ten_clubs, @nine_clubs])
 
           @gw.player_discard_kitty(["5d", "10c", "9c"])
         end

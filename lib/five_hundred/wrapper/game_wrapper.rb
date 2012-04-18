@@ -126,7 +126,7 @@ module FiveHundred
 
       def player_discard_kitty(card_codes)
         cards = card_codes.map {|code| Deck.card(code) }
-        @current_round.discard(cards)
+        @current_round.discard_kitty(cards)
       end
 
       def player_play_card(card_code)

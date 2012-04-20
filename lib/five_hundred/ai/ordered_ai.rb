@@ -26,18 +26,7 @@ module FiveHundred
       end
 
       def request_play
-        cards = @cards.sort_by {|c| -c.rank(@r.trump_suit)}
-
-        if [:misere, :none].include?(@r.trump_suit)
-          most_of = suits_by_card_count.detect { |suit, count| suit != :none }.first
-          cards.first.set_joker_suit(most_of)
-          cards.first.set_joker_suit(@t.led_suit) unless leading_and_is_joker?(cards.first)
-        end
-
-        cards.each do |c|
-          return c if @t.valid_play?(c, self)
-        end
-        cards.first
+        @r.valid_cards.sort_by{|c| -c.rank(@r.trump_suit)}.first
       end
 
       def suits_by_card_count
@@ -48,12 +37,8 @@ module FiveHundred
         suits.sort_by {|key, value| -value}
       end
 
-      def leading_and_is_joker?(c)
-        @t.cards.count == 0 and @r.joker_rules_ok?(c)
-      end
-
       def to_s
-        "OrderedAI v0.1"
+        "OrderedAI v0.2"
       end
     end
   end

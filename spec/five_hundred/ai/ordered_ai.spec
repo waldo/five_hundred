@@ -15,6 +15,7 @@ module FiveHundred
         @game.stub(:current_round).and_return(@round)
         @round.stub(:highest_bid).and_return(@bid_6h)
         @round.stub(:trump_suit).and_return(:hearts)
+        @round.stub(:valid_cards).and_return([@joker, @jack_hearts, @jack_diamonds, @ace_hearts, @king_hearts, @queen_hearts, @ten_hearts, @nine_hearts, @eight_hearts, @seven_hearts])
         @ai.assign_cards([@joker, @jack_hearts, @jack_diamonds, @ace_hearts, @king_hearts, @queen_hearts, @ten_hearts, @nine_hearts, @eight_hearts, @seven_hearts])
       end
 

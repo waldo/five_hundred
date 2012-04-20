@@ -9,8 +9,7 @@ module FiveHundred
       end
 
       def request_bid(g)
-        bid_code = [Bid.all.keys[rand(Bid.all.count)], "pass"][rand(2)]
-        Bid.new(bid_code)
+        [g.current_round.valid_bids.sample, Bid.new("pass")][rand(2)]
       end
 
       def request_kitty(g)
@@ -19,11 +18,11 @@ module FiveHundred
       end
 
       def request_play(g)
-        @cards[rand(@cards.count)]
+        g.current_round.valid_cards.sample
       end
 
       def to_s
-        "RandomAI v0"
+        "RandomAI v0.2"
       end
     end
   end

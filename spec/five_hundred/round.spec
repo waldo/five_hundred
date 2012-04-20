@@ -112,19 +112,19 @@ module FiveHundred
       end
 
       it "should accept play card only during playing phase, not during bidding phase" do
-        @r.play(@players[0].cards.first)
+        @r.play_card(@players[0].cards.first)
 
         @players[0].cards.count.should == 9
 
         @r = Round.new(@game)
-        @r.play(@players[0].cards.first)
+        @r.play_card(@players[0].cards.first)
 
         @players[0].cards.count.should == 10
       end
 
       it "should move to complete state on successful completion of playing round" do
         @r.stub(:tricks_phase_complete?).and_return(true)
-        @r.play(@six_hearts)
+        @r.play_card(@six_hearts)
 
         @r.state.should == :complete
       end

@@ -74,7 +74,7 @@ module FiveHundred
     end
 
     def discard_kitty(cards)
-      discard!(cards) if discard_valid?(cards)
+      discard_kitty!(cards) if discard_kitty_valid?(cards)
     end
 
     def discard_kitty!(cards)
@@ -87,7 +87,7 @@ module FiveHundred
       state == :kitty && cards.uniq.count == 3 && cards.all? {|c| winning_bidder.cards.include?(c) }
     end
 
-    def play(card)
+    def play_card(card)
       if state == :playing
         trick_set.play(card)
         check_after_play

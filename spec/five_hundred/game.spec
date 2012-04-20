@@ -65,7 +65,7 @@ module FiveHundred
     context "round complete -" do
       def round_stub!(scores, bids_achieved, winning_bidder=@g.players.first)
         @g.teams.each_with_index do |t,i|
-          @round.stub(:score_for).with(t)     { scores[i] }
+          @round.stub(:score_for).with(t) { scores[i] }
           @round.stub(:bid_achieved_for?).with(t) { bids_achieved[i] }
         end
 

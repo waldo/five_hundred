@@ -158,22 +158,22 @@ module FiveHundred
 
       def get_card_codes
         cards = @player.cards
-        cards.map{ |c| c.code }
+        cards.map {|c| c.code }
       end
 
       def get_kitty_card_codes
         cards = @player.kitty_cards
-        cards.map{ |c| c.code }
+        cards.map {|c| c.code }
       end
 
       def valid_bids
         bids = @current_round.valid_bids
-        bids.map{ |b| b.code }
+        bids.map {|b| b.code }
       end
 
       def valid_cards
         cards = @current_round.valid_cards
-        cards.map{ |c| c.code }
+        cards.map {|c| c.code }
       end
 
       def bid_at_team_position(team_position)

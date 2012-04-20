@@ -74,21 +74,19 @@ module FiveHundred
     end
 
     def victorious_teams
-      victors = []
+      @teams.select {|t| positive_team_victory(t) || negative_team_victory(t) }
+    end
 
-      @teams.each do |t|
-        if score_for(t) >= 500 and bid_achieved?(t)
-          victors << t
-        elsif score_for(t) <= -500
-          victors << other_team(t)
-        end
-      end
+    def positive_team_victory(t)
+      score_for(t) >= 500 and bid_achieved?(t)
+    end
 
-      victors
+    def negative_team_victory(t)
+      score_for(other_team(t)) <= -500
     end
 
     def score_for(team)
-      @rounds.map{ |r| r.score_for(team) }.reduce(0, :+)
+      @rounds.map{|r| r.score_for(team) }.reduce(0, :+)
     end
 
     def bid_achieved?(team)

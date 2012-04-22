@@ -41,7 +41,7 @@ module FiveHundred
       def run!
         set_results
 
-        runs.times do
+        runs.times do |i|
           g = Game.new
           @players.each do |p| g.join(p) end
           while g.state != :complete
@@ -63,11 +63,13 @@ module FiveHundred
           end
 
           record_results(g)
+          print "#{i}-"
         end
+
+        @results
       end
 
       def record_results(g)
-        puts "result: #{g.score_for(g.teams.first)} vs #{g.score_for(g.teams.last)}"
         g.winner.players.each do |p|
           @results[p.to_s][@players.index(p)][:victories] += 1
 

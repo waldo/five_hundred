@@ -38,7 +38,7 @@ module FiveHundred
       end
 
       def to_s
-        "OrderedAI v0.2"
+        "#{self.class} 0.2"
       end
     end
   end

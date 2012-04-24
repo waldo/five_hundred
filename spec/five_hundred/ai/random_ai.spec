@@ -28,7 +28,6 @@ module FiveHundred
         end
 
         it "kitty with 3 random cards from your hand" do
-          @round.stub(:highest_bid).and_return(@bid_6h)
           @ai.assign_kitty([@five_spades, @five_clubs, @four_diamonds])
 
           cards = @ai.request(:kitty, @game)

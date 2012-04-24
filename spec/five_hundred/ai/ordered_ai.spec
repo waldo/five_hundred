@@ -13,8 +13,9 @@ module FiveHundred
         @ai = OrderedAI.new
 
         @game.stub(:current_round).and_return(@round)
-        @round.stub(:highest_bid).and_return(@bid_6h)
+        @round.stub(:highest_bid).and_return(@bid_10d)
         @round.stub(:trump_suit).and_return(:hearts)
+        @round.stub(:valid_bids).and_return([@bid_10d, @bid_10h, @bid_om, @bid_10nt, @pass])
         @round.stub(:valid_cards).and_return([@joker, @jack_hearts, @jack_diamonds, @ace_hearts, @king_hearts, @queen_hearts, @ten_hearts, @nine_hearts, @eight_hearts, @seven_hearts])
         @ai.assign_cards([@joker, @jack_hearts, @jack_diamonds, @ace_hearts, @king_hearts, @queen_hearts, @ten_hearts, @nine_hearts, @eight_hearts, @seven_hearts])
       end
@@ -22,7 +23,8 @@ module FiveHundred
       context "should respond to requests for" do
         it "bid with a valid bid from the suit it has with most cards" do
           bid = @ai.request(:bid, @game)
-          Bid.all.keys.should include(bid.code)
+
+          @round.valid_bids.should include(bid)
         end
 
         it "bid and be 10 or less" do
@@ -30,8 +32,6 @@ module FiveHundred
         end
 
         it "kitty with 3 random low cards from your hand" do
-          @round.stub(:highest_bid).and_return(@bid_6h)
-
           cards = @ai.request(:kitty, @game)
           cards.count.should == 3
           cards.each do |c|
@@ -42,7 +42,9 @@ module FiveHundred
 
         it "play with a card from your hand" do
           card = @ai.request(:play, @game)
+
           @ai.cards.should include(card)
+          @round.valid_cards.should include(card)
         end
 
         context "play the joker" do

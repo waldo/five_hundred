@@ -30,13 +30,13 @@ module FiveHundred
       end
 
       def suits_by_card_count
-        suits = Hash.new(0)
+        suits = Hash.new {|h, k| h[k] = [] }
 
         @cards.map do |c|
-          suits[c.suit] += 1
+          suits[c.suit] << c
         end
 
-        suits.sort_by {|key, value| -value }
+        suits.sort_by {|key, arr| -arr.count }
       end
 
       def suit_with_most_cards
@@ -44,7 +44,7 @@ module FiveHundred
       end
 
       def max_cards_for_any_suit
-        suits_by_card_count.first[1]
+        suits_by_card_count.first[1].count
       end
 
       def to_s

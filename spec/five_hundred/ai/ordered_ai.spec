@@ -31,13 +31,10 @@ module FiveHundred
           @ai.request(:bid, @game).should == @bid_10h
         end
 
-        it "kitty with 3 random low cards from your hand" do
+        it "kitty with the 3 lowest cards from your hand" do
           cards = @ai.request(:kitty, @game)
-          cards.count.should == 3
-          cards.each do |c|
-            @ai.cards.should include(c)
-          end
-          cards.should_not include(@joker)
+
+          cards.should == [@seven_hearts, @eight_hearts, @nine_hearts]
         end
 
         it "play with a card from your hand" do

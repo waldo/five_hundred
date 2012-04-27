@@ -4,24 +4,21 @@ require "five_hundred/player"
 module FiveHundred
   module AI
     class RankOrderedAI < OrderedAI
-      def request_bid
-        bid_suit_letter = suits_by_rank_total.first[0].to_s[0]
-        bid_number = suits_by_rank_total.first[1] / 6
-        bid_number += 1 if @cards.include? Deck.card("Jo")
-        bid_number = [10, bid_number].min
-        bid_number = [6, bid_number].max
-        my_bid = Bid.new("#{bid_number.to_s}#{bid_suit_letter}")
-        return my_bid if my_bid > @r.highest_bid
-        return Bid.new("pass")
-      end
+      def request_kitty
+        cards_to_discard = []
 
-      def suits_by_rank_total
-        suits = {:spades => 0, :clubs => 0, :diamonds => 0, :hearts => 0, :none => 0}
-        @cards.map do |c|
-          suits[c.suit] += c.rank unless c.joker?
+        suits_by_card_count.reverse.each do |suit, arr|
+          if arr.length > 0 && suit != :none
+            arr.sort_by {|c| c.rank(@r.trump_suit) }.slice(0...arr.length).each do |c|
+              if cards_to_discard.length < 3
+                cards_to_discard << c unless c.rank(@r.trump_suit) >= 14
+                cards_to_discard << c if suit == @r.trump_suit # in case we have only trump suit cards left
+              end
+            end
+          end
         end
 
-        suits.sort_by {|key, value| -value}
+        cards_to_discard
       end
 
       def to_s

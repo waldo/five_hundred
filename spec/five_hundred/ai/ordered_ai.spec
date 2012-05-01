@@ -44,7 +44,7 @@ module FiveHundred
           @round.valid_cards.should include(card)
         end
 
-        context "play the joker" do
+        context "play your highest card (the joker)" do
           it do
             @ai.request(:play, @game).should == @joker
           end

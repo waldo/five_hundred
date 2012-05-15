@@ -5,7 +5,6 @@ module FiveHundred
     attr_reader :state, :teams, :winner
 
     def initialize
-      @state = :setup
       @teams = [Team.new, Team.new]
       @dealer_order = [0,1,2,3].rotate!(rand(4))
       @rounds = []
@@ -120,6 +119,16 @@ module FiveHundred
 
     def current_round
       @rounds.last
+    end
+
+    def state
+      if @rounds.count == 0
+        :setup
+      elsif @winner != []
+        :complete
+      else
+        current_round.state
+      end
     end
   end
 end

@@ -58,7 +58,7 @@ module FiveHundred
 
       it "shouldn't happen if there are 3 players" do
         add_players(3)
-        @g.state.should_not == :in_progress
+        @g.state.should == :setup
       end
     end
 
@@ -70,6 +70,7 @@ module FiveHundred
         end
 
         @round.stub(:winning_bidder) { winning_bidder }
+        @round.stub(:state) { :bidding }
       end
 
       before(:each) do
@@ -122,7 +123,7 @@ module FiveHundred
             round_stub!([520, 480], [false, nil])
 
             @g.round_complete
-            @g.state.should == :in_progress
+            @g.state.should == :bidding
             @g.winner.should == []
           end
 
@@ -130,7 +131,7 @@ module FiveHundred
             round_stub!([480, 520], [true, nil])
 
             @g.round_complete
-            @g.state.should == :in_progress
+            @g.state.should == :bidding
             @g.winner.should == []
           end
         end
@@ -139,7 +140,7 @@ module FiveHundred
           round_stub!([480, 480], [true, nil])
 
           @g.round_complete
-          @g.state.should == :in_progress
+          @g.state.should == :bidding
           @g.winner.should == []
         end
       end

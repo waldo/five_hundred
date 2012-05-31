@@ -66,6 +66,15 @@ module FiveHundred
         end
       end
 
+      it "should not be assigned until complete" do
+        @trick = Trick.new(:hearts)
+        @trick.play(@six_clubs, @players[0])
+        @trick.play(@king_spades, @players[1])
+        @trick.play(@ace_clubs, @players[2])
+
+        @trick.winner.class.should == NullObject
+      end
+
       context "should not let a player play" do
         it "a card they don't have" do
           @players[0].stub(:has_card).and_return(false)

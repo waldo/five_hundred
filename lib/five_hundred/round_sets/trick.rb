@@ -22,7 +22,7 @@ module FiveHundred
       end
 
       def winner
-        player, max_card = @card_set.max_by {|player, card| rank(card)}
+        player, max_card = @card_set.max_by {|player, card| rank(card)} if complete?
 
         player.nil? ? Player.empty : player
       end

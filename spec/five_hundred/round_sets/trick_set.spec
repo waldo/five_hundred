@@ -198,6 +198,22 @@ module FiveHundred
           @trick_set = TrickSet.new(:none, @players.dup)
         end
 
+        it "should accept joker as a player's second trump card" do
+          @trick_set = TrickSet.new(:hearts, @players.dup)
+          @trick_set.stub(:current_player).and_return(@players[0])
+          @players[0].stub(:cards) do Deck.cards(%w{Jd Qh Jo}) end
+          @players[1].stub(:cards) do Deck.cards(%w{8h 9c 7c}) end
+          @players[2].stub(:cards) do Deck.cards(%w{9h 5c Jc}) end
+          @players[3].stub(:cards) do Deck.cards(%w{10h 6c Ks}) end
+
+          @trick_set.valid_cards.should == [@jack_diamonds, @queen_hearts, @joker]
+
+          play!([@jack_diamonds, @eight_hearts, @nine_hearts, @ten_hearts])
+
+          @players[0].stub(:cards) do Deck.cards(%w{Qh Jo}) end
+          @trick_set.valid_cards.should == [@queen_hearts, @joker]
+        end
+
         it "should accept joker with the right suit" do
           @trick_set.play(@four_hearts)
           @trick_set.stub(:current_player).and_return(@players[1])

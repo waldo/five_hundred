@@ -39,15 +39,27 @@ module FiveHundred
       end
 
       def joker_rules?(card)
-        !card.joker? || valid_joker?(card.suit(@trump_suit))
+        !card.joker? || joker_as_regular_trump?(card.suit) || valid_no_trump_joker?(card.suit(@trump_suit))
       end
 
-      def valid_joker?(joker_suit)
+      def joker_as_regular_trump?(card_suit)
+        regular_trumps? && card_suit == :none
+      end
+
+      def misere_or_no_trumps?
+        [:misere, :none].include?(@trump_suit)
+      end
+
+      def regular_trumps?
+        !misere_or_no_trumps?
+      end
+
+      def valid_no_trump_joker?(joker_suit)
         joker_suit_supplied_if_required?(joker_suit) && (first_play_of_suit?(joker_suit) || (none_remaining_in_suit?(joker_suit) && unvoided_suit?(joker_suit)))
       end
 
       def joker_suit_supplied_if_required?(joker_suit)
-        if [:misere, :none].include?(@trump_suit) && current_trick.first_card?
+        if misere_or_no_trumps? && current_trick.first_card?
           joker_suit != :none
         else
           true

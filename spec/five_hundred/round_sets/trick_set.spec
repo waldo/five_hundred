@@ -239,6 +239,25 @@ module FiveHundred
           ].flatten
         end
       end
+
+      context "report" do
+        it "provides a list of the remaining highest ranked cards" do
+          cards = [
+            [@jack_diamonds, @eight_hearts, @nine_spades, @ten_clubs],
+            [@jack_hearts, @eight_spades, @nine_clubs, @ten_diamonds],
+            [@jack_spades, @eight_clubs, @nine_diamonds, @ten_hearts],
+            [@jack_clubs, @eight_diamonds, @nine_hearts, @ten_spades],
+          ]
+
+          cards.each do |trick_cards|
+            play!(trick_cards)
+          end
+
+          @trick_set.remaining_rank_ordered_cards.first.should == @joker
+          @trick_set.remaining_rank_ordered_cards.should_not include(cards.flatten)
+          @trick_set.remaining_rank_ordered_cards.last.should == @four_diamonds
+        end
+      end
     end
   end
 end

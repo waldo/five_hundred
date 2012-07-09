@@ -59,6 +59,10 @@ module FiveHundred
       def followed_suit?(player)
         @card_set[player].nil? || first_card.suit(@trump_suit) == @card_set[player].suit(@trump_suit)
       end
+
+      def cards
+        @card_set.map {|key, value| value }
+      end
     end
   end
 end

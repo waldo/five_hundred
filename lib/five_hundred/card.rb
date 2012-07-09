@@ -73,8 +73,14 @@ module FiveHundred
       "#{@code}"
     end
 
-    def ==(other)
-      self.to_s == other.to_s
+    def eql?(other)
+      self.class.equal?(other.class) && self.to_s == other.to_s
+    end
+
+    alias == eql?
+
+    def hash
+      self.class.hash ^ self.to_s.hash
     end
 
     def bower_check(trump_suit, suit_a, suit_b)

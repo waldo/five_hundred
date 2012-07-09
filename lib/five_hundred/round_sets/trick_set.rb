@@ -35,8 +35,13 @@ module FiveHundred
       end
 
       def valid_play?(card)
-        current_trick.valid_play?(card, current_player) && joker_rules?(card)
+        valid_play_for_player?(card, current_player)
       end
+
+      def valid_play_for_player?(card, player)
+        current_trick.valid_play?(card, player) && joker_rules?(card)
+      end
+      private :valid_play_for_player?
 
       def joker_rules?(card)
         !card.joker? || joker_as_regular_trump?(card.suit) || valid_no_trump_joker?(card.suit(@trump_suit))
@@ -92,18 +97,27 @@ module FiveHundred
       end
       private :played_cards
 
+      def all_played_cards
+        @tricks.map {|t| t.cards }.flatten
+      end
+      private :all_played_cards
+
       def voided_suits(player)
         @tricks.map {|t| t.first_card.suit(@trump_suit) unless t.followed_suit?(player)}.compact
       end
       private :voided_suits
 
       def valid_cards
+        valid_cards_from_set(current_player.cards, current_player)
+      end
+
+      def valid_cards_from_set(possible_cards, player)
         joker = Deck.card("Jo")
-        possible_cards = current_player.cards
         possible_cards += joker.joker_suit_variations if [:none, :misere].include?(trump_suit) && possible_cards.include?(joker)
 
-        possible_cards.select {|card| valid_play?(card)}
+        possible_cards.select {|card| valid_play_for_player?(card, player)}
       end
+      private :valid_cards_from_set
 
       def current_trick
         @tricks.last
@@ -141,6 +155,11 @@ module FiveHundred
 
       def complete?
         @tricks.count == 10 && current_trick.complete? || (@trump_suit == :misere && current_trick.winner == @winning_bidder)
+      end
+
+      def remaining_rank_ordered_cards
+        possible_cards = Deck.set_of_cards - all_played_cards
+        possible_cards.sort_by {|c| -c.rank(@trump_suit) }
       end
 
       # class

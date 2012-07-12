@@ -6,7 +6,7 @@ module FiveHundred
     class GameWrapper
       attr_reader :messages
 
-      def initialize
+      def initialize(players=[AI::OrderedAI.new, AI::OrderedAI.new, AI::OrderedAI.new])
         # create game
         @game = Game.new
         # message queue
@@ -14,7 +14,8 @@ module FiveHundred
         msg(:new_round)
         # add players to game
         @player = Player.new
-        [AI::OrderedAI.new, AI::OrderedAI.new, AI::OrderedAI.new, @player].each do |p| @game.join(p) end
+        players << @player if players.count < 4
+        players.each do |p| @game.join(p) end
         # run until player request
         @current_round = @game.current_round
 

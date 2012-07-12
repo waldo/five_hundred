@@ -1,4 +1,5 @@
 # encoding: UTF-8
+require "five_hundred/team"
 
 module FiveHundred
   class Player

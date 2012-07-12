@@ -42,34 +42,19 @@ module FiveHundred
         set_results
 
         runs.times do |i|
-          g = Game.new
-          @players.each do |p| g.join(p) end
-          while g.state != :complete
-            rnd = g.current_round
-            while rnd.state == :bidding
-              bid = rnd.current_bidder.request(:bid, g)
-              rnd.bid(bid)
-            end
+          gw = FiveHundred::Wrapper::GameWrapper.new(@players)
 
-            while rnd.state == :kitty
-              cards = rnd.winning_bidder.request(:kitty, g)
-              rnd.discard_kitty(cards)
-            end
+          gw.run!
 
-            while rnd.state == :playing
-              card = rnd.current_player.request(:play, g)
-              rnd.play_card(card)
-            end
-          end
-
-          record_results(g)
+          record_results(gw)
           print "#{i}-"
         end
 
         @results
       end
 
-      def record_results(g)
+      def record_results(gw)
+        g = gw.instance_variable_get(:@game)
         g.winner.players.each do |p|
           @results[p.to_s][@players.index(p)][:victories] += 1
 

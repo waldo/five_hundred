@@ -50,13 +50,12 @@ module FiveHundred
 
     def play!
       @rounds << Round.new(self)
-      @state = :in_progress
     end
 
     def ready_to_play?
       ready =   !@teams.first.players_required?
       ready &&= !@teams.last.players_required?
-      ready &&= @state == :setup
+      ready &&= state == :setup
     end
     private :ready_to_play?
 
@@ -100,7 +99,6 @@ module FiveHundred
     end
 
     def game_over!
-      @state = :complete
       @winner = victorious_teams.first
     end
 
@@ -124,7 +122,7 @@ module FiveHundred
     def state
       if @rounds.count == 0
         :setup
-      elsif @winner != []
+      elsif game_over?
         :complete
       else
         current_round.state

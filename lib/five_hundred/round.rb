@@ -109,10 +109,12 @@ module FiveHundred
     private :round_complete!
 
     def tricks_phase_complete?
+      return false if trick_set.nil?
       trick_set.complete?
     end
 
     def score_for(team)
+      return 0 unless tricks_phase_complete?
       score = highest_bid.non_bidder_score(tricks_won_for(team))
       score = highest_bid.bidder_score(tricks_won_for(team)) if winning_bidder.team == team
       score

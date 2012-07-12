@@ -132,6 +132,7 @@ module FiveHundred
 
     context "scoring" do
       it "should determine if the bid is achieved" do
+        @r.stub(:tricks_phase_complete?).and_return(true)
         @r.stub(:highest_bid).and_return(@bid_6h)
         @r.stub(:winning_bidder).and_return(@players[0])
         @r.stub(:tricks_won_for).with(@players[0].team).and_return(6)

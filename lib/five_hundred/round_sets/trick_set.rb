@@ -117,7 +117,6 @@ module FiveHundred
 
         possible_cards.select {|card| valid_play_for_player?(card, player)}
       end
-      private :valid_cards_from_set
 
       def current_trick
         @tricks.last

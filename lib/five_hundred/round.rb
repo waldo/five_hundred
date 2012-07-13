@@ -136,6 +136,10 @@ module FiveHundred
       trick_set.valid_cards
     end
 
+    def remaining_rank_ordered_cards
+      trick_set.remaining_rank_ordered_cards
+    end
+
     def current_bidder
       @bidding_set.current_bidder
     end

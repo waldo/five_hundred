@@ -31,7 +31,7 @@ module FiveHundred
       def set_results
         @players.each do |p|
           if @results[p.to_s][@players.index(p)].nil?
-            @results[p.to_s][@players.index(p)] = { runs: @runs, victories: 0, positive: 0, negative: 0 }
+            @results[p.to_s][@players.index(p)] = { runs: @runs, victories: 0, positive: 0, negative: 0, tricks_won: 0 }
           else
             @results[p.to_s][@players.index(p)][:runs] += @runs
           end
@@ -55,6 +55,13 @@ module FiveHundred
 
       def record_results(gw)
         g = gw.instance_variable_get(:@game)
+
+        g.instance_variable_get(:@rounds).each do |round|
+          @players.each_with_index do |player, i|
+            @results[player.to_s][i][:tricks_won] += round.trick_set.tricks_won_by_player(player)
+          end
+        end
+
         g.winner.players.each do |p|
           @results[p.to_s][@players.index(p)][:victories] += 1
 

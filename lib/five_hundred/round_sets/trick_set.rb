@@ -152,6 +152,12 @@ module FiveHundred
         end
       end
 
+      def tricks_won_by_player(player)
+        @tricks.reduce(0) do |total, trick|
+          total + (trick.winner == player ? 1 : 0)
+        end
+      end
+
       def complete?
         @tricks.count == 10 && current_trick.complete? || (@trump_suit == :misere && current_trick.winner == @winning_bidder)
       end

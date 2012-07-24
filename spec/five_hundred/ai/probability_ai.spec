@@ -13,6 +13,7 @@ module FiveHundred
         @ai = ProbabilityAI.new
 
         @game.stub(:current_round).and_return(@round)
+        @game.stub(:players).and_return(([double("Player").as_null_object] * 3) << @ai)
         @round.stub(:highest_bid).and_return(@bid_6h)
         @round.stub(:trump_suit).and_return(:hearts)
         @round.stub(:valid_bids).and_return([@bid_7h, @bid_10d, @bid_10h, @bid_om, @bid_10nt, @pass])
@@ -33,15 +34,26 @@ module FiveHundred
         end
 
         context "play" do
-          it "starts with a default probability for cards per player" do
-            @ai.probabilities[0][@eight_spades.code].should == 10 / 43.0
-            @ai.probabilities[:kitty][@eight_spades.code].should == 3 / 43.0
+          # it "starts with a default probability for cards per player" do
+          #   @ai.probabilities[0][@eight_spades.code].should == 10 / 43.0
+          #   @ai.probabilities[:kitty][@eight_spades.code].should == 3 / 43.0
 
-            @ai.probabilities[3][@joker.code].should == 10 / 43.0
-            @ai.probabilities[:kitty][@joker.code].should == 3 / 43.0
+          #   @ai.probabilities[3][@joker.code].should == 10 / 43.0
+          #   @ai.probabilities[:kitty][@joker.code].should == 3 / 43.0
+          # end
+
+          it "starts with a default probability for cards per player given my known cards" do
+            @ai.request(:bid, @game)
+            @ai.assign_cards([@joker, @jack_hearts, @jack_diamonds, @ace_hearts, @king_hearts, @queen_hearts, @ten_hearts, @nine_hearts, @eight_hearts, @seven_hearts])
+            @ai.probabilities[3][@joker.code].should == 1.0
+            @ai.probabilities[0][@joker.code].should == 0.0
+            @ai.probabilities[:kitty][@joker.code].should == 0.0
+
+            @ai.probabilities[3][@four_hearts.code].should == 0.0
+            @ai.probabilities[0][@four_hearts.code].should == 10.0 / 33.0
+            @ai.probabilities[:kitty][@four_hearts.code].should == 3.0 / 33.0
           end
 
-          it "starts with a default probability for cards per player given my known cards"
           it "updates probability given you got the kitty"
           it "updates probability after each card played"
           it "updates probability on voided suit"

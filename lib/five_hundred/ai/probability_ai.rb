@@ -25,8 +25,21 @@ module FiveHundred
 
         slots.each do |slot|
           codes.each do |code|
-            probability_list[slot][code] = 10 / 43.0
-            probability_list[slot][code] = 3 / 43.0 if slot == :kitty
+            if self.cards.map(&:code).include?(code)
+              if slot == @g.players.index(self)
+                probability_list[slot][code] = 1.0
+              else
+                probability_list[slot][code] = 0.0
+              end
+            else
+              if slot == @g.players.index(self)
+                probability_list[slot][code] = 0.0
+              elsif slot == :kitty
+                probability_list[slot][code] = 3 / 33.0
+              else
+                probability_list[slot][code] = 10 / 33.0
+              end
+            end
           end
         end
 

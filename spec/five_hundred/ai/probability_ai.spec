@@ -34,17 +34,10 @@ module FiveHundred
         end
 
         context "play" do
-          # it "starts with a default probability for cards per player" do
-          #   @ai.probabilities[0][@eight_spades.code].should == 10 / 43.0
-          #   @ai.probabilities[:kitty][@eight_spades.code].should == 3 / 43.0
-
-          #   @ai.probabilities[3][@joker.code].should == 10 / 43.0
-          #   @ai.probabilities[:kitty][@joker.code].should == 3 / 43.0
-          # end
-
           it "starts with a default probability for cards per player given my known cards" do
-            @ai.request(:bid, @game)
             @ai.assign_cards([@joker, @jack_hearts, @jack_diamonds, @ace_hearts, @king_hearts, @queen_hearts, @ten_hearts, @nine_hearts, @eight_hearts, @seven_hearts])
+            @ai.request(:bid, @game)
+
             @ai.probabilities[3][@joker.code].should == 1.0
             @ai.probabilities[0][@joker.code].should == 0.0
             @ai.probabilities[:kitty][@joker.code].should == 0.0
@@ -54,7 +47,22 @@ module FiveHundred
             @ai.probabilities[:kitty][@four_hearts.code].should == 3.0 / 33.0
           end
 
-          it "updates probability given you got the kitty"
+          it "updates probability after you got the kitty" do
+            @round.stub(:winning_bidder).and_return(@ai)
+            @ai.assign_cards([@joker, @jack_hearts, @jack_diamonds, @ace_hearts, @king_hearts, @queen_hearts, @ten_hearts, @nine_hearts, @eight_hearts, @seven_hearts])
+            @ai.assign_kitty([@four_diamonds, @four_hearts, @five_spades])
+            @ai.request(:kitty, @game)
+
+            @ai.probabilities[3][@eight_spades.code].should == 0.0
+            @ai.probabilities[0][@eight_spades.code].should == 10.0 / 30.0
+            @ai.probabilities[:kitty][@eight_spades.code].should == 0.0
+
+            @ai.probabilities[3][@four_hearts.code].should == 1.0
+            @ai.probabilities[0][@four_hearts.code].should == 0.0
+            @ai.probabilities[:kitty][@four_hearts.code].should == 0.0
+          end
+
+          it "updates probability after you discard the kitty"
           it "updates probability after each card played"
           it "updates probability on voided suit"
           it "**updates probability on unknown kitty"

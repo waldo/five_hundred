@@ -21,7 +21,8 @@ module FiveHundred
       def probabilities
         slots = (0..3).to_a << :kitty
         codes = Deck.set_of_cards.map(&:code)
-        known_cards = (cards + kitty).count.to_f
+        known_cards = (cards + kitty).count.to_f # + discarded_kitty + trick_set.card.count
+        unknown_cards = 43.0 - known_cards
         probability_list = Hash.new {|h, k| h[k] = {} }
 
         slots.each do |slot|
@@ -36,10 +37,10 @@ module FiveHundred
               if slot == @g.players.index(self)
                 probability_list[slot][code] = 0.0
               elsif slot == :kitty
-                probability_list[slot][code] = 3.0 / (43.0 - known_cards)
+                probability_list[slot][code] = 3.0 / unknown_cards
                 probability_list[slot][code] = 0.0 if @r.winning_bidder == self
               else
-                probability_list[slot][code] = 10.0 / (43.0 - known_cards)
+                probability_list[slot][code] = 10.0 / unknown_cards
               end
             end
           end

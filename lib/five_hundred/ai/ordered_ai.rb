@@ -22,7 +22,7 @@ module FiveHundred
       end
 
       def request_kitty
-        @cards.sort_by {|c| c.rank(@r.trump_suit) }.slice(0..2)
+        (@cards + @kitty).sort_by {|c| c.rank(@r.trump_suit) }.slice(0..2)
       end
 
       def request_play

@@ -78,8 +78,7 @@ module FiveHundred
     end
 
     def discard_kitty!(cards)
-      winning_bidder.remove_cards(cards)
-      winning_bidder.merge_kitty
+      winning_bidder.discard_kitty(cards)
       @state = :playing
     end
 

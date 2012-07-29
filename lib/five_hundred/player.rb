@@ -3,12 +3,13 @@ require "five_hundred/team"
 
 module FiveHundred
   class Player
-    attr_reader :cards, :kitty
+    attr_reader :cards, :kitty, :discarded_kitty
     attr_accessor :team
 
     def initialize
       @cards = []
       @kitty = []
+      @discarded_kitty = []
       @team = Team.empty
     end
 
@@ -30,6 +31,12 @@ module FiveHundred
       @kitty = []
     end
     private :clear_cards!
+
+    def discard_kitty(cards)
+      @discarded_kitty = cards
+      remove_cards(cards)
+      merge_kitty
+    end
 
     def remove_cards(cards_to_remove)
       cards_to_remove.each do |c|

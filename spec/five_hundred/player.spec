@@ -33,13 +33,10 @@ module FiveHundred
 
       cards_to_discard = [@nine_clubs, @five_clubs, @eight_diamonds]
 
-      @player.remove_cards(cards_to_discard)
-      @player.cards.count.should == 8
-      @player.kitty.count.should == 2
-
-      @player.merge_kitty
+      @player.discard_kitty(cards_to_discard)
       @player.cards.count.should == 10
       @player.kitty.count.should == 0
+      @player.discarded_kitty.count.should == 3
     end
 
     it "should be able to discard / play a card" do

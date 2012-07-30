@@ -10,15 +10,21 @@ module FiveHundred
 
       before :each do
         @round = double("Round").as_null_object
+        @trick_set = double("TrickSet").as_null_object
         @ai = ProbabilityAI.new
+        @card_arr = [@joker, @jack_hearts, @jack_diamonds, @ace_hearts, @king_hearts, @queen_hearts, @ten_hearts, @nine_hearts, @eight_hearts, @seven_hearts]
 
         @game.stub(:current_round).and_return(@round)
         @game.stub(:players).and_return(([double("Player").as_null_object] * 3) << @ai)
+
         @round.stub(:highest_bid).and_return(@bid_6h)
         @round.stub(:trump_suit).and_return(:hearts)
-        @round.stub(:valid_bids).and_return([@bid_7h, @bid_10d, @bid_10h, @bid_om, @bid_10nt, @pass])
-        @card_arr = [@jack_hearts, @jack_diamonds, @ace_hearts, @king_hearts, @queen_hearts, @ace_spades, @eight_spades, @six_spades, @queen_clubs, @seven_clubs]
+        @round.stub(:valid_bids).and_return([@bid_10d, @bid_10h, @bid_om, @bid_10nt, @pass])
+        @round.stub(:trick_set => @trick_set)
         @round.stub(:valid_cards).and_return(@card_arr)
+
+        @trick_set.stub(:all_played_cards => [])
+
         @ai.assign_cards(@card_arr)
       end
 
@@ -30,12 +36,11 @@ module FiveHundred
         end
 
         it "bid and be 10 or less" do
-          @ai.request(:bid, @game).should == @bid_7h
+          @ai.request(:bid, @game).should == @bid_10h
         end
 
         context "play" do
           it "starts with a default probability for cards per player given my known cards" do
-            @ai.assign_cards([@joker, @jack_hearts, @jack_diamonds, @ace_hearts, @king_hearts, @queen_hearts, @ten_hearts, @nine_hearts, @eight_hearts, @seven_hearts])
             @ai.request(:bid, @game)
 
             @ai.probabilities[3][@joker.code].should == 1.0
@@ -49,7 +54,6 @@ module FiveHundred
 
           it "updates probability after you got the kitty" do
             @round.stub(:winning_bidder).and_return(@ai)
-            @ai.assign_cards([@joker, @jack_hearts, @jack_diamonds, @ace_hearts, @king_hearts, @queen_hearts, @ten_hearts, @nine_hearts, @eight_hearts, @seven_hearts])
             @ai.assign_kitty([@four_diamonds, @four_hearts, @five_spades])
             @ai.request(:kitty, @game)
 
@@ -64,7 +68,6 @@ module FiveHundred
 
           it "updates probability after you discard the kitty" do
             @round.stub(:winning_bidder).and_return(@ai)
-            @ai.assign_cards([@joker, @jack_hearts, @jack_diamonds, @ace_hearts, @king_hearts, @queen_hearts, @ten_hearts, @nine_hearts, @eight_hearts, @seven_hearts])
             @ai.assign_kitty([@four_diamonds, @four_hearts, @five_spades])
             cards = @ai.request(:kitty, @game)
             @ai.discard_kitty(cards)
@@ -78,7 +81,25 @@ module FiveHundred
             @ai.probabilities[:kitty][@four_hearts.code].should == 1.0
           end
 
-          it "updates probability after each card played"
+          it "updates probability after each card played" do
+            @trick_set.stub(:all_played_cards).and_return([@four_hearts, @five_hearts, @six_hearts, @seven_hearts])
+            @trick_set.stub(:played_cards).with(@game.players[0]).and_return(@four_hearts)
+            @trick_set.stub(:played_cards).with(@game.players[1]).and_return(@five_hearts)
+            @trick_set.stub(:played_cards).with(@game.players[2]).and_return(@six_hearts)
+            @trick_set.stub(:played_cards).with(@ai).and_return(@seven_hearts)
+            @ai.remove_card(@seven_hearts)
+
+            @ai.request(:play, @game)
+
+            @ai.probabilities[3][@four_hearts.code].should == 0.0
+            @ai.probabilities[0][@four_hearts.code].should == 0.0
+            @ai.probabilities[:kitty][@four_hearts.code].should == 0.0
+
+            @ai.probabilities[3][@seven_hearts.code].should == 0.0
+            @ai.probabilities[0][@seven_hearts.code].should == 0.0
+            @ai.probabilities[:kitty][@seven_hearts.code].should == 0.0
+          end
+
           it "updates probability on voided suit"
           it "**updates probability on unknown kitty"
           it "**updates probability on counted cards"

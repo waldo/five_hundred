@@ -105,7 +105,6 @@ module FiveHundred
       def voided_suits(player)
         @tricks.map {|t| t.first_card.suit(@trump_suit) unless t.followed_suit?(player)}.compact
       end
-      private :voided_suits
 
       def valid_cards
         valid_cards_from_set(current_player.cards, current_player)

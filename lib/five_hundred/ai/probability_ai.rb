@@ -24,7 +24,7 @@ module FiveHundred
 
         slots.each do |slot|
           all_codes.each do |code|
-            probability_list[slot][code] = assign_for_my_cards(slot, code) || assign_for_discarded_kitty_cards(slot, code) || assign_for_played_cards(slot, code) || assign_for_unknown_cards(slot, code)
+            probability_list[slot][code] = assign_for_my_cards(slot, code) || assign_for_discarded_kitty_cards(slot, code) || assign_for_voided_suits(slot, code) || assign_for_played_cards(slot, code) || assign_for_unknown_cards(slot, code)
           end
         end
 
@@ -40,6 +40,23 @@ module FiveHundred
       def assign_for_discarded_kitty_cards(slot, code)
         if discarded_kitty_codes.include?(code)
           is_kitty?(slot) ? 1.0 : 0.0
+        end
+      end
+
+      def assign_for_voided_suits(slot, code)
+        suit = Deck.card(code).suit
+        voided_in_this_suit = (@g.players - [self]).select {|p| @r.trick_set.voided_suits(p).include?(suit) }
+        return nil if voided_in_this_suit == []
+
+        cards_count_of_voided_hand = voided_in_this_suit.map {|p| unknown_cards_per_player(p) }.reduce(:+)
+        unknown_for_this_suit = unknown_count - cards_count_of_voided_hand
+
+        if slot == :kitty
+          me_seen_kitty?(slot) ? 0.0 : 3.0 / unknown_for_this_suit
+        elsif voided_in_this_suit.include?(@g.players[slot])
+          0.0
+        else
+          unknown_cards_per_player(@g.players[slot]) / unknown_for_this_suit
         end
       end
 
@@ -111,6 +128,11 @@ module FiveHundred
         unknown_codes.count
       end
       private :unknown_count
+
+      def unknown_cards_per_player(player)
+        10.0 - Array(@r.trick_set.played_cards(player)).count
+      end
+      private :unknown_cards_per_player
     end
   end
 end

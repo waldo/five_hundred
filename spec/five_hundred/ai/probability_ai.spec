@@ -13,9 +13,12 @@ module FiveHundred
         @trick_set = double("TrickSet").as_null_object
         @ai = ProbabilityAI.new
         @card_arr = [@joker, @jack_hearts, @jack_diamonds, @ace_hearts, @king_hearts, @queen_hearts, @ten_hearts, @nine_hearts, @eight_hearts, @seven_hearts]
+        @players = []
+        3.times { @players << double("Player").as_null_object }
+        @players << @ai
 
         @game.stub(:current_round).and_return(@round)
-        @game.stub(:players).and_return(([double("Player").as_null_object] * 3) << @ai)
+        @game.stub(:players => @players)
 
         @round.stub(:highest_bid).and_return(@bid_6h)
         @round.stub(:trump_suit).and_return(:hearts)
@@ -24,6 +27,11 @@ module FiveHundred
         @round.stub(:valid_cards).and_return(@card_arr)
 
         @trick_set.stub(:all_played_cards => [])
+        @trick_set.stub(:played_cards).with(@players[0]).and_return([])
+        @trick_set.stub(:played_cards).with(@players[1]).and_return([])
+        @trick_set.stub(:played_cards).with(@players[2]).and_return([])
+        @trick_set.stub(:played_cards).with(@players[3]).and_return([])
+        @trick_set.stub(:voided_suits => [])
 
         @ai.assign_cards(@card_arr)
       end
@@ -100,7 +108,22 @@ module FiveHundred
             @ai.probabilities[:kitty][@seven_hearts.code].should == 0.0
           end
 
-          it "updates probability on voided suit"
+          it "updates probability on voided suit" do
+            @trick_set.stub(:voided_suits).with(@game.players[0]).and_return([:clubs])
+
+            @ai.request(:play, @game)
+
+            @ai.probabilities[0][@five_spades.code].should == 10.0 / 33.0
+
+            @ai.probabilities[0][@five_clubs.code].should == 0.0
+            @ai.probabilities[0][@ten_clubs.code].should == 0.0
+            @ai.probabilities[0][@ace_clubs.code].should == 0.0
+
+            @ai.probabilities[1][@five_clubs.code].should == 10.0 / 23.0
+            @ai.probabilities[1][@ten_clubs.code].should == 10.0 / 23.0
+            @ai.probabilities[1][@ace_clubs.code].should == 10.0 / 23.0
+          end
+
           it "**updates probability on unknown kitty"
           it "**updates probability on counted cards"
 

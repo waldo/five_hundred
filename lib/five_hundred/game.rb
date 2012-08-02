@@ -2,7 +2,7 @@
 
 module FiveHundred
   class Game
-    attr_reader :state, :teams, :winner
+    attr_reader :teams, :winner
 
     def initialize
       @teams = [Team.new, Team.new]

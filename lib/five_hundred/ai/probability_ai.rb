@@ -52,7 +52,7 @@ module FiveHundred
         unknown_for_this_suit = unknown_count - cards_count_of_voided_hand
 
         if slot == :kitty
-          me_seen_kitty?(slot) ? 0.0 : 3.0 / unknown_for_this_suit
+          me_seen_kitty? ? 0.0 : 3.0 / unknown_for_this_suit
         elsif voided_in_this_suit.include?(@g.players[slot])
           0.0
         else
@@ -68,7 +68,13 @@ module FiveHundred
         if is_me?(slot)
           0.0
         elsif is_kitty?(slot)
-          me_seen_kitty?(slot) ? 0.0 : 3.0 / 33.0
+          if @r.state == :bidding
+            3.0  / 33.0
+          else
+            0.0
+          end
+        elsif seen_kitty?(slot)
+          13.0 / unknown_count
         else
           10.0 / unknown_count
         end
@@ -84,7 +90,11 @@ module FiveHundred
       end
       private :is_kitty?
 
-      def me_seen_kitty?(slot)
+      def seen_kitty?(slot)
+        @r.winning_bidder == @g.players[slot]
+      end
+
+      def me_seen_kitty?
         @r.winning_bidder == self
       end
       private :me_seen_kitty?

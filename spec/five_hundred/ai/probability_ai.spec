@@ -49,6 +49,7 @@ module FiveHundred
 
         context "play" do
           it "starts with a default probability for cards per player given my known cards" do
+            @round.stub(:state).and_return(:bidding)
             @ai.request(:bid, @game)
 
             @ai.probabilities[3][@joker.code].should == 1.0
@@ -124,9 +125,15 @@ module FiveHundred
             @ai.probabilities[1][@ace_clubs.code].should == 10.0 / 23.0
           end
 
-          it "**updates probability on unknown kitty"
-          it "**updates probability on counted cards"
+          it "updates probability on unknown kitty - give winning bidder +3 slots for the whole round" do
+            @round.stub(:winning_bidder).and_return(@players[0])
+            @players[0].assign_kitty([@four_diamonds, @four_hearts, @five_spades]) # ai doesn't see these cards
+            cards = @ai.request(:play, @game)
 
+            @ai.probabilities[3][@eight_spades.code].should == 0.0
+            @ai.probabilities[0][@eight_spades.code].should == 13.0 / 33.0
+            @ai.probabilities[:kitty][@eight_spades.code].should == 0.0
+          end
 
           it "with a card from your hand" do
             card = @ai.request(:play, @game)

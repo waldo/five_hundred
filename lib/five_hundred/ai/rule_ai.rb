@@ -29,6 +29,14 @@ module FiveHundred
         @r.valid_cards.sort_by{|c| -c.rank(@r.trump_suit) }.first
       end
 
+      def one_valid_choice?(cards=@r.valid_cards)
+        cards.count == 1
+      end
+
+      def guaranteed_winner?(cards=@r.valid_cards, top_card=@r.remaining_rank_ordered_cards.first)
+        cards.include?(top_card)
+      end
+
       def suits_by_card_count
         suits = Hash.new {|h, k| h[k] = [] }
 
@@ -48,7 +56,7 @@ module FiveHundred
       end
 
       def to_s
-        "#{self.class} 0.2"
+        "#{self.class} 0.1"
       end
     end
   end

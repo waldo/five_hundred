@@ -1,5 +1,7 @@
 # encoding: UTF-8
 require "ostruct"
+require "five_hundred/game"
+require "five_hundred/player"
 
 module FiveHundred
   module Wrapper
@@ -85,7 +87,7 @@ module FiveHundred
         if current_bidder == @player
           msg(:request_player_bid)
         else
-          bid = current_bidder.request(:bid, @game)
+          bid = current_bidder.request(:bid)
           @current_round.bid(bid)
           msg(:ai_bid, { :position => @game.players.find(current_bidder), :bid => bid.code })
         end
@@ -97,7 +99,7 @@ module FiveHundred
         if winning_bidder == @player
           msg(:request_player_kitty_discard)
         else
-          cards = winning_bidder.request(:kitty, @game)
+          cards = winning_bidder.request(:kitty)
           @current_round.discard_kitty(cards)
           msg(:ai_kitty_discard)
         end
@@ -109,7 +111,7 @@ module FiveHundred
         if current_player == @player
           msg(:request_player_play_card)
         else
-          card = current_player.request(:play, @game)
+          card = current_player.request(:play)
           @current_round.play_card(card)
           msg(:ai_play_card, { :position => @game.players.find(current_player), :card => card })
         end

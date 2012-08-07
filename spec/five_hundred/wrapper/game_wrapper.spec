@@ -34,7 +34,7 @@ module FiveHundred
           @game.stub_chain(:players, :find).and_return(3)
           bid = double("Bid").as_null_object
           bid.stub(:code).and_return("6s")
-          @ai.should_receive(:request).with(:bid, @game).and_return(bid)
+          @ai.should_receive(:request).with(:bid).and_return(bid)
           @gw.send(:run)
 
           @gw.messages.last.msg.should == :ai_bid
@@ -72,7 +72,7 @@ module FiveHundred
           @round.stub(:current_player).and_return(@ai)
           @round.should_receive(:play_card)
           @game.stub_chain(:players, :find).and_return(3)
-          @ai.should_receive(:request).with(:play, @game).and_return("Qd")
+          @ai.should_receive(:request).with(:play).and_return("Qd")
           @gw.send(:run)
 
           @gw.messages.last.msg.should == :ai_play_card

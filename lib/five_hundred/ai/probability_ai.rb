@@ -5,13 +5,13 @@ module FiveHundred
   module AI
     class ProbabilityAI < OrderedAI
       def request_play
-        top_card = @r.remaining_rank_ordered_cards.first
+        top_card = round.remaining_rank_ordered_cards.first
         # return highest ranked card (if you have it)
-        if @r.valid_cards.include?(top_card)
+        if round.valid_cards.include?(top_card)
           return top_card
         end
         # return lowest ranked card
-        @r.valid_cards.sort_by{|c| c.rank(@r.trump_suit) }.first
+        round.valid_cards.sort_by{|c| c.rank(round.trump_suit) }.first
       end
 
       def to_s
@@ -45,7 +45,7 @@ module FiveHundred
 
       def assign_for_voided_suits(slot, code)
         suit = Deck.card(code).suit
-        voided_in_this_suit = (@g.players - [self]).select {|p| @r.trick_set.voided_suits(p).include?(suit) }
+        voided_in_this_suit = (game.players - [self]).select {|p| round.trick_set.voided_suits(p).include?(suit) }
         return nil if voided_in_this_suit == []
 
         cards_count_of_voided_hand = voided_in_this_suit.map {|p| unknown_cards_per_player(p) }.reduce(:+)
@@ -53,10 +53,10 @@ module FiveHundred
 
         if slot == :kitty
           me_seen_kitty? ? 0.0 : 3.0 / unknown_for_this_suit
-        elsif voided_in_this_suit.include?(@g.players[slot])
+        elsif voided_in_this_suit.include?(game.players[slot])
           0.0
         else
-          unknown_cards_per_player(@g.players[slot]) / unknown_for_this_suit
+          unknown_cards_per_player(game.players[slot]) / unknown_for_this_suit
         end
       end
 
@@ -68,7 +68,7 @@ module FiveHundred
         if is_me?(slot)
           0.0
         elsif is_kitty?(slot)
-          if @r.state == :bidding
+          if round.state == :bidding
             3.0  / 33.0
           else
             0.0
@@ -81,7 +81,7 @@ module FiveHundred
       end
 
       def is_me?(slot)
-        slot == @g.players.index(self)
+        slot == game.players.index(self)
       end
       private :is_me?
 
@@ -91,11 +91,11 @@ module FiveHundred
       private :is_kitty?
 
       def seen_kitty?(slot)
-        @r.winning_bidder == @g.players[slot]
+        round.winning_bidder == game.players[slot]
       end
 
       def me_seen_kitty?
-        @r.winning_bidder == self
+        round.winning_bidder == self
       end
       private :me_seen_kitty?
 
@@ -120,7 +120,7 @@ module FiveHundred
       private :discarded_kitty_codes
 
       def known_codes
-        (cards + kitty + discarded_kitty + @r.trick_set.all_played_cards).map(&:code)
+        (cards + kitty + discarded_kitty + round.trick_set.all_played_cards).map(&:code)
       end
       private :known_codes
 
@@ -140,7 +140,7 @@ module FiveHundred
       private :unknown_count
 
       def unknown_cards_per_player(player)
-        10.0 - Array(@r.trick_set.played_cards(player)).count
+        10.0 - Array(round.trick_set.played_cards(player)).count
       end
       private :unknown_cards_per_player
     end

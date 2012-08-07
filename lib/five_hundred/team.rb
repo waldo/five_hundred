@@ -1,4 +1,5 @@
 # encoding: UTF-8
+require "five_hundred/null_object"
 
 module FiveHundred
   class Team

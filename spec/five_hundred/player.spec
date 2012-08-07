@@ -13,7 +13,7 @@ module FiveHundred
     it "'s cards are cleared on new deal" do
       @player.assign_cards([@queen_hearts, @jack_diamonds, @ace_spades, @seven_hearts, @nine_clubs, @ace_hearts, @king_hearts, @eight_hearts, @eight_diamonds, @ten_hearts])
       @player.assign_kitty([@five_clubs, @nine_hearts, @joker])
-      @player.cards.count.should == 10
+      @player.cards.count.should == 13
       @player.kitty.count.should == 3
 
       @player.assign_cards([@queen_hearts])

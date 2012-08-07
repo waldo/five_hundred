@@ -3,18 +3,23 @@ require "five_hundred/team"
 
 module FiveHundred
   class Player
-    attr_reader :cards, :kitty, :discarded_kitty
-    attr_accessor :team
+    attr_reader :kitty, :discarded_kitty
+    attr_accessor :team, :game
 
     def initialize
       @cards = []
       @kitty = []
       @discarded_kitty = []
       @team = Team.empty
+      @game = nil
     end
 
-    def request(type, g)
-      @request = type
+    def round
+      game.current_round
+    end
+
+    def request(type)
+      self.send("request_#{type}")
     end
 
     def assign_cards(cards_to_add)
@@ -24,6 +29,10 @@ module FiveHundred
 
     def assign_kitty(cards_to_add)
       @kitty += cards_to_add
+    end
+
+    def cards
+      @cards + Array(@kitty)
     end
 
     def clear_cards!

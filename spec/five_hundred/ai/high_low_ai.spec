@@ -43,14 +43,14 @@ module FiveHundred
 
           context "given you have the highest card" do
             it "returns your highest card" do
-              @round.stub(:remaining_rank_ordered_cards).and_return(@card_arr)
+              @round.stub(:remaining_cards).and_return(@card_arr)
               @ai.request(:play).should == @jack_hearts
             end
           end
 
           context "given you don't have the highest card" do
             it "returns your lowest valid card" do
-              @round.stub(:remaining_rank_ordered_cards).and_return([@joker] + @card_arr)
+              @round.stub(:remaining_cards).and_return([@joker] + @card_arr)
               @ai.request(:play).should == @six_spades
             end
           end

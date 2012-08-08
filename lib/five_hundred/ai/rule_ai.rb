@@ -22,12 +22,31 @@ module FiveHundred
         round.valid_cards.sort_by{|c| -c.rank(round.trump_suit) }.first
       end
 
-      def one_valid_choice?(cards=round.valid_cards)
-        cards.count == 1
+      def one_valid_choice?
+        round.valid_cards.count == 1
       end
 
-      def guaranteed_winner?(cards=round.valid_cards, top_card=round.remaining_rank_ordered_cards.first)
-        cards.include?(top_card)
+      def guaranteed_winner?
+        top_card = round.remaining_cards.first
+        valid_cards = round.valid_cards
+
+        valid_cards.include?(top_card)
+      end
+
+      def top_cards_non_trump_suit
+        suits = [:spades, :clubs, :diamonds, :hearts] - Array(round.trump_suit)
+        top_cards = []
+
+        suits.each do |s|
+          remaining_cards = round.remaining_cards(s)
+          top_cards << remaining_cards.first if remaining_cards && cards.include?(remaining_cards.first)
+        end
+
+        top_cards
+      end
+
+      def guess_player_has_suit?(player, suit)
+        !round.voided_suits(player).include?(suit) && (round.remaining_cards(suit) - cards).count > 3
       end
 
       def suits_by_card_count

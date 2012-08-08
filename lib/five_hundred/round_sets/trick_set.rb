@@ -88,19 +88,9 @@ module FiveHundred
       private :unvoided_suit?
 
       def played_suits(player)
-        played_cards(player).map {|card| card.suit(@trump_suit) }
+        played_cards(nil, player).map {|card| card.suit(@trump_suit) }
       end
       private :played_suits
-
-      def played_cards(player)
-        @tricks.map {|t| t.card_played_by(player)}.compact
-      end
-      private :played_cards
-
-      def all_played_cards
-        @tricks.map {|t| t.cards }.flatten
-      end
-      private :all_played_cards
 
       def voided_suits(player)
         @tricks.map {|t| t.first_card.suit(@trump_suit) unless t.followed_suit?(player)}.compact
@@ -161,10 +151,24 @@ module FiveHundred
         @tricks.count == 10 && current_trick.complete? || (@trump_suit == :misere && current_trick.winner == @winning_bidder)
       end
 
-      def remaining_rank_ordered_cards
-        possible_cards = Deck.set_of_cards - all_played_cards
-        possible_cards.sort_by {|c| -c.rank(@trump_suit) }
+      def played_cards(suit=nil, player=nil)
+        trick_cards = @tricks.map do |t|
+          player.nil? ? t.cards : t.card_played_by(player)
+        end
+
+        cards = trick_cards.flatten.compact.select {|c| c.suit == suit || suit.nil? }
+        rank_order(cards)
       end
+
+      def remaining_cards(suit=nil)
+        cards = Deck.set_of_cards(suit) - played_cards(suit)
+        rank_order(cards)
+      end
+
+      def rank_order(cards)
+        cards.sort_by {|c| -c.rank(@trump_suit) }
+      end
+      private :rank_order
 
       # class
       def self.empty

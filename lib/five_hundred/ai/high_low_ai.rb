@@ -5,7 +5,7 @@ module FiveHundred
   module AI
     class HighLowAI < OrderedAI
       def request_play
-        top_card = round.remaining_rank_ordered_cards.first
+        top_card = round.remaining_cards.first
         # return highest ranked card (if you have it)
         if round.valid_cards.include?(top_card)
           return top_card

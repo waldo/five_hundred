@@ -26,7 +26,7 @@ module FiveHundred
         @round.stub(:trick_set => @trick_set)
         @round.stub(:valid_cards).and_return(@card_arr)
 
-        @trick_set.stub(:all_played_cards => [])
+        @trick_set.stub(:played_cards => [])
         @trick_set.stub(:played_cards).with(@players[0]).and_return([])
         @trick_set.stub(:played_cards).with(@players[1]).and_return([])
         @trick_set.stub(:played_cards).with(@players[2]).and_return([])
@@ -92,7 +92,7 @@ module FiveHundred
           end
 
           it "updates probability after each card played" do
-            @trick_set.stub(:all_played_cards).and_return([@four_hearts, @five_hearts, @six_hearts, @seven_hearts])
+            @trick_set.stub(:played_cards).and_return([@four_hearts, @five_hearts, @six_hearts, @seven_hearts])
             @trick_set.stub(:played_cards).with(@game.players[0]).and_return(@four_hearts)
             @trick_set.stub(:played_cards).with(@game.players[1]).and_return(@five_hearts)
             @trick_set.stub(:played_cards).with(@game.players[2]).and_return(@six_hearts)

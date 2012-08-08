@@ -5,7 +5,7 @@ module FiveHundred
   module AI
     class ProbabilityAI < OrderedAI
       def request_play
-        top_card = round.remaining_rank_ordered_cards.first
+        top_card = round.remaining_cards.first
         # return highest ranked card (if you have it)
         if round.valid_cards.include?(top_card)
           return top_card
@@ -120,7 +120,7 @@ module FiveHundred
       private :discarded_kitty_codes
 
       def known_codes
-        (cards + kitty + discarded_kitty + round.trick_set.all_played_cards).map(&:code)
+        (cards + kitty + discarded_kitty + round.trick_set.played_cards).map(&:code)
       end
       private :known_codes
 

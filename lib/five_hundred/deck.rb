@@ -61,11 +61,11 @@ module FiveHundred
       "Jo" => { rank: 100, suit: :none },
     }
 
-    def self.set_of_cards
+    def self.set_of_cards(suit=nil)
       cards = []
 
       Deck.card_definitions.each do |key, val|
-        cards << Card.new(key, val[:rank], val[:suit])
+        cards << Card.new(key, val[:rank], val[:suit]) if suit == val[:suit] || suit.nil?
       end
 
       cards

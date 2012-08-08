@@ -135,8 +135,8 @@ module FiveHundred
       trick_set.valid_cards
     end
 
-    def remaining_rank_ordered_cards
-      trick_set.remaining_rank_ordered_cards
+    def remaining_cards(suit=nil)
+      trick_set.remaining_cards(suit)
     end
 
     def current_bidder
@@ -144,11 +144,15 @@ module FiveHundred
     end
 
     def current_player
-      @trick_set.current_player
+      trick_set.current_player
     end
 
     def current_trick
-      @trick_set.current_trick
+      trick_set.current_trick
+    end
+
+    def voided_suits(player)
+      trick_set.voided_suits(player)
     end
   end
 end

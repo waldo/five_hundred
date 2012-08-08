@@ -173,8 +173,8 @@ module FiveHundred
           play!(@seven_diamonds)
           play!(@nine_diamonds)
 
-          @trick_set.send(:played_cards, @players[0]).count.should == 2
-          @trick_set.send(:played_cards, @players[0]).should == [@four_hearts, @four_diamonds]
+          @trick_set.played_cards(nil, @players[0]).count.should == 2
+          @trick_set.played_cards(nil, @players[0]).should == [@four_hearts, @four_diamonds]
         end
 
         it "played suits correctly for a player" do
@@ -253,9 +253,9 @@ module FiveHundred
             play!(trick_cards)
           end
 
-          @trick_set.remaining_rank_ordered_cards.first.should == @joker
-          @trick_set.remaining_rank_ordered_cards.should_not include(cards.flatten)
-          @trick_set.remaining_rank_ordered_cards.last.should == @four_diamonds
+          @trick_set.remaining_cards.first.should == @joker
+          @trick_set.remaining_cards.should_not include(cards.flatten)
+          @trick_set.remaining_cards.last.should == @four_diamonds
         end
       end
     end

@@ -64,22 +64,107 @@ module FiveHundred
 
       describe "one valid choice" do
         it "returns true when only one cards is valid" do
-          @ai.one_valid_choice?([@seven_hearts]).should be_true
+          @round.stub(:valid_cards => [@seven_hearts])
+
+          @ai.one_valid_choice?.should be_true
         end
 
         it "returns false when multiple cards are valid" do
-          @ai.one_valid_choice?([@seven_hearts, @six_spades, @six_clubs]).should be_false
+          @round.stub(:valid_cards => [@seven_hearts, @six_spades, @six_clubs])
+
+          @ai.one_valid_choice?.should be_false
         end
       end
 
       describe "guaranteed winner" do
+        before do
+          @round.stub(:remaining_cards => [@jack_hearts, @jack_diamonds, @seven_hearts, @six_hearts])
+        end
+
         it "returns true if the set includes the strongest remaining card" do
-          @ai.guaranteed_winner?([@jack_hearts, @seven_hearts], @jack_hearts).should be_true
+          @round.stub(:valid_cards => [@jack_hearts, @seven_hearts])
+
+          @ai.guaranteed_winner?.should be_true
         end
 
         it "returns false if the set doesn't include the strongest remaining card" do
-          @ai.guaranteed_winner?([@jack_diamonds, @seven_hearts], @jack_hearts).should be_false
+          @round.stub(:valid_cards => [@jack_diamonds, @seven_hearts])
+
+          @ai.guaranteed_winner?.should be_false
         end
+      end
+
+      describe "highest in a non-trump suit" do
+        it "returns each highest non-trump card that I have" do
+          @ai.assign_cards([@ace_clubs, @king_diamonds, @king_clubs, @joker, @king_spades])
+
+          @round.stub(:remaining_cards).with(:spades).and_return([@king_spades])
+          @round.stub(:remaining_cards).with(:clubs).and_return([@ace_clubs])
+          @round.stub(:remaining_cards).with(:diamonds).and_return([@ace_diamonds])
+
+          @round.should_not_receive(:remaining_cards).with(:hearts)
+          @ai.top_cards_non_trump_suit.should == [@king_spades, @ace_clubs]
+        end
+
+        it "returns empty array if I don't have any high cards" do
+          @ai.assign_cards([@queen_clubs, @king_diamonds, @king_clubs, @joker, @jack_spades])
+
+          @round.stub(:remaining_cards).with(:spades).and_return([@king_spades])
+          @round.stub(:remaining_cards).with(:clubs).and_return([@ace_clubs])
+          @round.stub(:remaining_cards).with(:diamonds).and_return([@ace_diamonds])
+
+          @round.should_not_receive(:remaining_cards).with(:hearts)
+          @ai.top_cards_non_trump_suit.should == []
+        end
+      end
+
+      describe "guess if a player has this suit" do
+        it "returns false if other team has voided this suit" do
+          @round.stub(:voided_suits).with(@players[0]).and_return([:clubs, :spades])
+
+          @ai.guess_player_has_suit?(@players[0], :clubs).should be_false
+        end
+
+        context "other played hasn't voided this suit" do
+          before do
+            @round.stub(:voided_suits).with(@players[0]).and_return([:spades])
+            @round.stub(:remaining_cards).with(:clubs).and_return([@ace_clubs, @king_clubs, @queen_clubs, @jack_clubs, @ten_clubs])
+          end
+
+          it "returns false if 3 or less cards in this suit remain in unknown positions" do
+            @ai.assign_cards([@ace_clubs, @king_clubs])
+
+            @ai.guess_player_has_suit?(@players[0], :clubs).should be_false
+          end
+
+          it "returns true if 4 or more cards in this suit remain in unknown positions" do
+            @ai.assign_cards([@ace_clubs])
+
+            @ai.guess_player_has_suit?(@players[0], :clubs).should be_true
+          end
+        end
+      end
+
+# actions
+      describe "play highest card in a suit" do
+      end
+
+      describe "play highest card" do
+      end
+
+      describe "play lowest winner" do
+      end
+
+      describe "trump high" do
+      end
+
+      describe "trump low" do
+      end
+
+      describe "play low" do
+        it "plays lowest in led suit"
+        it "plays lowest in the non-trump suit with fewest cards if you have trumps"
+        it "plays your lowest ranked card"
       end
     end
   end

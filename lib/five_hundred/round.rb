@@ -139,6 +139,10 @@ module FiveHundred
       trick_set.remaining_cards(suit)
     end
 
+    def remaining_cards_plus_current_trick
+      trick_set.remaining_cards_plus_current_trick
+    end
+
     def current_bidder
       @bidding_set.current_bidder
     end
@@ -153,6 +157,14 @@ module FiveHundred
 
     def voided_suits(player)
       trick_set.voided_suits(player)
+    end
+
+    def card_played_by(player)
+      trick_set.card_played_by(player)
+    end
+
+    def led_suit
+      trick_set.led_suit
     end
   end
 end

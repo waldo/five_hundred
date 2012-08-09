@@ -75,6 +75,12 @@ module FiveHundred
       @cards.map {|c| c.suit(trump_suit) unless c.joker?}.compact
     end
 
+    def partner
+      return nil if @team.nil?
+
+      @team.players - Array(self)
+    end
+
     # class
     def self.empty
       NullObject.new

@@ -63,38 +63,63 @@ module FiveHundred
       end
 
       describe "one valid choice" do
+        subject { @ai.one_valid_choice? }
         it "returns true when only one cards is valid" do
           @round.stub(:valid_cards => [@seven_hearts])
 
-          @ai.one_valid_choice?.should be_true
+          should be_true
         end
 
         it "returns false when multiple cards are valid" do
           @round.stub(:valid_cards => [@seven_hearts, @six_spades, @six_clubs])
 
-          @ai.one_valid_choice?.should be_false
+          should be_false
         end
       end
 
-      describe "guaranteed winner" do
+      describe "can I beat existing cards already in the trick?" do
+        subject { @ai.winnable_trick? }
         before do
-          @round.stub(:remaining_cards => [@jack_hearts, @jack_diamonds, @seven_hearts, @six_hearts])
+          current_trick = stub(:cards => [@six_hearts])
+          @round.stub(:current_trick => current_trick)
+        end
+
+        it "returns true given I have a higher ranked card than those in the trick" do
+          @round.stub(:valid_cards => [@seven_hearts, @six_spades, @six_clubs])
+
+          should be_true
+        end
+
+        it "returns false given I have only lower ranked cards than those in the trick" do
+          @round.stub(:valid_cards => [@five_hearts, @six_spades, @six_clubs])
+
+          should be_false
+        end
+      end
+
+      describe "guaranteed winner?" do
+        subject { @ai.guaranteed_winner? }
+
+        before do
+          @round.stub(:remaining_cards_plus_current_trick => [@jack_hearts, @jack_diamonds, @seven_hearts, @six_hearts])
         end
 
         it "returns true if the set includes the strongest remaining card" do
           @round.stub(:valid_cards => [@jack_hearts, @seven_hearts])
 
-          @ai.guaranteed_winner?.should be_true
+          should be_true
         end
 
         it "returns false if the set doesn't include the strongest remaining card" do
           @round.stub(:valid_cards => [@jack_diamonds, @seven_hearts])
 
-          @ai.guaranteed_winner?.should be_false
+          should be_false
         end
       end
 
       describe "highest in a non-trump suit" do
+        subject { @ai.top_cards_non_trump_suit }
+
         it "returns each highest non-trump card that I have" do
           @ai.assign_cards([@ace_clubs, @king_diamonds, @king_clubs, @joker, @king_spades])
 
@@ -103,7 +128,7 @@ module FiveHundred
           @round.stub(:remaining_cards).with(:diamonds).and_return([@ace_diamonds])
 
           @round.should_not_receive(:remaining_cards).with(:hearts)
-          @ai.top_cards_non_trump_suit.should == [@king_spades, @ace_clubs]
+          should == [@king_spades, @ace_clubs]
         end
 
         it "returns empty array if I don't have any high cards" do
@@ -114,15 +139,17 @@ module FiveHundred
           @round.stub(:remaining_cards).with(:diamonds).and_return([@ace_diamonds])
 
           @round.should_not_receive(:remaining_cards).with(:hearts)
-          @ai.top_cards_non_trump_suit.should == []
+          should == []
         end
       end
 
       describe "guess if a player has this suit" do
+        subject { @ai.guess_player_has_suit?(@players[0], :clubs) }
+
         it "returns false if other team has voided this suit" do
           @round.stub(:voided_suits).with(@players[0]).and_return([:clubs, :spades])
 
-          @ai.guess_player_has_suit?(@players[0], :clubs).should be_false
+          should be_false
         end
 
         context "other played hasn't voided this suit" do
@@ -134,15 +161,64 @@ module FiveHundred
           it "returns false if 3 or less cards in this suit remain in unknown positions" do
             @ai.assign_cards([@ace_clubs, @king_clubs])
 
-            @ai.guess_player_has_suit?(@players[0], :clubs).should be_false
+            should be_false
           end
 
           it "returns true if 4 or more cards in this suit remain in unknown positions" do
             @ai.assign_cards([@ace_clubs])
 
-            @ai.guess_player_has_suit?(@players[0], :clubs).should be_true
+            should be_true
           end
         end
+      end
+
+      describe "has my partner played a guaranteed winner?" do
+        subject { @ai.partner_played_guaranteed_winner? }
+
+        before do
+          @round.stub(:remaining_cards_plus_current_trick => [@ace_clubs, @king_clubs, @queen_clubs, @jack_clubs, @ten_clubs])
+        end
+
+        it "returns true if partner played the top card" do
+          @round.stub(:card_played_by).with(@ai.partner).and_return(@ace_clubs)
+
+          should be_true
+        end
+
+
+        it "returns false if partner played any other card" do
+          @round.stub(:card_played_by).with(@ai.partner).and_return(@king_clubs)
+
+          should be_false
+        end
+      end
+
+      describe "has trumps been led?" do
+        subject { @ai.trump_suit_led? }
+
+        it "returns true if a trump is led" do
+          @round.stub(:led_suit => :hearts)
+
+          should be_true
+        end
+
+        it "returns false if a non-trump card is led" do
+          @round.stub(:led_suit => :clubs)
+
+          should be_false
+        end
+      end
+
+      describe "can I trump?" do
+        subject { @ai.can_use_trump? }
+
+        it "returns true if I have trumps valid for this trick" do
+          @round.stub(:valid_cards => [@seven_hearts, @six_spades, @six_clubs])
+
+          should be_true
+        end
+
+        it "returns false if I have no trumps valid for this trick"
       end
 
 # actions

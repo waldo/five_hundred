@@ -27,10 +27,17 @@ module FiveHundred
       end
 
       def guaranteed_winner?
-        top_card = round.remaining_cards.first
+        top_card = round.remaining_cards_plus_current_trick.first
         valid_cards = round.valid_cards
 
         valid_cards.include?(top_card)
+      end
+
+      def partner_played_guaranteed_winner?
+        top_card = round.remaining_cards_plus_current_trick.first
+        partner_played = round.card_played_by(self.partner)
+
+        top_card == partner_played
       end
 
       def top_cards_non_trump_suit
@@ -47,6 +54,22 @@ module FiveHundred
 
       def guess_player_has_suit?(player, suit)
         !round.voided_suits(player).include?(suit) && (round.remaining_cards(suit) - cards).count > 3
+      end
+
+      def trump_suit_led?
+        round.trump_suit == round.led_suit
+      end
+
+      def winnable_trick?
+        round.current_trick.cards.all? do |c|
+          round.valid_cards.first.rank(round.trump_suit) > c.rank(round.trump_suit)
+        end
+      end
+
+      def can_use_trump?
+        round.valid_cards.any? do |c|
+          c.suit(round.trump_suit) == round.trump_suit
+        end
       end
 
       def suits_by_card_count

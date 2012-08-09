@@ -206,12 +206,12 @@ module FiveHundred
           @players[2].stub(:cards) do Deck.cards(%w{9h 5c Jc}) end
           @players[3].stub(:cards) do Deck.cards(%w{10h 6c Ks}) end
 
-          @trick_set.valid_cards.should == [@jack_diamonds, @queen_hearts, @joker]
+          @trick_set.valid_cards.should == [@joker, @jack_diamonds, @queen_hearts]
 
           play!([@jack_diamonds, @eight_hearts, @nine_hearts, @ten_hearts])
 
           @players[0].stub(:cards) do Deck.cards(%w{Qh Jo}) end
-          @trick_set.valid_cards.should == [@queen_hearts, @joker]
+          @trick_set.valid_cards.should == [@joker, @queen_hearts]
         end
 
         it "should accept joker with the right suit" do
@@ -220,8 +220,8 @@ module FiveHundred
           @players[1].stub(:cards) do Deck.cards(%w{Qh Ks Kd As Ad Jo}) end
 
           @trick_set.valid_cards.should == [
-            @queen_hearts,
             @joker,
+            @queen_hearts,
           ]
 
           @trick_set.valid_cards.map {|c| c.suit(@trick_set.trump_suit) }.should == [:hearts, :hearts]
@@ -231,11 +231,11 @@ module FiveHundred
           @players[0].stub(:cards) do Deck.cards(%w{Ks Kd As Ad Jo}) end
 
           @trick_set.valid_cards.should == [
-            @king_spades,
-            @king_diamonds,
-            @ace_spades,
-            @ace_diamonds,
             @joker.joker_suit_variations,
+            @ace_diamonds,
+            @ace_spades,
+            @king_diamonds,
+            @king_spades,
           ].flatten
         end
       end

@@ -103,8 +103,9 @@ module FiveHundred
       def valid_cards_from_set(possible_cards, player)
         joker = Deck.card("Jo")
         possible_cards += joker.joker_suit_variations if [:none, :misere].include?(trump_suit) && possible_cards.include?(joker)
+        cards = possible_cards.select {|card| valid_play_for_player?(card, player)}
 
-        possible_cards.select {|card| valid_play_for_player?(card, player)}
+        rank_order(cards)
       end
 
       def current_trick
@@ -165,10 +166,25 @@ module FiveHundred
         rank_order(cards)
       end
 
+      def remaining_cards_plus_current_trick
+        cards = remaining_cards
+        cards += current_trick.cards unless current_trick.complete?
+
+        rank_order(cards)
+      end
+
       def rank_order(cards)
         cards.sort_by {|c| -c.rank(@trump_suit) }
       end
       private :rank_order
+
+      def card_played_by(player)
+        current_trick.card_played_by(player)
+      end
+
+      def led_suit
+        current_trick.led_suit
+      end
 
       # class
       def self.empty

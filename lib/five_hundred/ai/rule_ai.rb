@@ -19,7 +19,34 @@ module FiveHundred
       end
 
       def request_play
-        round.valid_cards.sort_by{|c| -c.rank(round.trump_suit) }.first
+        if one_valid_choice?
+          round.valid_cards.first
+        # elsif
+        #   position_dependant_rules
+        else
+          play_low
+        end
+      end
+
+      def play_low
+        suits = valid_card_suits_counts
+        if suits.count > 1 && suits.has_key?(round.trump_suit)
+          suits.delete(round.trump_suit)
+          suit, cards = suits.min do |a, b| a[1].count <=> b[1].count end
+          cards.last
+        else # just the lowest valid card
+          round.valid_cards.sort_by{|c| c.rank(round.trump_suit) }.first
+        end
+      end
+
+      def valid_card_suits_counts
+        suits = Hash.new {|h, k| h[k] = [] }
+
+        round.valid_cards.each do |c|
+          suits[c.suit(round.trump_suit)] << c
+        end
+
+        suits
       end
 
       def one_valid_choice?
@@ -69,6 +96,15 @@ module FiveHundred
       def can_use_trump?
         round.valid_cards.any? do |c|
           c.suit(round.trump_suit) == round.trump_suit
+        end
+      end
+
+      def partner_winning_trick?
+        partner_card = round.card_played_by(self.partner)
+        return false if partner_card.nil?
+
+        round.current_trick.cards.all? do |c|
+          c.rank(round.trump_suit) <= partner_card.rank(round.trump_suit)
         end
       end
 

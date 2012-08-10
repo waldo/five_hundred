@@ -48,16 +48,40 @@ module FiveHundred
         end
 
         context "(non-misere)" do
-          context "playing first" do
+          subject { @ai.request_play }
+          it "plays only valid choice" do
+            @round.stub(:valid_cards => [@seven_hearts])
+
+            should == @seven_hearts
           end
 
-          context "playing second / third shared" do
-          end
+          context "multiple valid cards" do
+            context "can't beat existing cards in the trick" do
+              before do
+                current_trick = stub(:cards => [@joker])
+                @round.stub(:current_trick => current_trick)
+              end
 
-          context "playing third additional strategy" do
-          end
+              it "plays low" do
+                @round.stub(:valid_cards => [@jack_hearts, @ten_hearts])
 
-          context "playing fourth" do
+                should == @ten_hearts
+              end
+            end
+
+            context "can beat existing cards in the trick" do
+              context "playing first" do
+              end
+
+              context "playing second / third shared" do
+              end
+
+              context "playing third additional strategy" do
+              end
+
+              context "playing fourth" do
+              end
+            end
           end
         end
       end
@@ -146,13 +170,13 @@ module FiveHundred
       describe "guess if a player has this suit" do
         subject { @ai.guess_player_has_suit?(@players[0], :clubs) }
 
-        it "returns false if other team has voided this suit" do
+        it "returns false if other player has voided this suit" do
           @round.stub(:voided_suits).with(@players[0]).and_return([:clubs, :spades])
 
           should be_false
         end
 
-        context "other played hasn't voided this suit" do
+        context "other players haven't voided this suit" do
           before do
             @round.stub(:voided_suits).with(@players[0]).and_return([:spades])
             @round.stub(:remaining_cards).with(:clubs).and_return([@ace_clubs, @king_clubs, @queen_clubs, @jack_clubs, @ten_clubs])
@@ -218,11 +242,43 @@ module FiveHundred
           should be_true
         end
 
-        it "returns false if I have no trumps valid for this trick"
+        it "returns false if I have no trumps valid for this trick" do
+          @round.stub(:valid_cards => [@six_spades, @six_clubs])
+
+          should be_false
+        end
+      end
+
+      describe "is my partner winning?" do
+        subject { @ai.partner_winning_trick? }
+
+        before do
+          current_trick = stub(:cards => [@seven_hearts, @six_hearts, @five_hearts])
+          @round.stub(:current_trick => current_trick)
+        end
+
+        it "returns true if your partner played the highest card in the trick" do
+          @round.stub(:card_played_by).with(@ai.partner).and_return(@seven_hearts)
+
+          should be_true
+        end
+
+        it "returns false if your partner's card isn't the highest in the trick" do
+          @round.stub(:card_played_by).with(@ai.partner).and_return(@six_hearts)
+
+          should be_false
+        end
+
+        it "returns false if your partner hasn't played yet" do
+          @round.stub(:card_played_by).with(@ai.partner).and_return(nil)
+
+          should be_false
+        end
       end
 
 # actions
       describe "play highest card in a suit" do
+        subject { @ai.play_highest_}
       end
 
       describe "play highest card" do
@@ -238,9 +294,21 @@ module FiveHundred
       end
 
       describe "play low" do
-        it "plays lowest in led suit"
-        it "plays lowest in the non-trump suit with fewest cards if you have trumps"
-        it "plays your lowest ranked card"
+        subject { @ai.play_low }
+
+        context "multiple suits in valid choices including trumps" do
+          it "plays lowest in the non-trump suit with fewest cards" do
+            @round.stub(:valid_cards => [@seven_hearts, @eight_clubs, @seven_clubs, @eight_spades, @seven_spades, @six_spades])
+
+            should == @seven_clubs
+          end
+        end
+
+        it "plays your lowest ranked card" do
+          @round.stub(:valid_cards => [@eight_clubs, @seven_clubs, @eight_spades, @seven_spades, @six_spades])
+
+          should == @six_spades
+        end
       end
     end
   end

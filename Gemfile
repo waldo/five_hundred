@@ -4,7 +4,7 @@ group :test do
   gem "rspec"
   gem "guard"
   gem "guard-rspec"
-  gem "growl"
+  gem "terminal-notifier"
   gem "rb-fsevent"
   gem "pry-nav"
 end

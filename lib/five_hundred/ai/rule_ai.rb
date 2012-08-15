@@ -39,6 +39,10 @@ module FiveHundred
         end
       end
 
+      def play_highest_card
+        round.valid_cards.first
+      end
+
       def valid_card_suits_counts
         suits = Hash.new {|h, k| h[k] = [] }
 

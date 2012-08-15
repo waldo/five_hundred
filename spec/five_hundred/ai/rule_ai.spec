@@ -278,10 +278,16 @@ module FiveHundred
 
 # actions
       describe "play highest card in a suit" do
-        subject { @ai.play_highest_}
       end
 
       describe "play highest card" do
+        subject { @ai.play_highest_card }
+
+        it "returns your highest ranked card" do
+          @round.stub(:valid_cards => [@jack_diamonds, @seven_hearts, @eight_clubs])
+
+          should == @jack_diamonds
+        end
       end
 
       describe "play lowest winner" do

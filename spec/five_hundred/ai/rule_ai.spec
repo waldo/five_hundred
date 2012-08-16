@@ -291,6 +291,24 @@ module FiveHundred
       end
 
       describe "play lowest winner" do
+        subject { @ai.play_lowest_winner }
+
+        before do
+          @round.stub(:valid_cards => [@jack_diamonds, @seven_hearts, @eight_clubs])
+
+          current_trick = stub(:cards => [@seven_clubs, @six_clubs, @six_hearts])
+          @round.stub(:current_trick => current_trick)
+        end
+
+        it "returns a winning card lower than your highest ranked" do
+          should == @seven_hearts
+        end
+
+        it "returns a winning card even if it's your highest ranked" do
+          @round.stub(:valid_cards => [@seven_hearts, @eight_clubs])
+
+          should == @seven_hearts
+        end
       end
 
       describe "trump high" do

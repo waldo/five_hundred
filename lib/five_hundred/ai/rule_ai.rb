@@ -43,6 +43,12 @@ module FiveHundred
         round.valid_cards.first
       end
 
+      def play_lowest_winner
+        max_played_card = round.current_trick.cards.max_by {|c| c.rank(round.trump_suit) }
+        my_higher_cards = round.valid_cards.select {|c| c.rank(round.trump_suit) > max_played_card.rank(round.trump_suit) }
+        my_higher_cards.min_by {|c| c.rank(round.trump_suit) }
+      end
+
       def valid_card_suits_counts
         suits = Hash.new {|h, k| h[k] = [] }
 

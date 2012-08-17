@@ -312,6 +312,15 @@ module FiveHundred
       end
 
       describe "trump high" do
+        subject { @ai.trump_high }
+
+        before do
+          @round.stub(:valid_cards => [@jack_diamonds, @seven_hearts, @eight_clubs])
+        end
+
+        it "returns your highest trump" do
+          should == @jack_diamonds
+        end
       end
 
       describe "trump low" do

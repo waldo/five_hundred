@@ -49,6 +49,10 @@ module FiveHundred
         my_higher_cards.min_by {|c| c.rank(round.trump_suit) }
       end
 
+      def trump_high
+        play_highest_card
+      end
+
       def valid_card_suits_counts
         suits = Hash.new {|h, k| h[k] = [] }
 

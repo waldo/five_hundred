@@ -50,7 +50,11 @@ module FiveHundred
       end
 
       def trump_high
-        play_highest_card
+        valid_card_suits_counts[round.trump_suit].first
+      end
+
+      def trump_low
+        valid_card_suits_counts[round.trump_suit].last
       end
 
       def valid_card_suits_counts

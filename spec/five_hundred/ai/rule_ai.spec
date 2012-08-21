@@ -324,6 +324,15 @@ module FiveHundred
       end
 
       describe "trump low" do
+        subject { @ai.trump_low }
+
+        before do
+          @round.stub(:valid_cards => [@jack_diamonds, @seven_hearts, @eight_clubs])
+        end
+
+        it "returns your lowest trump" do
+          should == @seven_hearts
+        end
       end
 
       describe "play low" do

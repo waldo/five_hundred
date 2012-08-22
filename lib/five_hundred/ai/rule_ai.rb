@@ -21,10 +21,50 @@ module FiveHundred
       def request_play
         if one_valid_choice?
           round.valid_cards.first
-        # elsif
-        #   position_dependant_rules
+        elsif winnable_trick?
+          position_dependant_rules
         else
           play_low
+        end
+      end
+
+      def position_dependant_rules
+        position = round.current_trick.cards.count
+
+        case position
+        when 0
+          playing_first
+        when 1
+          # playing_second
+          play_low
+        when 2
+          # playing_third
+          play_low
+        when 3
+          # playing_last
+          play_low
+        end
+      end
+
+      def playing_first
+        if guaranteed_winner?
+          play_highest_card
+        else
+          non_trump_expected_winner || play_low
+        end
+      end
+
+      def non_trump_expected_winner
+        top_cards_non_trump_suit.each do |card|
+          return card if opponents_have_suit_or_no_trumps
+        end
+
+        nil
+      end
+
+      def opponents_have_suit_or_zero_trumps(suit)
+        opponents.any? do |opponent|
+          guess_player_has_suit?(opponent, suit) && guess_player_has_suit?(opponent, round.trump_suit)
         end
       end
 
@@ -106,8 +146,10 @@ module FiveHundred
       end
 
       def winnable_trick?
-        round.current_trick.cards.all? do |c|
-          round.valid_cards.first.rank(round.trump_suit) > c.rank(round.trump_suit)
+        max_rank = round.current_trick.cards.map {|card| card.rank(round.trump_suit)}.max || 0
+
+        round.valid_cards.any? do |c|
+          c.rank(round.trump_suit) > max_rank
         end
       end
 

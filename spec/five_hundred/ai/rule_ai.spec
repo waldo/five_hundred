@@ -41,6 +41,7 @@ module FiveHundred
         end
 
         it "play with a card from your hand" do
+          @round.stub(:current_trick => stub(:cards => []))
           card = @ai.request(:play)
 
           @ai.cards.should include(card)
@@ -71,6 +72,31 @@ module FiveHundred
 
             context "can beat existing cards in the trick" do
               context "playing first" do
+                subject { @ai.position_dependant_rules }
+
+                before do
+                  current_trick = stub(:cards => [])
+                  @round.stub(:current_trick => current_trick)
+                  @round.stub(:remaining_cards_plus_current_trick => [@joker, @jack_hearts, @jack_diamonds, @seven_hearts, @six_hearts])
+                end
+
+                context "has a guaranteed winner" do
+                  it "plays the guaranteed winner" do
+                    @round.stub(:valid_cards => [@joker, @ten_hearts])
+
+                    should == @joker
+                  end
+                end
+
+                context "no guaranteed winner" do
+                  context "has the highest card in a non-trumps suit and (opponents have cards in this suit or opponents lack trumps)" do
+                    it "plays highest card in a suit"
+                  end
+
+                  context "otherwise" do
+                    it "plays low"
+                  end
+                end
               end
 
               context "playing second / third shared" do

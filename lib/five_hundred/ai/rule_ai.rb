@@ -84,9 +84,9 @@ module FiveHundred
       end
 
       def play_lowest_winner
-        max_played_card = round.current_trick.cards.max_by {|c| c.rank(round.trump_suit) }
-        my_higher_cards = round.valid_cards.select {|c| c.rank(round.trump_suit) > max_played_card.rank(round.trump_suit) }
-        my_higher_cards.min_by {|c| c.rank(round.trump_suit) }
+        max_played_card = round.current_trick.cards.max_by {|c| c.rank_with_led(round.led_suit, round.trump_suit) }
+        my_higher_cards = round.valid_cards.select {|c| c.rank_with_led(round.led_suit, round.trump_suit) > max_played_card.rank_with_led(round.led_suit, round.trump_suit) }
+        my_higher_cards.min_by {|c| c.rank_with_led(round.led_suit, round.trump_suit) }
       end
 
       def trump_high
@@ -146,10 +146,10 @@ module FiveHundred
       end
 
       def winnable_trick?
-        max_rank = round.current_trick.cards.map {|card| card.rank(round.trump_suit)}.max || 0
+        max_rank = round.current_trick.cards.map {|card| card.rank_with_led(round.led_suit, round.trump_suit)}.max || 0
 
         round.valid_cards.any? do |c|
-          c.rank(round.trump_suit) > max_rank
+          c.rank_with_led(round.led_suit, round.trump_suit) > max_rank
         end
       end
 
@@ -164,7 +164,7 @@ module FiveHundred
         return false if partner_card.nil?
 
         round.current_trick.cards.all? do |c|
-          c.rank(round.trump_suit) <= partner_card.rank(round.trump_suit)
+          c.rank_with_led(round.led_suit, round.trump_suit) <= partner_card.rank_with_led(round.led_suit, round.trump_suit)
         end
       end
 

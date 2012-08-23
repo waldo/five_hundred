@@ -16,6 +16,8 @@ module FiveHundred
     end
 
     def rank_with_led(led_suit, trump_suit)
+      return rank(trump_suit) if led_suit.nil?
+
       val = 0
       if [led_suit, trump_suit].include?(self.suit(trump_suit))
         val = rank(trump_suit)

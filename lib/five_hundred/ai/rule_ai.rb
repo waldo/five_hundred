@@ -56,15 +56,15 @@ module FiveHundred
 
       def non_trump_expected_winner
         top_cards_non_trump_suit.each do |card|
-          return card if opponents_have_suit_or_no_trumps
+          return card if opponents_have_suit_or_zero_trumps(card.suit(round.trump_suit))
         end
 
         nil
       end
 
       def opponents_have_suit_or_zero_trumps(suit)
-        opponents.any? do |opponent|
-          guess_player_has_suit?(opponent, suit) && guess_player_has_suit?(opponent, round.trump_suit)
+        opponents.all? do |opponent|
+          guess_player_has_suit?(opponent, suit) || !guess_player_has_suit?(opponent, round.trump_suit)
         end
       end
 
@@ -131,7 +131,7 @@ module FiveHundred
 
         suits.each do |s|
           remaining_cards = round.remaining_cards(s)
-          top_cards << remaining_cards.first if remaining_cards && cards.include?(remaining_cards.first)
+          top_cards << remaining_cards.first if remaining_cards && round.valid_cards.include?(remaining_cards.first)
         end
 
         top_cards

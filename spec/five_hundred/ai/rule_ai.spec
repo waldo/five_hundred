@@ -78,6 +78,7 @@ module FiveHundred
                   current_trick = stub(:cards => [])
                   @round.stub(:current_trick => current_trick)
                   @round.stub(:remaining_cards_plus_current_trick => [@joker, @jack_hearts, @jack_diamonds, @seven_hearts, @six_hearts])
+                  @round.stub(:voided_suits).and_return([])
                 end
 
                 context "has a guaranteed winner" do
@@ -90,7 +91,15 @@ module FiveHundred
 
                 context "no guaranteed winner" do
                   context "has the highest card in a non-trumps suit and (opponents have cards in this suit or opponents lack trumps)" do
-                    it "plays highest card in a suit"
+                    it "plays highest card in a suit" do
+                      @round.stub(:remaining_cards).with(:spades).and_return([@ace_spades, @king_spades, @queen_spades, @ten_spades])
+                      @round.stub(:remaining_cards).with(:clubs).and_return([@king_clubs, @ten_clubs])
+                      @round.stub(:remaining_cards).with(:diamonds).and_return([])
+                      @round.stub(:remaining_cards).with(:hearts).and_return([@joker])
+                      @round.stub(:valid_cards => [@ace_spades, @ten_spades, @ten_clubs])
+
+                      should == @ace_spades
+                    end
                   end
 
                   context "otherwise" do
@@ -171,7 +180,7 @@ module FiveHundred
         subject { @ai.top_cards_non_trump_suit }
 
         it "returns each highest non-trump card that I have" do
-          @ai.assign_cards([@ace_clubs, @king_diamonds, @king_clubs, @joker, @king_spades])
+          @round.stub(:valid_cards => [@ace_clubs, @king_diamonds, @king_clubs, @joker, @king_spades])
 
           @round.stub(:remaining_cards).with(:spades).and_return([@king_spades])
           @round.stub(:remaining_cards).with(:clubs).and_return([@ace_clubs])

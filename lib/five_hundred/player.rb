@@ -81,6 +81,10 @@ module FiveHundred
       @team.players - Array(self)
     end
 
+    def opponents
+      @game.other_team(@team).players
+    end
+
     # class
     def self.empty
       NullObject.new

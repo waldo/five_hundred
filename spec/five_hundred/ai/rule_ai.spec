@@ -103,7 +103,15 @@ module FiveHundred
                   end
 
                   context "otherwise" do
-                    it "plays low"
+                    it "plays low" do
+                      @round.stub(:remaining_cards).with(:spades).and_return([@ace_spades, @king_spades, @queen_spades, @ten_spades])
+                      @round.stub(:remaining_cards).with(:clubs).and_return([@king_clubs, @ten_clubs])
+                      @round.stub(:remaining_cards).with(:diamonds).and_return([])
+                      @round.stub(:remaining_cards).with(:hearts).and_return([@joker])
+                      @round.stub(:valid_cards => [@king_spades, @ten_spades, @ten_clubs])
+
+                      should == @ten_clubs
+                    end
                   end
                 end
               end

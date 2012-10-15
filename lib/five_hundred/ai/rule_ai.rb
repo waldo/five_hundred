@@ -35,8 +35,7 @@ module FiveHundred
         when 0
           playing_first
         when 1
-          # playing_second
-          play_low
+          playing_second
         when 2
           # playing_third
           play_low
@@ -51,6 +50,14 @@ module FiveHundred
           play_highest_card
         else
           non_trump_expected_winner || play_low
+        end
+      end
+
+      def playing_second
+        if trump_suit_led?
+          play_highest_card
+        else
+          play_low
         end
       end
 

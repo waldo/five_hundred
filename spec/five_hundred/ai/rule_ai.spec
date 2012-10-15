@@ -13,11 +13,13 @@ module FiveHundred
         @ai = RuleAI.new
 
         @game.stub(:current_round).and_return(@round)
-        @round.stub(:highest_bid).and_return(@bid_10d)
-        @round.stub(:trump_suit).and_return(:hearts)
-        @round.stub(:valid_bids).and_return([@bid_10d, @bid_10h, @bid_om, @bid_10nt, @pass])
         @card_arr = [@joker, @jack_hearts, @jack_diamonds, @ace_hearts, @king_hearts, @queen_hearts, @ten_hearts, @nine_hearts, @eight_hearts, @seven_hearts]
-        @round.stub(:valid_cards).and_return(@card_arr)
+        @round.stub(
+          :highest_bid => @bid_10d,
+          :trump_suit => :hearts,
+          :valid_bids => [@bid_10d, @bid_10h, @bid_om, @bid_10nt, @pass],
+          :valid_cards => @card_arr
+        )
 
         @ai.game = @game
         @ai.assign_cards(@card_arr)
@@ -76,9 +78,11 @@ module FiveHundred
 
                 before do
                   current_trick = stub(:cards => [])
-                  @round.stub(:current_trick => current_trick)
-                  @round.stub(:remaining_cards_plus_current_trick => [@joker, @jack_hearts, @jack_diamonds, @seven_hearts, @six_hearts])
-                  @round.stub(:voided_suits).and_return([])
+                  @round.stub(
+                    :current_trick => current_trick,
+                    :remaining_cards_plus_current_trick => [@joker, @jack_hearts, @jack_diamonds, @seven_hearts, @six_hearts],
+                    :voided_suits => []
+                  )
                 end
 
                 context "has a guaranteed winner" do
@@ -117,9 +121,26 @@ module FiveHundred
               end
 
               context "playing second / third shared" do
+                context "trumps are led" do
+                  it "plays highest" do
+                    current_trick = stub(:cards => [@ten_hearts])
+                    @round.stub(
+                      :current_trick => current_trick,
+                      :remaining_cards_plus_current_trick => [@joker, @jack_hearts, @jack_diamonds, @queen_hearts, @ten_hearts, @six_hearts],
+                      :valid_cards => [@queen_hearts, @six_hearts],
+                      :trump_suit => :hearts,
+                      :led_suit => :hearts
+                    )
+
+                    should == @queen_hearts
+                  end
+                end
+
+                context "trumps are not led" do
+                end
               end
 
-              context "playing third additional strategy" do
+              context "playing third initial strategy" do
               end
 
               context "playing fourth" do

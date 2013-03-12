@@ -3,7 +3,7 @@ require "rspec"
 require "five_hundred"
 require "five_hundred/ai"
 require "five_hundred/wrapper"
-require "pry-nav"
+require "pry-debugger"
 
 Dir["./spec/support/*.rb"].each { |f| require f }
 

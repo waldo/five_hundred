@@ -6,5 +6,5 @@ group :test do
   gem "guard-rspec"
   gem "terminal-notifier"
   gem "rb-fsevent"
-  gem "pry-nav"
+  gem "pry-debugger"
 end

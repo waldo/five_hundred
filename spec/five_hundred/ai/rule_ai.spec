@@ -82,7 +82,7 @@ module FiveHundred
                 subject { @ai.position_dependant_rules }
 
                 before do
-                  current_trick = stub(:cards => [])
+                  current_trick = stub(:cards => [], :players => [])
                   @round.stub(
                     :current_trick => current_trick,
                     :remaining_cards_plus_current_trick => [@joker, @jack_hearts, @jack_diamonds, @seven_hearts, @six_hearts],
@@ -126,22 +126,92 @@ module FiveHundred
               end
 
               context "playing second / third shared" do
+                before do
+                  @current_trick = stub(:players => @game.players[0..rand(2)])
+                  @ai.assign_cards([@queen_hearts, @six_hearts])
+                end
+
                 context "trumps are led" do
+                  before { @current_trick.stub(:cards => [@ten_hearts]) }
+
                   it "plays highest" do
-                    current_trick = stub(:cards => [@ten_hearts])
                     @round.stub(
-                      :current_trick => current_trick,
-                      :remaining_cards_plus_current_trick => [@joker, @jack_hearts, @jack_diamonds, @queen_hearts, @ten_hearts, @six_hearts],
+                      :current_trick => @current_trick,
                       :valid_cards => [@queen_hearts, @six_hearts],
                       :trump_suit => :hearts,
                       :led_suit => :hearts
                     )
+                    @round.stub(:remaining_cards).with(:hearts).and_return([@joker, @jack_hearts, @jack_diamonds, @queen_hearts, @ten_hearts, @six_hearts])
 
                     should == @queen_hearts
                   end
                 end
 
                 context "trumps are not led" do
+                  before { @current_trick.stub(:cards => [@ten_clubs]) }
+
+                  context "I can trump" do
+                    it "I predict that opponents can't trump, so trump low" do
+                      @round.stub(
+                        :current_trick => @current_trick,
+                        :valid_cards => [@queen_hearts, @six_hearts],
+                        :trump_suit => :hearts,
+                        :led_suit => :clubs,
+                        :voided_suits => []
+                      )
+                      @round.stub(:remaining_cards).with(:hearts).and_return([@joker, @queen_hearts, @six_hearts])
+                      @round.stub(:remaining_cards).with(:clubs).and_return([@ten_clubs])
+
+                      should == @six_hearts
+                    end
+
+                    it "I predict that opponents can trump, so trump high" do
+                      @round.stub(
+                        :current_trick => @current_trick,
+                        :valid_cards => [@queen_hearts, @six_hearts],
+                        :trump_suit => :hearts,
+                        :led_suit => :clubs,
+                        :voided_suits => []
+                      )
+                      @round.stub(:remaining_cards).with(:hearts).and_return([@joker, @queen_hearts, @ten_hearts, @nine_hearts, @six_hearts])
+                      @round.stub(:remaining_cards).with(:clubs).and_return([@ten_clubs])
+
+                      should == @queen_hearts
+                    end
+                  end
+
+                  context "I cannot trump" do
+                    before { @ai.assign_cards([@queen_clubs, @six_clubs]) }
+                    it "my partner has played the top card (excluding my cards) in the led suit so play lowest" do
+                      @current_trick.stub(:cards => [@jack_clubs, @ten_clubs])
+                      @round.stub(
+                        :current_trick => @current_trick,
+                        :valid_cards => [@queen_clubs, @six_clubs],
+                        :trump_suit => :hearts,
+                        :led_suit => :clubs,
+                        :voided_suits => []
+                      )
+                      @round.stub(:card_played_by).with(@ai.partner).and_return(@jack_clubs)
+                      @round.stub(:remaining_cards).with(:clubs).and_return([@queen_clubs, @six_clubs])
+
+                      should == @six_clubs
+                    end
+
+                    it "my partner hasn't played the top card (excluding my cards) in the led suit so play highest" do
+                      @current_trick.stub(:cards => [@jack_clubs, @ten_clubs])
+                      @round.stub(
+                        :current_trick => @current_trick,
+                        :valid_cards => [@queen_clubs, @six_clubs],
+                        :trump_suit => :hearts,
+                        :led_suit => :clubs,
+                        :voided_suits => []
+                      )
+                      @round.stub(:card_played_by).with(@ai.partner).and_return(@jack_clubs)
+                      @round.stub(:remaining_cards).with(:clubs).and_return([@ace_clubs, @queen_clubs, @six_clubs])
+
+                      should == @queen_clubs
+                    end
+                  end
                 end
               end
 
@@ -248,17 +318,17 @@ module FiveHundred
         context "other players haven't voided this suit" do
           before do
             @round.stub(:voided_suits).with(@players[0]).and_return([:spades])
-            @round.stub(:remaining_cards).with(:clubs).and_return([@ace_clubs, @king_clubs, @queen_clubs, @jack_clubs, @ten_clubs])
+            @round.stub(:remaining_cards).with(:clubs).and_return([@king_clubs, @queen_clubs, @jack_clubs, @ten_clubs])
           end
 
-          it "returns false if 3 or less cards in this suit remain in unknown positions" do
-            @ai.assign_cards([@ace_clubs, @king_clubs])
+          it "returns false if less than 3 cards in this suit remain in unknown positions" do
+            @ai.assign_cards([@king_clubs, @queen_clubs])
 
             should be_false
           end
 
-          it "returns true if 4 or more cards in this suit remain in unknown positions" do
-            @ai.assign_cards([@ace_clubs])
+          it "returns true if 3 or more cards in this suit remain in unknown positions" do
+            @ai.assign_cards([])
 
             should be_true
           end
@@ -350,7 +420,7 @@ module FiveHundred
       end
 
       describe "play highest card" do
-        subject { @ai.play_highest_card }
+        subject { @ai.play_highest }
 
         it "returns your highest ranked card" do
           @round.stub(:valid_cards => [@jack_diamonds, @seven_hearts, @eight_clubs])

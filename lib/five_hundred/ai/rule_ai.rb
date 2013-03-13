@@ -37,8 +37,7 @@ module FiveHundred
         when 1
           playing_second
         when 2
-          # playing_third
-          play_low
+          playing_third
         when 3
           # playing_last
           play_low
@@ -47,30 +46,55 @@ module FiveHundred
 
       def playing_first
         if guaranteed_winner?
-          play_highest_card
+          play_highest
         else
           non_trump_expected_winner || play_low
         end
       end
 
       def playing_second
+        playing_common_second_or_third
+      end
+
+      def playing_third
+        # initial strategy if playing third
+        playing_common_second_or_third
+      end
+
+      def playing_common_second_or_third
         if trump_suit_led?
-          play_highest_card
+          play_highest
         else
-          play_low
+          if can_use_trump?
+            if all_opponents_have_suit_or_short_trumps?(round.led_suit)
+              trump_low
+            else
+              trump_high
+            end
+          else
+            if partner_played_top_in_led_suit_excluding_my_cards?
+              play_low
+            else
+              play_highest
+            end
+          end
         end
+      end
+
+      def remaining_opponents
+        opponents - round.current_trick.players
       end
 
       def non_trump_expected_winner
         top_cards_non_trump_suit.each do |card|
-          return card if opponents_have_suit_or_zero_trumps(card.suit(round.trump_suit))
+          return card if all_opponents_have_suit_or_short_trumps?(card.suit(round.trump_suit))
         end
 
         nil
       end
 
-      def opponents_have_suit_or_zero_trumps(suit)
-        opponents.all? do |opponent|
+      def all_opponents_have_suit_or_short_trumps?(suit)
+        remaining_opponents.all? do |opponent|
           guess_player_has_suit?(opponent, suit) || !guess_player_has_suit?(opponent, round.trump_suit)
         end
       end
@@ -86,7 +110,7 @@ module FiveHundred
         end
       end
 
-      def play_highest_card
+      def play_highest
         round.valid_cards.first
       end
 
@@ -145,7 +169,7 @@ module FiveHundred
       end
 
       def guess_player_has_suit?(player, suit)
-        !round.voided_suits(player).include?(suit) && (round.remaining_cards(suit) - cards).count > 3
+        !round.voided_suits(player).include?(suit) && (round.remaining_cards(suit) - cards).count >= 3
       end
 
       def trump_suit_led?
@@ -171,6 +195,15 @@ module FiveHundred
         return false if partner_card.nil?
 
         round.current_trick.cards.all? do |c|
+          c.rank_with_led(round.led_suit, round.trump_suit) <= partner_card.rank_with_led(round.led_suit, round.trump_suit)
+        end
+      end
+
+      def partner_played_top_in_led_suit_excluding_my_cards?
+        partner_card = round.card_played_by(self.partner)
+        return false if partner_card.nil?
+
+        (round.remaining_cards(round.led_suit) - cards).all? do |c|
           c.rank_with_led(round.led_suit, round.trump_suit) <= partner_card.rank_with_led(round.led_suit, round.trump_suit)
         end
       end

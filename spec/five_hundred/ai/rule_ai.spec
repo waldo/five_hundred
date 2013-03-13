@@ -8,9 +8,14 @@ module FiveHundred
       include_context "named bids"
       include_context "named cards"
 
-      before :each do
-        @round = double("Round").as_null_object
+      before do
         @ai = RuleAI.new
+
+        players = Array.new(3) { Player.new }
+        players += [@ai]
+
+        build_game_stub(players)
+        @round = double("Round").as_null_object
 
         @game.stub(:current_round).and_return(@round)
         @card_arr = [@joker, @jack_hearts, @jack_diamonds, @ace_hearts, @king_hearts, @queen_hearts, @ten_hearts, @nine_hearts, @eight_hearts, @seven_hearts]

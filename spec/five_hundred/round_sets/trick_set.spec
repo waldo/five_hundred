@@ -12,7 +12,8 @@ module FiveHundred
         cards.each {|c| @trick_set.play!(c)}
       end
 
-      before(:each) do
+      before do
+        @players = Array.new(4) { double("Player").as_null_object }
         @trick_set = TrickSet.new(:hearts, @players.dup)
       end
 
@@ -82,7 +83,7 @@ module FiveHundred
       end
 
       context "playing misere" do
-        before(:each) do
+        before do
           @trick_set = TrickSet.new(:misere, @players.dup)
         end
 
@@ -113,7 +114,7 @@ module FiveHundred
       end
 
       context "playing joker in NT or misere" do
-        before(:each) do
+        before do
           @trick_set = TrickSet.new(:none, @players.dup)
         end
 
@@ -158,7 +159,7 @@ module FiveHundred
       end
 
       context "should determine" do
-        before(:each) do
+        before do
           @trick_set = TrickSet.new(:none, @players.dup)
         end
 
@@ -194,7 +195,7 @@ module FiveHundred
       end
 
       context "valid cards" do
-        before :each do
+        before do
           @trick_set = TrickSet.new(:none, @players.dup)
         end
 

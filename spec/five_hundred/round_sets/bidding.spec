@@ -4,10 +4,10 @@ require "spec_helper"
 module FiveHundred
   module RoundSets
     describe "bidding" do
-      include_context "game support"
       include_context "named bids"
 
-      before(:each) do
+      before do
+        @players = Array.new(4) { double("Player").as_null_object }
         @bidding = Bidding.new(@players.dup)
       end
 
@@ -140,7 +140,7 @@ module FiveHundred
             @pass,
           ]
 
-          @bidding = Round.new(@game)
+          @bidding = Round.new(double("Game").as_null_object)
           @bidding.bid(@bid_6nt)
           @bidding.valid_bids.should == [
             @bid_7s, @bid_7c, @bid_7d, @bid_7h, @bid_7nt,

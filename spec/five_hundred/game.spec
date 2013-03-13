@@ -5,7 +5,7 @@ module FiveHundred
   describe "game" do
     include_context "game support"
 
-    before(:each) do
+    before do
       @g = Game.new
       @p = Player.new
       @t1 = @g.teams.first
@@ -36,13 +36,13 @@ module FiveHundred
       end
 
       it "should assign players without selecting teams" do
-        add_players
+        4.times { @g.join(Player.new) }
         @t1.players.count.should == 2
         @t2.players.count.should == 2
       end
 
       it "should set player order so positions 0 and 1 are not held by the same team" do
-        add_players
+        4.times { @g.join(Player.new) }
         [@t1, @t2].each do |t|
           (@g.players.index(t.players.first) - @g.players.index(t.players.last)).abs.should == 2
         end
@@ -51,13 +51,13 @@ module FiveHundred
 
     context "start first round" do
       it "should assign a player as the 'dealer'" do
-        add_players
+        4.times { @g.join(Player.new) }
         @g.players.should include(@g.current_dealer)
         @g.current_dealer.nil?.should be_false
       end
 
       it "shouldn't happen if there are 3 players" do
-        add_players(3)
+        3.times { @g.join(Player.new) }
         @g.state.should == :setup
       end
     end
@@ -73,8 +73,8 @@ module FiveHundred
         @round.stub(:state) { :bidding }
       end
 
-      before(:each) do
-        add_players
+      before do
+        4.times { @g.join(Player.new) }
         @round = double("Round")
         @g.stub(:current_round).and_return(@round)
         @g.instance_variable_set(:@rounds, [@round])

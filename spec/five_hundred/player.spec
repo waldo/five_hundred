@@ -3,10 +3,9 @@ require "spec_helper"
 
 module FiveHundred
   describe "player" do
-    include_context "game support"
     include_context "named cards"
 
-    before(:each) do
+    before do
       @player = Player.new
     end
 

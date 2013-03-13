@@ -5,7 +5,7 @@ module FiveHundred
     describe "game wrapper" do
       include_context "named cards"
       include_context "named bids"
-      before(:each) do
+      before do
         @game = double("Game").as_null_object
         @round = double("Round").as_null_object
         @next_round = double("Round").as_null_object

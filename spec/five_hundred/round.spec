@@ -7,13 +7,9 @@ module FiveHundred
     include_context "named cards"
     include_context "named bids"
 
-    before(:each) do
+    before do
+      build_game_stub(Array.new(4) { Player.new })
       @ts = double("TrickSet").as_null_object
-      @players = Array.new(4) { Player.new }
-      @game.stub(:players).and_return(@players)
-      @game.stub(:next_dealer).and_return(@players.first)
-      @game.stub(:current_dealer).and_return(@players.last)
-
       @r = Round.new(@game)
     end
 
@@ -59,7 +55,7 @@ module FiveHundred
     end
 
     context "kitty" do
-      before(:each) do
+      before do
         @r.bid(@bid_6h)
         @r.bid(@pass)
         @r.bid(@pass)
@@ -95,7 +91,7 @@ module FiveHundred
     end
 
     context "playing" do
-      before :each do
+      before do
         @r.bid(@bid_6h)
         @r.bid(@pass)
         @r.bid(@pass)

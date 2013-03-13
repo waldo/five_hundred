@@ -4,11 +4,11 @@ require "spec_helper"
 module FiveHundred
   module RoundSets
     describe "trick" do
-      include_context "game support"
       include_context "named cards"
 
-      before(:each) do
+      before do
         @trick = Trick.new(:clubs)
+        @players = Array.new(4) { double("Player").as_null_object }
       end
 
       def play_trick!(cards=[@six_clubs, @king_spades, @ace_clubs, @jack_spades])

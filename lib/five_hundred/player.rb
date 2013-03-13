@@ -76,13 +76,13 @@ module FiveHundred
     end
 
     def partner
-      return nil if @team.nil?
+      return nil if team.nil?
 
-      @team.players - Array(self)
+      team.players - Array(self)
     end
 
     def opponents
-      @game.other_team(@team).players
+      @game.other_team(team).players
     end
 
     # class

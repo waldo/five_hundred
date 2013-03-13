@@ -5,7 +5,7 @@ module FiveHundred
   describe "card" do
     include_context "named cards"
 
-    before(:each) do
+    before do
       @bowers = [@jack_spades, @jack_clubs, @jack_diamonds, @jack_hearts]
       @bower_original_suit = [:spades, :clubs, :diamonds, :hearts]
     end

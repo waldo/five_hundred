@@ -8,7 +8,8 @@ module FiveHundred
       include_context "named bids"
       include_context "named cards"
 
-      before(:each) do
+      before do
+        build_game_stub
         @round = double("Round").as_null_object
         @ai = RandomAI.new
 

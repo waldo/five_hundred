@@ -19,6 +19,7 @@ module FiveHundred
       end
 
       def request_play
+        # binding.pry
         if one_valid_choice?
           round.valid_cards.first
         elsif winnable_trick?
@@ -39,8 +40,7 @@ module FiveHundred
         when 2
           playing_third
         when 3
-          # playing_last
-          play_low
+          playing_fourth
         end
       end
 
@@ -57,8 +57,11 @@ module FiveHundred
       end
 
       def playing_third
-        # initial strategy if playing third
-        playing_common_second_or_third
+        if partner_played_guaranteed_winner? || top_card_equivalent_to_partners_card?
+          play_low
+        else
+          playing_common_second_or_third
+        end
       end
 
       def playing_common_second_or_third
@@ -78,6 +81,14 @@ module FiveHundred
               play_highest
             end
           end
+        end
+      end
+
+      def playing_fourth
+        if partner_winning_trick?
+          play_low
+        else
+          play_lowest_winner
         end
       end
 
@@ -150,10 +161,26 @@ module FiveHundred
       end
 
       def partner_played_guaranteed_winner?
-        top_card = round.remaining_cards_plus_current_trick.first
+        top_card = (round.remaining_cards_plus_current_trick - cards).first
         partner_played = round.card_played_by(self.partner)
 
         top_card == partner_played
+      end
+
+      def top_card_equivalent_to_partners_card?
+        partner_played = round.card_played_by(self.partner)
+        my_valid_cards = round.valid_cards
+        my_top_card = my_valid_cards.first
+        remaining = round.remaining_cards_plus_current_trick
+        partner_played_ix = remaining.index(partner_played)
+        my_top_card_ix = remaining.index(my_top_card)
+
+        min_range = [partner_played_ix, my_top_card_ix].min
+        max_range = [partner_played_ix, my_top_card_ix].max
+
+        remaining[min_range..max_range].all? do |card|
+          my_valid_cards.include?(card) || partner_played == card
+        end
       end
 
       def top_cards_non_trump_suit

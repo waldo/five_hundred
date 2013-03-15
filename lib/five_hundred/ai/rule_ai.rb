@@ -5,114 +5,86 @@ module FiveHundred
   module AI
     class RuleAI < GeneralAI
       def request_play
-        if one_valid_choice?
-          round.valid_cards.first
-        elsif winnable_trick?
-          position_dependant_rules
-        else
-          play_low
-        end
+        return highest_card if one_valid_choice?
+        return position_dependant_rules if winnable_trick?
+
+        return lowest_card
       end
 
       def position_dependant_rules
-        position = round.current_trick.cards.count
+        position_symbols = {0 => :first, 1 => :second, 2 => :third, 3 => :fourth}
+        position = trick.cards.count
 
-        case position
-        when 0
-          playing_first
-        when 1
-          playing_second
-        when 2
-          playing_third
-        when 3
-          playing_fourth
-        end
+        send("playing_#{position_symbols[position]}")
       end
 
       def playing_first
-        if guaranteed_winner?
-          play_highest
-        else
-          non_trump_expected_winner || play_low
-        end
+        return highest_card if guaranteed_winner?
+
+        return non_trump_expected_winner || lowest_card
       end
 
       def playing_second
-        if trump_suit_led?
-          play_highest
-        else
-          if can_use_trump?
-            if all_opponents_have_suit_or_short_trumps?(round.led_suit)
-              trump_low
-            else
-              trump_high
-            end
-          else
-            play_highest
-          end
-        end
+        return highest_card if trump_suit_led?
+        return lowest_trump if can_use_trump? && opponents_short_trumps_or_have_suit?(round.led_suit)
+
+        return highest_card
       end
 
       def playing_third
-        if partner_played_guaranteed_winner? || top_card_equivalent_to_partners_card?
-          play_low
-        else
-          playing_second
-        end
+        return lowest_card if partner_played_guaranteed_winner? || top_card_equivalent_to_partners_card?
+
+        return playing_second
       end
 
       def playing_fourth
-        if partner_winning_trick?
-          play_low
-        else
-          play_lowest_winner
-        end
+        return lowest_card if partner_winning_trick?
+
+        return lowest_winner
       end
 
       def remaining_opponents
-        opponents - round.current_trick.players
+        opponents - trick.players
       end
 
       def non_trump_expected_winner
         top_cards_non_trump_suit.each do |card|
-          return card if all_opponents_have_suit_or_short_trumps?(card.suit(round.trump_suit))
+          return card if opponents_short_trumps_or_have_suit?(card.suit(round.trump_suit))
         end
 
         nil
       end
 
-      def all_opponents_have_suit_or_short_trumps?(suit)
+      def opponents_short_trumps_or_have_suit?(suit)
         remaining_opponents.all? do |opponent|
           guess_player_has_suit?(opponent, suit) || !guess_player_has_suit?(opponent, round.trump_suit)
         end
       end
 
-      def play_low
+      # actions
+      def lowest_card
         suits = valid_card_suits_counts
         if suits.count > 1 && suits.has_key?(round.trump_suit)
           suits.delete(round.trump_suit)
           suit, cards = suits.min do |a, b| a[1].count <=> b[1].count end
           cards.last
         else # just the lowest valid card
-          round.valid_cards.sort_by{|c| c.rank(round.trump_suit) }.first
+          round.valid_cards.last
         end
       end
 
-      def play_highest
+      def highest_card
         round.valid_cards.first
       end
 
-      def play_lowest_winner
-        max_played_card = round.current_trick.cards.max_by {|c| c.rank_with_led(round.led_suit, round.trump_suit) }
-        my_higher_cards = round.valid_cards.select {|c| c.rank_with_led(round.led_suit, round.trump_suit) > max_played_card.rank_with_led(round.led_suit, round.trump_suit) }
-        my_higher_cards.min_by {|c| c.rank_with_led(round.led_suit, round.trump_suit) }
+      def lowest_winner
+        max_played_card = trick.ranked_cards.first
+        my_higher_cards = round.valid_cards.select {|c| c.rank(round.trump_suit, round.led_suit) > max_played_card.rank(round.trump_suit, round.led_suit) }
+
+        my_higher_cards.last
       end
 
-      def trump_high
-        valid_card_suits_counts[round.trump_suit].first
-      end
-
-      def trump_low
+      def lowest_trump
         valid_card_suits_counts[round.trump_suit].last
       end
 
@@ -139,13 +111,13 @@ module FiveHundred
 
       def partner_played_guaranteed_winner?
         top_card = (round.remaining_cards_plus_current_trick - cards).first
-        partner_played = round.card_played_by(self.partner)
+        partner_played = trick.card_played_by(self.partner)
 
         top_card == partner_played
       end
 
       def top_card_equivalent_to_partners_card?
-        partner_played = round.card_played_by(self.partner)
+        partner_played = trick.card_played_by(self.partner)
         my_valid_cards = round.valid_cards
         my_top_card = my_valid_cards.first
         remaining = round.remaining_cards_plus_current_trick
@@ -155,9 +127,10 @@ module FiveHundred
         min_range = [partner_played_ix, my_top_card_ix].min
         max_range = [partner_played_ix, my_top_card_ix].max
 
-        remaining[min_range..max_range].all? do |card|
-          my_valid_cards.include?(card) || partner_played == card
-        end
+        in_range = remaining[min_range..max_range]
+        opponent_card_in_range = in_range - my_valid_cards - [partner_played]
+
+        opponent_card_in_range.length == 0
       end
 
       def top_cards_non_trump_suit
@@ -181,26 +154,17 @@ module FiveHundred
       end
 
       def winnable_trick?
-        max_rank = round.current_trick.cards.map {|card| card.rank_with_led(round.led_suit, round.trump_suit)}.max || 0
+        max_rank = trick.ranked_cards.first.rank(round.trump_suit, round.led_suit) || 0
 
-        round.valid_cards.any? do |c|
-          c.rank_with_led(round.led_suit, round.trump_suit) > max_rank
-        end
+        round.valid_cards.first.rank(round.trump_suit, round.led_suit) > max_rank
       end
 
       def can_use_trump?
-        round.valid_cards.any? do |c|
-          c.suit(round.trump_suit) == round.trump_suit
-        end
+        round.valid_cards.first.suit(round.trump_suit) == round.trump_suit
       end
 
       def partner_winning_trick?
-        partner_card = round.card_played_by(self.partner)
-        return false if partner_card.nil?
-
-        round.current_trick.cards.all? do |c|
-          c.rank_with_led(round.led_suit, round.trump_suit) <= partner_card.rank_with_led(round.led_suit, round.trump_suit)
-        end
+        partner == trick.ranked_players.first
       end
     end
   end

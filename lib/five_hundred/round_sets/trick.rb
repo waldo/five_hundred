@@ -28,7 +28,7 @@ module FiveHundred
       end
 
       def rank(card)
-        card.rank_with_led(first_card.suit, @trump_suit)
+        card.rank(@trump_suit, first_card.suit)
       end
       private :rank
 
@@ -61,11 +61,19 @@ module FiveHundred
       end
 
       def cards
-        @card_set.map {|key, value| value }
+        @card_set.map {|player, card| card }
+      end
+
+      def ranked_cards
+        cards.map {|card| -rank(card) }
       end
 
       def players
-        @card_set.map {|key, value| key }
+        @card_set.map {|player, card| player }
+      end
+
+      def ranked_players
+        @card_set.sort_by {|player, card| -rank(card)}.map {|player, card| player }
       end
     end
   end

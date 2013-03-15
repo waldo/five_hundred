@@ -159,10 +159,6 @@ module FiveHundred
       trick_set.voided_suits(player)
     end
 
-    def card_played_by(player)
-      trick_set.card_played_by(player)
-    end
-
     def led_suit
       trick_set.led_suit
     end

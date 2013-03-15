@@ -19,7 +19,7 @@ module FiveHundred
       end
 
       def request_play
-        round.valid_cards.sort_by{|c| -c.rank(round.trump_suit) }.first
+        round.valid_cards.first
       end
 
       def suits_by_card_count

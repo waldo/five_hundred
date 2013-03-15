@@ -18,6 +18,10 @@ module FiveHundred
       game.current_round
     end
 
+    def trick
+      round.current_trick
+    end
+
     def request(type)
       self.send("request_#{type}")
     end

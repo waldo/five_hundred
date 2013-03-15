@@ -127,16 +127,16 @@ module FiveHundred
 
       context "given led suit" do
         it "- led suit" do
-          @ace_diamonds.rank_with_led(:diamonds, :spades).should == 14
+          @ace_diamonds.rank(:spades, :diamonds).should == 14
         end
 
         it "- trumps" do
-          @ace_diamonds.rank_with_led(:diamonds, :diamonds).should == 28
-          @ace_diamonds.rank_with_led(:spades, :diamonds).should == 28
+          @ace_diamonds.rank(:diamonds, :diamonds).should == 28
+          @ace_diamonds.rank(:diamonds, :spades).should == 28
         end
 
         it "- other" do
-          @ace_diamonds.rank_with_led(:spades, :hearts).should == 0
+          @ace_diamonds.rank(:hearts, :spades).should == 0
         end
       end
     end

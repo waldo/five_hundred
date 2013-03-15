@@ -15,18 +15,17 @@ module FiveHundred
       @suit = suit
     end
 
-    def rank_with_led(led_suit, trump_suit)
-      return rank(trump_suit) if led_suit.nil?
+    def rank(trump_suit=nil, led_suit=nil)
+      value_given_trumps = rank_given_trumps_are(trump_suit)
+      return value_given_trumps if led_suit.nil?
 
       val = 0
-      if [led_suit, trump_suit].include?(self.suit(trump_suit))
-        val = rank(trump_suit)
-      end
+      val = value_given_trumps if [led_suit, trump_suit].include?(self.suit(trump_suit))
 
       val
     end
 
-    def rank(trump_suit=nil)
+    def rank_given_trumps_are(trump_suit)
       val = @rank
       if right_bower?(trump_suit)
         val = @@right_bower
@@ -38,6 +37,7 @@ module FiveHundred
 
       val
     end
+    private :rank_given_trumps_are
 
     def suit(trump_suit=nil)
       current_suit = @suit

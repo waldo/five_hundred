@@ -11,7 +11,7 @@ module FiveHundred
           return top_card
         end
         # return lowest ranked card
-        round.valid_cards.sort_by{|c| c.rank(round.trump_suit) }.first
+        round.valid_cards.last
       end
     end
   end

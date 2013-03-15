@@ -178,10 +178,6 @@ module FiveHundred
       end
       private :rank_order
 
-      def card_played_by(player)
-        current_trick.card_played_by(player)
-      end
-
       def led_suit
         current_trick.led_suit
       end

@@ -19,7 +19,6 @@ module FiveHundred
       end
 
       def request_play
-        # binding.pry
         if one_valid_choice?
           round.valid_cards.first
         elsif winnable_trick?
@@ -53,18 +52,6 @@ module FiveHundred
       end
 
       def playing_second
-        playing_common_second_or_third
-      end
-
-      def playing_third
-        if partner_played_guaranteed_winner? || top_card_equivalent_to_partners_card?
-          play_low
-        else
-          playing_common_second_or_third
-        end
-      end
-
-      def playing_common_second_or_third
         if trump_suit_led?
           play_highest
         else
@@ -75,12 +62,16 @@ module FiveHundred
               trump_high
             end
           else
-            if partner_played_top_in_led_suit_excluding_my_cards?
-              play_low
-            else
-              play_highest
-            end
+            play_highest
           end
+        end
+      end
+
+      def playing_third
+        if partner_played_guaranteed_winner? || top_card_equivalent_to_partners_card?
+          play_low
+        else
+          playing_second
         end
       end
 
@@ -222,15 +213,6 @@ module FiveHundred
         return false if partner_card.nil?
 
         round.current_trick.cards.all? do |c|
-          c.rank_with_led(round.led_suit, round.trump_suit) <= partner_card.rank_with_led(round.led_suit, round.trump_suit)
-        end
-      end
-
-      def partner_played_top_in_led_suit_excluding_my_cards?
-        partner_card = round.card_played_by(self.partner)
-        return false if partner_card.nil?
-
-        (round.remaining_cards(round.led_suit) - cards).all? do |c|
           c.rank_with_led(round.led_suit, round.trump_suit) <= partner_card.rank_with_led(round.led_suit, round.trump_suit)
         end
       end

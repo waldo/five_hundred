@@ -236,7 +236,7 @@ module FiveHundred
                   should == @six_clubs
                 end
 
-                it "otherwise play second / third shared strategy" do
+                it "otherwise play second position (shared) strategy" do
                   @round.stub(
                     :current_trick => @current_trick,
                     :valid_cards => [@ace_clubs, @six_clubs],
@@ -247,7 +247,7 @@ module FiveHundred
                   )
                   @round.stub(:card_played_by).with(@ai.partner).and_return(@queen_clubs)
 
-                  @ai.should_receive(:playing_common_second_or_third)
+                  @ai.should_receive(:playing_second)
                   @ai.request_play
                 end
               end
@@ -548,9 +548,6 @@ module FiveHundred
       end
 
 # actions
-      describe "play highest card in a suit" do
-      end
-
       describe "play highest card" do
         subject { @ai.play_highest }
 

@@ -6,7 +6,7 @@ require "five_hundred/player"
 module FiveHundred
   module Wrapper
     class GameWrapper
-      attr_reader :messages
+      attr_reader :messages, :game, :player
 
       def initialize(players=[AI::GeneralAI.new, AI::GeneralAI.new, AI::GeneralAI.new])
         # create game

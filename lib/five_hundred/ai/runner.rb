@@ -54,25 +54,36 @@ module FiveHundred
       end
 
       def record_results(gw)
-        g = gw.instance_variable_get(:@game)
+        game = gw.game
 
-        g.instance_variable_get(:@rounds).each do |round|
+        record_per_player_tricks_won(game)
+
+        record_win(game)
+      end
+      private :record_results
+
+      def record_per_player_tricks_won(game)
+        game.rounds.each do |round|
           @players.each_with_index do |player, i|
             @results[player.to_s][i][:tricks_won] += round.trick_set.tricks_won_by_player(player)
           end
         end
+      end
+      private :record_per_player_tricks_won
 
-        g.winner.players.each do |p|
-          @results[p.to_s][@players.index(p)][:victories] += 1
+      def record_win(game)
+        game.winner.players.each do |p|
+          win_type = :positive
+          p_ix = @players.index(p)
 
-          if g.positive_team_victory(g.winner)
-            @results[p.to_s][@players.index(p)][:positive] += 1
-          else
-            @results[p.to_s][@players.index(p)][:negative] += 1
-          end
+          win_type = :negative unless game.positive_team_victory(game.winner)
+
+          @results[p.to_s][p_ix][:victories] += 1
+          @results[p.to_s][p_ix][win_type] += 1
         end
       end
-      private :record_results
+      private :record_win
+
     end
   end
 end

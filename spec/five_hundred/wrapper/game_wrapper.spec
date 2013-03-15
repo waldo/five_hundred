@@ -44,7 +44,7 @@ module FiveHundred
 
         it "should have a request player bid message" do
           @round.stub(:state).and_return(:bidding)
-          @round.stub(:current_bidder).and_return(@gw.instance_variable_get(:@player))
+          @round.stub(:current_bidder).and_return(@gw.player)
           @gw.send(:run)
 
           @gw.messages.last.msg.should == :request_player_bid
@@ -61,7 +61,7 @@ module FiveHundred
 
         it "should have a request player kitty message" do
           @round.stub(:state).and_return(:kitty)
-          @round.stub(:winning_bidder).and_return(@gw.instance_variable_get(:@player))
+          @round.stub(:winning_bidder).and_return(@gw.player)
           @gw.send(:run)
 
           @gw.messages.last.msg.should == :request_player_kitty_discard
@@ -82,7 +82,7 @@ module FiveHundred
 
         it "should have a request player play card message" do
           @round.stub(:state).and_return(:playing)
-          @round.stub(:current_player).and_return(@gw.instance_variable_get(:@player))
+          @round.stub(:current_player).and_return(@gw.player)
           @gw.send(:run)
 
           @gw.messages.last.msg.should == :request_player_play_card

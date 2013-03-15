@@ -78,7 +78,9 @@ module FiveHundred
     def partner
       return nil if team.nil?
 
-      team.players - Array(self)
+      team.players.each do |p|
+        return p unless p == self
+      end
     end
 
     def opponents

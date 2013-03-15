@@ -3,7 +3,7 @@
 module FiveHundred
   module RoundSets
     class Trick
-      attr_reader :card_set, :players, :trump_suit
+      attr_reader :card_set, :trump_suit
 
       def initialize(trump_suit)
         @card_set = {}
@@ -62,6 +62,10 @@ module FiveHundred
 
       def cards
         @card_set.map {|key, value| value }
+      end
+
+      def players
+        @card_set.map {|key, value| key }
       end
     end
   end

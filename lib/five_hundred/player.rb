@@ -72,7 +72,7 @@ module FiveHundred
     end
 
     def suits(trump_suit)
-      @cards.map {|c| c.suit(trump_suit)}
+      @cards.map {|c| c.suit(trump_suit)}.uniq
     end
 
     def suits_excluding_joker(trump_suit)
@@ -89,6 +89,14 @@ module FiveHundred
 
     def opponents
       @game.other_team(team).players
+    end
+
+    def remaining_opponents
+      opponents - trick.players
+    end
+
+    def has_trumps?(trump_suit)
+      suits(trump_suit).include?(trump_suit)
     end
 
     # class

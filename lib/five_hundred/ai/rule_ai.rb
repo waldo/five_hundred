@@ -43,10 +43,6 @@ module FiveHundred
         return lowest_winner
       end
 
-      def remaining_opponents
-        opponents - trick.players
-      end
-
       def non_trump_expected_winner
         top_cards_non_trump_suit.each do |card|
           return card if opponents_short_trumps_or_have_suit?(card.suit(round.trump_suit))
@@ -63,14 +59,12 @@ module FiveHundred
 
       # actions
       def lowest_card
-        suits = valid_card_suits_counts
-        if suits.count > 1 && suits.has_key?(round.trump_suit)
-          suits.delete(round.trump_suit)
-          suit, cards = suits.min do |a, b| a[1].count <=> b[1].count end
-          cards.last
-        else # just the lowest valid card
-          round.valid_cards.last
-        end
+        return round.valid_cards.last if no_trumps_or_only_trumps?
+
+        suits_hash = valid_card_suits_counts
+        suits_hash.delete(round.trump_suit)
+        _suit, cards = suits_hash.min {|a, b| a[1].count <=> b[1].count }
+        return cards.last
       end
 
       def highest_card
@@ -78,10 +72,8 @@ module FiveHundred
       end
 
       def lowest_winner
-        max_played_card = trick.ranked_cards.first
-        my_higher_cards = round.valid_cards.select {|c| c.rank(round.trump_suit, round.led_suit) > max_played_card.rank(round.trump_suit, round.led_suit) }
-
-        my_higher_cards.last
+        max_rank = trick.max_rank
+        round.valid_cards.select {|c| c.rank(round.trump_suit, round.led_suit) > max_rank }.last
       end
 
       def lowest_trump
@@ -118,17 +110,15 @@ module FiveHundred
 
       def top_card_equivalent_to_partners_card?
         partner_played = trick.card_played_by(self.partner)
-        my_valid_cards = round.valid_cards
-        my_top_card = my_valid_cards.first
         remaining = round.remaining_cards_plus_current_trick
         partner_played_ix = remaining.index(partner_played)
-        my_top_card_ix = remaining.index(my_top_card)
+        highest_card_ix = remaining.index(highest_card)
 
-        min_range = [partner_played_ix, my_top_card_ix].min
-        max_range = [partner_played_ix, my_top_card_ix].max
+        min_ix = [partner_played_ix, highest_card_ix].min
+        max_ix = [partner_played_ix, highest_card_ix].max
 
-        in_range = remaining[min_range..max_range]
-        opponent_card_in_range = in_range - my_valid_cards - [partner_played]
+        in_range = remaining[min_ix..max_ix]
+        opponent_card_in_range = in_range - round.valid_cards - [partner_played]
 
         opponent_card_in_range.length == 0
       end
@@ -154,17 +144,19 @@ module FiveHundred
       end
 
       def winnable_trick?
-        max_rank = trick.ranked_cards.first.rank(round.trump_suit, round.led_suit) || 0
-
-        round.valid_cards.first.rank(round.trump_suit, round.led_suit) > max_rank
+        highest_card.rank(round.trump_suit, round.led_suit) > trick.max_rank
       end
 
       def can_use_trump?
-        round.valid_cards.first.suit(round.trump_suit) == round.trump_suit
+        highest_card.suit(round.trump_suit) == round.trump_suit
       end
 
       def partner_winning_trick?
         partner == trick.ranked_players.first
+      end
+
+      def no_trumps_or_only_trumps?
+        !has_trumps?(round.trump_suit) || suits(round.trump_suit).count == 1
       end
     end
   end

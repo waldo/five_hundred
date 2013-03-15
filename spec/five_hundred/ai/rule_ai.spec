@@ -25,7 +25,7 @@ module FiveHundred
           :valid_cards => @card_arr,
           :current_trick => @trick
         )
-        @trick.stub(:ranked_cards => [@six_spades])
+        @trick.stub(:max_rank => @six_spades.rank)
 
         @ai.game = @game
         @ai.assign_cards(@card_arr)
@@ -43,7 +43,7 @@ module FiveHundred
         context "multiple valid cards" do
           context "can't beat existing cards in the trick" do
             before do
-              @trick.stub(:ranked_cards => [@joker])
+              @trick.stub(:max_rank => @joker.rank)
             end
 
             it "plays low" do
@@ -280,7 +280,7 @@ module FiveHundred
       describe "can I beat existing cards already in the trick?" do
         subject { @ai.winnable_trick? }
         before do
-          @trick.stub(:ranked_cards => [@six_hearts])
+          @trick.stub(:max_rank => @six_hearts.rank(:hearts))
         end
 
         it "returns true given I have a higher ranked card than those in the trick" do
@@ -555,16 +555,22 @@ module FiveHundred
 
         context "multiple suits in valid choices including trumps" do
           it "plays lowest in the non-trump suit with fewest cards" do
-            @round.stub(:valid_cards => [@seven_hearts, @eight_clubs, @seven_clubs, @eight_spades, @seven_spades, @six_spades])
+            cards = [@seven_hearts, @eight_clubs, @seven_clubs, @eight_spades, @seven_spades, @six_spades]
+            @ai.assign_cards(cards)
+            @round.stub(:valid_cards => cards)
 
             should == @seven_clubs
           end
         end
 
-        it "plays your lowest ranked card" do
-          @round.stub(:valid_cards => [@eight_clubs, @seven_clubs, @eight_spades, @seven_spades, @six_spades])
+        context "short of trumps (i.e. don't bother shorting if you don't have trumps)" do
+          it "plays your lowest ranked card" do
+            cards = [@eight_clubs, @seven_clubs, @eight_spades, @seven_spades, @six_spades]
+            @ai.assign_cards(cards)
+            @round.stub(:valid_cards => cards)
 
-          should == @six_spades
+            should == @six_spades
+          end
         end
       end
     end

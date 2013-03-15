@@ -28,6 +28,8 @@ module FiveHundred
       end
 
       def rank(card)
+        return 0 if card.nil?
+
         card.rank(@trump_suit, first_card.suit)
       end
       private :rank
@@ -74,6 +76,10 @@ module FiveHundred
 
       def ranked_players
         @card_set.sort_by {|player, card| -rank(card)}.map {|player, card| player }
+      end
+
+      def max_rank
+        rank(ranked_cards.first)
       end
     end
   end

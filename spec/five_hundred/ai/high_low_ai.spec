@@ -25,23 +25,7 @@ module FiveHundred
       end
 
       context "should respond to requests for" do
-        it "bid with a valid bid from the suit it has with most cards" do
-          bid = @ai.request(:bid)
-
-          @round.valid_bids.should include(bid)
-        end
-
-        it "bid and be 10 or less" do
-          @ai.request(:bid).should == @bid_7h
-        end
-
         context "play" do
-          it "with a card from your hand" do
-            card = @ai.request(:play)
-
-            @ai.cards.should include(card)
-          end
-
           context "given you have the highest card" do
             it "returns your highest card" do
               @round.stub(:remaining_cards).and_return(@card_arr)

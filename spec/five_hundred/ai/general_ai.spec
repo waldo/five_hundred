@@ -11,7 +11,7 @@ module FiveHundred
       before do
         build_game_stub
         @round = double("Round").as_null_object
-        @ai = OrderedAI.new
+        @ai = GeneralAI.new
 
         @game.stub(:current_round).and_return(@round)
         @round.stub(:highest_bid).and_return(@bid_10d)

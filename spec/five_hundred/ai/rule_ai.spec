@@ -30,265 +30,239 @@ module FiveHundred
         @ai.assign_cards(@card_arr)
       end
 
-      context "should respond to requests for" do
-        it "bid with a valid bid from the suit it has with most cards" do
-          bid = @ai.request(:bid)
+      context "(non-misere)" do
+        subject { @ai.request_play }
 
-          @round.valid_bids.should include(bid)
+        it "plays only valid choice" do
+          @round.stub(:valid_cards => [@seven_hearts])
+
+          should == @seven_hearts
         end
 
-        it "bid and be 10 or less" do
-          @ai.request(:bid).should == @bid_10h
-        end
+        context "multiple valid cards" do
+          context "can't beat existing cards in the trick" do
+            before do
+              current_trick = stub(:cards => [@joker])
+              @round.stub(:current_trick => current_trick)
+            end
 
-        it "kitty with the 3 lowest cards from your hand" do
-          cards = @ai.request(:kitty)
+            it "plays low" do
+              @round.stub(:valid_cards => [@jack_hearts, @ten_hearts])
 
-          cards.should == [@seven_hearts, @eight_hearts, @nine_hearts]
-        end
-
-        it "play with a card from your hand" do
-          @round.stub(:current_trick => stub(:cards => []))
-          card = @ai.request(:play)
-
-          @ai.cards.should include(card)
-          @round.valid_cards.should include(card)
-        end
-
-        context "(non-misere)" do
-          subject { @ai.request_play }
-
-          it "plays only valid choice" do
-            @round.stub(:valid_cards => [@seven_hearts])
-
-            should == @seven_hearts
+              should == @ten_hearts
+            end
           end
 
-          context "multiple valid cards" do
-            context "can't beat existing cards in the trick" do
+          context "can beat existing cards in the trick" do
+            context "playing first" do
               before do
-                current_trick = stub(:cards => [@joker])
-                @round.stub(:current_trick => current_trick)
+                current_trick = stub(:cards => [], :players => [])
+                @round.stub(
+                  :current_trick => current_trick,
+                  :remaining_cards_plus_current_trick => [@joker, @jack_hearts, @jack_diamonds, @seven_hearts, @six_hearts],
+                  :voided_suits => [],
+                  :led_suit => nil
+                )
               end
 
-              it "plays low" do
-                @round.stub(:valid_cards => [@jack_hearts, @ten_hearts])
+              context "has a guaranteed winner" do
+                it "plays the guaranteed winner" do
+                  @round.stub(:valid_cards => [@joker, @ten_hearts])
 
-                should == @ten_hearts
+                  should == @joker
+                end
+              end
+
+              context "no guaranteed winner" do
+                context "has the highest card in a non-trumps suit and (opponents have cards in this suit or opponents lack trumps)" do
+                  it "plays highest card in a suit" do
+                    @round.stub(:remaining_cards).with(:spades).and_return([@ace_spades, @king_spades, @queen_spades, @ten_spades])
+                    @round.stub(:remaining_cards).with(:clubs).and_return([@king_clubs, @ten_clubs])
+                    @round.stub(:remaining_cards).with(:diamonds).and_return([])
+                    @round.stub(:remaining_cards).with(:hearts).and_return([@joker])
+                    @round.stub(:valid_cards => [@ace_spades, @ten_spades, @ten_clubs])
+
+                    should == @ace_spades
+                  end
+                end
+
+                context "otherwise" do
+                  it "plays low" do
+                    @round.stub(:remaining_cards).with(:spades).and_return([@ace_spades, @king_spades, @queen_spades, @ten_spades])
+                    @round.stub(:remaining_cards).with(:clubs).and_return([@king_clubs, @ten_clubs])
+                    @round.stub(:remaining_cards).with(:diamonds).and_return([])
+                    @round.stub(:remaining_cards).with(:hearts).and_return([@joker])
+                    @round.stub(:valid_cards => [@king_spades, @ten_spades, @ten_clubs])
+
+                    should == @ten_clubs
+                  end
+                end
               end
             end
 
-            context "can beat existing cards in the trick" do
-              context "playing first" do
-                before do
-                  current_trick = stub(:cards => [], :players => [])
+            context "playing second / third shared" do
+              before do
+                @current_trick = stub(:players => @game.players[0..rand(2)])
+                @ai.assign_cards([@queen_hearts, @six_hearts])
+              end
+
+              context "trumps are led" do
+                before { @current_trick.stub(:cards => [@ten_hearts]) }
+
+                it "plays highest" do
                   @round.stub(
-                    :current_trick => current_trick,
-                    :remaining_cards_plus_current_trick => [@joker, @jack_hearts, @jack_diamonds, @seven_hearts, @six_hearts],
-                    :voided_suits => [],
-                    :led_suit => nil
+                    :current_trick => @current_trick,
+                    :valid_cards => [@queen_hearts, @six_hearts],
+                    :trump_suit => :hearts,
+                    :led_suit => :hearts
                   )
-                end
+                  @round.stub(:remaining_cards).with(:hearts).and_return([@joker, @jack_hearts, @jack_diamonds, @queen_hearts, @ten_hearts, @six_hearts])
 
-                context "has a guaranteed winner" do
-                  it "plays the guaranteed winner" do
-                    @round.stub(:valid_cards => [@joker, @ten_hearts])
-
-                    should == @joker
-                  end
-                end
-
-                context "no guaranteed winner" do
-                  context "has the highest card in a non-trumps suit and (opponents have cards in this suit or opponents lack trumps)" do
-                    it "plays highest card in a suit" do
-                      @round.stub(:remaining_cards).with(:spades).and_return([@ace_spades, @king_spades, @queen_spades, @ten_spades])
-                      @round.stub(:remaining_cards).with(:clubs).and_return([@king_clubs, @ten_clubs])
-                      @round.stub(:remaining_cards).with(:diamonds).and_return([])
-                      @round.stub(:remaining_cards).with(:hearts).and_return([@joker])
-                      @round.stub(:valid_cards => [@ace_spades, @ten_spades, @ten_clubs])
-
-                      should == @ace_spades
-                    end
-                  end
-
-                  context "otherwise" do
-                    it "plays low" do
-                      @round.stub(:remaining_cards).with(:spades).and_return([@ace_spades, @king_spades, @queen_spades, @ten_spades])
-                      @round.stub(:remaining_cards).with(:clubs).and_return([@king_clubs, @ten_clubs])
-                      @round.stub(:remaining_cards).with(:diamonds).and_return([])
-                      @round.stub(:remaining_cards).with(:hearts).and_return([@joker])
-                      @round.stub(:valid_cards => [@king_spades, @ten_spades, @ten_clubs])
-
-                      should == @ten_clubs
-                    end
-                  end
+                  should == @queen_hearts
                 end
               end
 
-              context "playing second / third shared" do
-                before do
-                  @current_trick = stub(:players => @game.players[0..rand(2)])
-                  @ai.assign_cards([@queen_hearts, @six_hearts])
-                end
+              context "trumps are not led" do
+                before { @current_trick.stub(:cards => [@ten_clubs]) }
 
-                context "trumps are led" do
-                  before { @current_trick.stub(:cards => [@ten_hearts]) }
-
-                  it "plays highest" do
+                context "I can trump" do
+                  it "I predict that opponents can't trump, so trump low" do
                     @round.stub(
                       :current_trick => @current_trick,
                       :valid_cards => [@queen_hearts, @six_hearts],
                       :trump_suit => :hearts,
-                      :led_suit => :hearts
+                      :led_suit => :clubs,
+                      :voided_suits => []
                     )
-                    @round.stub(:remaining_cards).with(:hearts).and_return([@joker, @jack_hearts, @jack_diamonds, @queen_hearts, @ten_hearts, @six_hearts])
+                    @round.stub(:remaining_cards).with(:hearts).and_return([@joker, @queen_hearts, @six_hearts])
+                    @round.stub(:remaining_cards).with(:clubs).and_return([@ten_clubs])
+
+                    should == @six_hearts
+                  end
+
+                  it "I predict that opponents can trump, so trump high" do
+                    @round.stub(
+                      :current_trick => @current_trick,
+                      :valid_cards => [@queen_hearts, @six_hearts],
+                      :trump_suit => :hearts,
+                      :led_suit => :clubs,
+                      :voided_suits => []
+                    )
+                    @round.stub(:remaining_cards).with(:hearts).and_return([@joker, @queen_hearts, @ten_hearts, @nine_hearts, @six_hearts])
+                    @round.stub(:remaining_cards).with(:clubs).and_return([@ten_clubs])
 
                     should == @queen_hearts
                   end
                 end
 
-                context "trumps are not led" do
-                  before { @current_trick.stub(:cards => [@ten_clubs]) }
+                context "I cannot trump" do
+                  before { @ai.assign_cards([@king_clubs, @six_clubs]) }
 
-                  context "I can trump" do
-                    it "I predict that opponents can't trump, so trump low" do
-                      @round.stub(
-                        :current_trick => @current_trick,
-                        :valid_cards => [@queen_hearts, @six_hearts],
-                        :trump_suit => :hearts,
-                        :led_suit => :clubs,
-                        :voided_suits => []
-                      )
-                      @round.stub(:remaining_cards).with(:hearts).and_return([@joker, @queen_hearts, @six_hearts])
-                      @round.stub(:remaining_cards).with(:clubs).and_return([@ten_clubs])
-
-                      should == @six_hearts
-                    end
-
-                    it "I predict that opponents can trump, so trump high" do
-                      @round.stub(
-                        :current_trick => @current_trick,
-                        :valid_cards => [@queen_hearts, @six_hearts],
-                        :trump_suit => :hearts,
-                        :led_suit => :clubs,
-                        :voided_suits => []
-                      )
-                      @round.stub(:remaining_cards).with(:hearts).and_return([@joker, @queen_hearts, @ten_hearts, @nine_hearts, @six_hearts])
-                      @round.stub(:remaining_cards).with(:clubs).and_return([@ten_clubs])
-
-                      should == @queen_hearts
-                    end
-                  end
-
-                  context "I cannot trump" do
-                    before { @ai.assign_cards([@king_clubs, @six_clubs]) }
-
-                    it "play highest" do
-                      @current_trick.stub(:cards => [@jack_clubs, @ten_clubs])
-                      @round.stub(
-                        :current_trick => @current_trick,
-                        :valid_cards => [@king_clubs, @six_clubs],
-                        :trump_suit => :hearts,
-                        :led_suit => :clubs,
-                        :voided_suits => [],
-                        :remaining_cards_plus_current_trick => [@ace_clubs, @king_clubs, @queen_clubs, @jack_clubs, @ten_clubs, @six_clubs]
-                      )
-                      @round.stub(:card_played_by).with(@ai.partner).and_return(@jack_clubs)
-                      @round.stub(:remaining_cards).with(:clubs).and_return([@ace_clubs, @king_clubs, @queen_clubs, @jack_clubs, @ten_clubs, @six_clubs])
-
-                      should == @king_clubs
-                    end
-                  end
-                end
-              end
-
-              context "playing third initial strategy" do
-                before { @current_trick = stub(:players => @game.players[0..1], :cards => [@ten_clubs, @queen_clubs]) }
-
-                it "my partner played a guaranteed winner (excluding my cards) so play low" do
-                  @ai.assign_cards([@ace_clubs, @six_clubs])
-                  @round.stub(
-                    :current_trick => @current_trick,
-                    :valid_cards => [@ace_clubs, @six_clubs],
-                    :trump_suit => :hearts,
-                    :led_suit => :clubs,
-                    :voided_suits => [],
-                    :remaining_cards_plus_current_trick => [@ace_clubs, @queen_clubs, @jack_clubs, @ten_clubs, @six_clubs]
-                  )
-                  @round.stub(:card_played_by).with(@ai.partner).and_return(@queen_clubs)
-
-                  should == @six_clubs
-                end
-
-                it "my top card is equivalent my partner's card so play low" do
-                  @ai.assign_cards([@king_clubs, @six_clubs])
-                  @round.stub(
-                    :current_trick => @current_trick,
-                    :valid_cards => [@king_clubs, @six_clubs],
-                    :trump_suit => :hearts,
-                    :led_suit => :clubs,
-                    :voided_suits => [],
-                    :remaining_cards_plus_current_trick => [@ace_clubs, @king_clubs, @queen_clubs, @ten_clubs, @six_clubs, @six_clubs]
-                  )
-                  @round.stub(:remaining_cards).with(:clubs).and_return([@ace_clubs, @king_clubs, @six_clubs])
-                  @round.stub(:card_played_by).with(@ai.partner).and_return(@queen_clubs)
-
-                  should == @six_clubs
-                end
-
-                it "otherwise play second position (shared) strategy" do
-                  @round.stub(
-                    :current_trick => @current_trick,
-                    :valid_cards => [@ace_clubs, @six_clubs],
-                    :trump_suit => :hearts,
-                    :led_suit => :clubs,
-                    :voided_suits => [],
-                    :remaining_cards_plus_current_trick => [@ace_clubs, @king_clubs, @queen_clubs, @ten_clubs, @six_clubs]
-                  )
-                  @round.stub(:card_played_by).with(@ai.partner).and_return(@queen_clubs)
-
-                  @ai.should_receive(:playing_second)
-                  @ai.request_play
-                end
-              end
-
-              context "playing fourth" do
-                before { @current_trick = stub(:players => @game.players[0..2]) }
-
-                context "partner is winning" do
-                  it "plays low" do
-                    @current_trick.stub(:cards => [@ten_clubs, @queen_clubs, @jack_clubs])
-                    @ai.assign_cards([@joker, @six_spades])
+                  it "play highest" do
+                    @current_trick.stub(:cards => [@jack_clubs, @ten_clubs])
                     @round.stub(
                       :current_trick => @current_trick,
-                      :valid_cards => [@joker, @six_spades],
+                      :valid_cards => [@king_clubs, @six_clubs],
                       :trump_suit => :hearts,
                       :led_suit => :clubs,
                       :voided_suits => [],
-                      :remaining_cards_plus_current_trick => [@joker, @king_clubs, @queen_clubs, @jack_clubs, @ten_clubs, @six_clubs, @six_spades]
-                    )
-                    @round.stub(:card_played_by).with(@ai.partner).and_return(@queen_clubs)
-
-                    should == @six_spades
-                  end
-                end
-
-                context "otherwise" do
-                  it "plays lowest winner" do
-                    @current_trick.stub(:cards => [@ten_clubs, @jack_clubs, @queen_clubs])
-                    @ai.assign_cards([@joker, @six_hearts, @six_spades])
-                    @round.stub(
-                      :current_trick => @current_trick,
-                      :valid_cards => [@joker, @six_hearts, @six_spades],
-                      :trump_suit => :hearts,
-                      :led_suit => :clubs,
-                      :voided_suits => [],
-                      :remaining_cards_plus_current_trick => [@joker, @king_clubs, @queen_clubs, @jack_clubs, @ten_clubs, @six_clubs, @six_hearts, @six_spades]
+                      :remaining_cards_plus_current_trick => [@ace_clubs, @king_clubs, @queen_clubs, @jack_clubs, @ten_clubs, @six_clubs]
                     )
                     @round.stub(:card_played_by).with(@ai.partner).and_return(@jack_clubs)
+                    @round.stub(:remaining_cards).with(:clubs).and_return([@ace_clubs, @king_clubs, @queen_clubs, @jack_clubs, @ten_clubs, @six_clubs])
 
-                    should == @six_hearts
+                    should == @king_clubs
                   end
+                end
+              end
+            end
+
+            context "playing third initial strategy" do
+              before { @current_trick = stub(:players => @game.players[0..1], :cards => [@ten_clubs, @queen_clubs]) }
+
+              it "my partner played a guaranteed winner (excluding my cards) so play low" do
+                @ai.assign_cards([@ace_clubs, @six_clubs])
+                @round.stub(
+                  :current_trick => @current_trick,
+                  :valid_cards => [@ace_clubs, @six_clubs],
+                  :trump_suit => :hearts,
+                  :led_suit => :clubs,
+                  :voided_suits => [],
+                  :remaining_cards_plus_current_trick => [@ace_clubs, @queen_clubs, @jack_clubs, @ten_clubs, @six_clubs]
+                )
+                @round.stub(:card_played_by).with(@ai.partner).and_return(@queen_clubs)
+
+                should == @six_clubs
+              end
+
+              it "my top card is equivalent my partner's card so play low" do
+                @ai.assign_cards([@king_clubs, @six_clubs])
+                @round.stub(
+                  :current_trick => @current_trick,
+                  :valid_cards => [@king_clubs, @six_clubs],
+                  :trump_suit => :hearts,
+                  :led_suit => :clubs,
+                  :voided_suits => [],
+                  :remaining_cards_plus_current_trick => [@ace_clubs, @king_clubs, @queen_clubs, @ten_clubs, @six_clubs, @six_clubs]
+                )
+                @round.stub(:remaining_cards).with(:clubs).and_return([@ace_clubs, @king_clubs, @six_clubs])
+                @round.stub(:card_played_by).with(@ai.partner).and_return(@queen_clubs)
+
+                should == @six_clubs
+              end
+
+              it "otherwise play second position (shared) strategy" do
+                @round.stub(
+                  :current_trick => @current_trick,
+                  :valid_cards => [@ace_clubs, @six_clubs],
+                  :trump_suit => :hearts,
+                  :led_suit => :clubs,
+                  :voided_suits => [],
+                  :remaining_cards_plus_current_trick => [@ace_clubs, @king_clubs, @queen_clubs, @ten_clubs, @six_clubs]
+                )
+                @round.stub(:card_played_by).with(@ai.partner).and_return(@queen_clubs)
+
+                @ai.should_receive(:playing_second)
+                @ai.request_play
+              end
+            end
+
+            context "playing fourth" do
+              before { @current_trick = stub(:players => @game.players[0..2]) }
+
+              context "partner is winning" do
+                it "plays low" do
+                  @current_trick.stub(:cards => [@ten_clubs, @queen_clubs, @jack_clubs])
+                  @ai.assign_cards([@joker, @six_spades])
+                  @round.stub(
+                    :current_trick => @current_trick,
+                    :valid_cards => [@joker, @six_spades],
+                    :trump_suit => :hearts,
+                    :led_suit => :clubs,
+                    :voided_suits => [],
+                    :remaining_cards_plus_current_trick => [@joker, @king_clubs, @queen_clubs, @jack_clubs, @ten_clubs, @six_clubs, @six_spades]
+                  )
+                  @round.stub(:card_played_by).with(@ai.partner).and_return(@queen_clubs)
+
+                  should == @six_spades
+                end
+              end
+
+              context "otherwise" do
+                it "plays lowest winner" do
+                  @current_trick.stub(:cards => [@ten_clubs, @jack_clubs, @queen_clubs])
+                  @ai.assign_cards([@joker, @six_hearts, @six_spades])
+                  @round.stub(
+                    :current_trick => @current_trick,
+                    :valid_cards => [@joker, @six_hearts, @six_spades],
+                    :trump_suit => :hearts,
+                    :led_suit => :clubs,
+                    :voided_suits => [],
+                    :remaining_cards_plus_current_trick => [@joker, @king_clubs, @queen_clubs, @jack_clubs, @ten_clubs, @six_clubs, @six_hearts, @six_spades]
+                  )
+                  @round.stub(:card_played_by).with(@ai.partner).and_return(@jack_clubs)
+
+                  should == @six_hearts
                 end
               end
             end
@@ -547,7 +521,7 @@ module FiveHundred
         end
       end
 
-# actions
+  # actions
       describe "play highest card" do
         subject { @ai.play_highest }
 

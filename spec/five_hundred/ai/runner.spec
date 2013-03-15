@@ -23,7 +23,7 @@ module FiveHundred
 
       it "should keep two different ais on opposing teams" do
         r_ai = RandomAI
-        o_ai = OrderedAI
+        o_ai = GeneralAI
         ais = [r_ai, o_ai]
         r = Runner.new(10, ais)
         r.players[0].class.should == r.players[1].class

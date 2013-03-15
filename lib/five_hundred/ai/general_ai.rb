@@ -3,7 +3,7 @@ require "five_hundred/player"
 
 module FiveHundred
   module AI
-    class OrderedAI < Player
+    class GeneralAI < Player
       def request_bid
         bid_suit_letter = suit_with_most_cards.to_s[0]
         bid_number = max_cards_for_any_suit + 3
@@ -41,7 +41,7 @@ module FiveHundred
       end
 
       def to_s
-        "#{self.class} 0.2"
+        "#{self.class}"
       end
     end
   end

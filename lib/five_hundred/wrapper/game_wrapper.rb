@@ -8,7 +8,7 @@ module FiveHundred
     class GameWrapper
       attr_reader :messages
 
-      def initialize(players=[AI::OrderedAI.new, AI::OrderedAI.new, AI::OrderedAI.new])
+      def initialize(players=[AI::GeneralAI.new, AI::GeneralAI.new, AI::GeneralAI.new])
         # create game
         @game = Game.new
         # message queue

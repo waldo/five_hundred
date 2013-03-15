@@ -3,7 +3,7 @@ require "five_hundred/player"
 
 module FiveHundred
   module AI
-    class RandomAI < Player
+    class RandomAI < GeneralAI
       def request_bid
         [round.valid_bids.sample, Bid.new("pass")].sample
       end
@@ -14,10 +14,6 @@ module FiveHundred
 
       def request_play
         round.valid_cards.sample
-      end
-
-      def to_s
-        "#{self.class} 0.2"
       end
     end
   end

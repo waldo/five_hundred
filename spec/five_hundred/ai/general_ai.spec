@@ -9,18 +9,29 @@ module FiveHundred
       include_context "named cards"
 
       before do
-        build_game_stub
-        @round = double("Round").as_null_object
         @ai = GeneralAI.new
 
-        @game.stub(:current_round).and_return(@round)
-        @round.stub(:highest_bid).and_return(@bid_10d)
-        @round.stub(:trump_suit).and_return(:hearts)
-        @round.stub(:valid_bids).and_return([@bid_10d, @bid_10h, @bid_om, @bid_10nt, @pass])
-        @round.stub(:valid_cards).and_return([@joker, @jack_hearts, @jack_diamonds, @ace_hearts, @king_hearts, @queen_hearts, @ten_hearts, @nine_hearts, @eight_hearts, @seven_hearts])
+        players = Array.new(3) { Player.new }
+        players += [@ai]
+
+        build_game_stub(players)
+
+        @round = double("Round").as_null_object
+        @trick = double("Trick").as_null_object
+
+        @game.stub(:current_round => @round)
+        @card_arr = [@joker, @jack_hearts, @jack_diamonds, @ace_hearts, @king_hearts, @queen_hearts, @ten_hearts, @nine_hearts, @eight_hearts, @seven_hearts]
+        @round.stub(
+          :trump_suit => :hearts,
+          :highest_bid => @bid_10d,
+          :valid_bids => [@bid_10d, @bid_10h, @bid_om, @bid_10nt, @pass],
+          :valid_cards => @card_arr,
+          :current_trick => @trick
+        )
+        @trick.stub(:max_rank => @six_spades.rank)
 
         @ai.game = @game
-        @ai.assign_cards([@joker, @jack_hearts, @jack_diamonds, @ace_hearts, @king_hearts, @queen_hearts, @ten_hearts, @nine_hearts, @eight_hearts, @seven_hearts])
+        @ai.assign_cards(@card_arr)
       end
 
       context "should respond to requests for" do
@@ -56,6 +67,73 @@ module FiveHundred
             @round.stub(:trump_suit).and_return(:none)
 
             @ai.request(:play).should == @joker
+          end
+        end
+      end
+
+      # actions
+      describe "play highest card" do
+        subject { @ai.highest_card }
+
+        it "returns your highest ranked card" do
+          @round.stub(:valid_cards => [@jack_diamonds, @seven_hearts, @eight_clubs])
+
+          should == @jack_diamonds
+        end
+      end
+
+      describe "play lowest winner" do
+        subject { @ai.lowest_winner }
+
+        before do
+          @round.stub(:valid_cards => [@jack_diamonds, @seven_hearts, @eight_clubs])
+
+          @trick.stub(:cards => [@seven_clubs, @six_clubs, @six_hearts])
+        end
+
+        it "returns a winning card lower than your highest ranked" do
+          should == @seven_hearts
+        end
+
+        it "returns a winning card even if it's your highest ranked" do
+          @round.stub(:valid_cards => [@seven_hearts, @eight_clubs])
+
+          should == @seven_hearts
+        end
+      end
+
+      describe "play lowest trump" do
+        subject { @ai.lowest_trump }
+
+        before do
+          @round.stub(:valid_cards => [@jack_diamonds, @seven_hearts, @eight_clubs])
+        end
+
+        it "returns your lowest trump" do
+          should == @seven_hearts
+        end
+      end
+
+      describe "play lowest card" do
+        subject { @ai.lowest_card }
+
+        context "multiple suits in valid choices including trumps" do
+          it "plays lowest in the non-trump suit with fewest cards" do
+            cards = [@seven_hearts, @eight_clubs, @seven_clubs, @eight_spades, @seven_spades, @six_spades]
+            @ai.assign_cards(cards)
+            @round.stub(:valid_cards => cards)
+
+            should == @seven_clubs
+          end
+        end
+
+        context "short of trumps (i.e. don't bother shorting if you don't have trumps)" do
+          it "plays your lowest ranked card" do
+            cards = [@eight_clubs, @seven_clubs, @eight_spades, @seven_spades, @six_spades]
+            @ai.assign_cards(cards)
+            @round.stub(:valid_cards => cards)
+
+            should == @six_spades
           end
         end
       end

@@ -174,8 +174,8 @@ module FiveHundred
           play!(@seven_diamonds)
           play!(@nine_diamonds)
 
-          @trick_set.played_cards(nil, @players[0]).count.should == 2
-          @trick_set.played_cards(nil, @players[0]).should == [@four_hearts, @four_diamonds]
+          @trick_set.played_cards(@players[0]).count.should == 2
+          @trick_set.played_cards(@players[0]).should == [@four_hearts, @four_diamonds]
         end
 
         it "played suits correctly for a player" do

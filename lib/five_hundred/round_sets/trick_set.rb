@@ -88,7 +88,7 @@ module FiveHundred
       private :unvoided_suit?
 
       def played_suits(player)
-        played_cards(nil, player).map {|card| card.suit(@trump_suit) }
+        played_cards(player).map {|card| card.suit(@trump_suit) }.uniq
       end
       private :played_suits
 
@@ -152,17 +152,17 @@ module FiveHundred
         @tricks.count == 10 && current_trick.complete? || (@trump_suit == :misere && current_trick.winner == @winning_bidder)
       end
 
-      def played_cards(suit=nil, player=nil)
+      def played_cards(player=nil)
         trick_cards = @tricks.map do |t|
           player.nil? ? t.cards : t.card_played_by(player)
         end
 
-        cards = trick_cards.flatten.compact.select {|c| c.suit == suit || suit.nil? }
+        cards = trick_cards.flatten.compact
         rank_order(cards)
       end
 
       def remaining_cards(suit=nil)
-        cards = Deck.set_of_cards(suit) - played_cards(suit)
+        cards = Deck.set_of_cards(suit) - played_cards
         rank_order(cards)
       end
 

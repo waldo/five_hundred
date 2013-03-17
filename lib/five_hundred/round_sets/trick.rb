@@ -67,7 +67,7 @@ module FiveHundred
       end
 
       def ranked_cards
-        cards.map {|card| -rank(card) }
+        cards.sort_by {|card| -rank(card) }
       end
 
       def players

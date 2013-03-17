@@ -55,7 +55,7 @@ module FiveHundred
       end
 
       def no_trumps_or_only_trumps?
-        !has_trumps?(round.trump_suit) || suits(round.trump_suit).count == 1
+        !has_trumps?(round.trump_suit) || valid_card_suits_counts.count == 1
       end
 
       # actions

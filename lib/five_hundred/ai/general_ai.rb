@@ -4,6 +4,10 @@ require "five_hundred/player"
 module FiveHundred
   module AI
     class GeneralAI < Player
+      def request(type)
+        self.send("request_#{type}")
+      end
+
       def request_bid
         bid_suit_letter = suit_with_most_cards.to_s[0]
         bid_number = max_cards_for_any_suit + 3

@@ -22,10 +22,6 @@ module FiveHundred
       round.current_trick
     end
 
-    def request(type)
-      self.send("request_#{type}")
-    end
-
     def assign_cards(cards_to_add)
       clear_cards!
       @cards += cards_to_add

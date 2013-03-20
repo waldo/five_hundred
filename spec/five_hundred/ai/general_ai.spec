@@ -71,69 +71,70 @@ module FiveHundred
         end
       end
 
-      # actions
-      describe "play highest card" do
-        subject { @ai.highest_card }
+      context "actions" do
+        describe "play highest card" do
+          subject { @ai.highest_card }
 
-        it "returns your highest ranked card" do
-          @round.stub(:valid_cards => [@jack_diamonds, @seven_hearts, @eight_clubs])
+          it "returns your highest ranked card" do
+            @round.stub(:valid_cards => [@jack_diamonds, @seven_hearts, @eight_clubs])
 
-          should == @jack_diamonds
-        end
-      end
-
-      describe "play lowest winner" do
-        subject { @ai.lowest_winner }
-
-        before do
-          @round.stub(:valid_cards => [@jack_diamonds, @seven_hearts, @eight_clubs])
-
-          @trick.stub(:cards => [@seven_clubs, @six_clubs, @six_hearts])
-        end
-
-        it "returns a winning card lower than your highest ranked" do
-          should == @seven_hearts
-        end
-
-        it "returns a winning card even if it's your highest ranked" do
-          @round.stub(:valid_cards => [@seven_hearts, @eight_clubs])
-
-          should == @seven_hearts
-        end
-      end
-
-      describe "play lowest trump" do
-        subject { @ai.lowest_trump }
-
-        before do
-          @round.stub(:valid_cards => [@jack_diamonds, @seven_hearts, @eight_clubs])
-        end
-
-        it "returns your lowest trump" do
-          should == @seven_hearts
-        end
-      end
-
-      describe "play lowest card" do
-        subject { @ai.lowest_card }
-
-        context "multiple suits in valid choices including trumps" do
-          it "plays lowest in the non-trump suit with fewest cards" do
-            cards = [@seven_hearts, @eight_clubs, @seven_clubs, @eight_spades, @seven_spades, @six_spades]
-            @ai.assign_cards(cards)
-            @round.stub(:valid_cards => cards)
-
-            should == @seven_clubs
+            should == @jack_diamonds
           end
         end
 
-        context "short of trumps (i.e. don't bother shorting if you don't have trumps)" do
-          it "plays your lowest ranked card" do
-            cards = [@eight_clubs, @seven_clubs, @eight_spades, @seven_spades, @six_spades]
-            @ai.assign_cards(cards)
-            @round.stub(:valid_cards => cards)
+        describe "play lowest winner" do
+          subject { @ai.lowest_winner }
 
-            should == @six_spades
+          before do
+            @round.stub(:valid_cards => [@jack_diamonds, @seven_hearts, @eight_clubs])
+
+            @trick.stub(:cards => [@seven_clubs, @six_clubs, @six_hearts])
+          end
+
+          it "returns a winning card lower than your highest ranked" do
+            should == @seven_hearts
+          end
+
+          it "returns a winning card even if it's your highest ranked" do
+            @round.stub(:valid_cards => [@seven_hearts, @eight_clubs])
+
+            should == @seven_hearts
+          end
+        end
+
+        describe "play lowest trump" do
+          subject { @ai.lowest_trump }
+
+          before do
+            @round.stub(:valid_cards => [@jack_diamonds, @seven_hearts, @eight_clubs])
+          end
+
+          it "returns your lowest trump" do
+            should == @seven_hearts
+          end
+        end
+
+        describe "play lowest card" do
+          subject { @ai.lowest_card }
+
+          context "multiple suits in valid choices including trumps" do
+            it "plays lowest in the non-trump suit with fewest cards" do
+              cards = [@seven_hearts, @eight_clubs, @seven_clubs, @eight_spades, @seven_spades, @six_spades]
+              @ai.assign_cards(cards)
+              @round.stub(:valid_cards => cards)
+
+              should == @seven_clubs
+            end
+          end
+
+          context "short of trumps (i.e. don't bother shorting if you don't have trumps)" do
+            it "plays your lowest ranked card" do
+              cards = [@eight_clubs, @seven_clubs, @eight_spades, @seven_spades, @six_spades]
+              @ai.assign_cards(cards)
+              @round.stub(:valid_cards => cards)
+
+              should == @six_spades
+            end
           end
         end
       end

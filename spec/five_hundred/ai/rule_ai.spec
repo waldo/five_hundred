@@ -56,11 +56,14 @@ module FiveHundred
           context "can beat existing cards in the trick" do
             context "playing first" do
               before do
-                @trick.stub(:cards => [], :players => [])
+                @trick.stub(
+                  :cards => [],
+                  :players => [],
+                  :led_suit => nil
+                )
                 @round.stub(
                   :remaining_cards_plus_current_trick => [@joker, @jack_hearts, @jack_diamonds, @seven_hearts, @six_hearts],
-                  :voided_suits => [],
-                  :led_suit => nil
+                  :voided_suits => []
                 )
               end
 
@@ -106,13 +109,12 @@ module FiveHundred
               end
 
               context "trumps are led" do
-                before { @trick.stub(:cards => [@ten_hearts]) }
+                before { @trick.stub(:cards => [@ten_hearts], :led_suit => :hearts) }
 
                 it "plays highest" do
                   @round.stub(
                     :valid_cards => [@queen_hearts, @six_hearts],
-                    :trump_suit => :hearts,
-                    :led_suit => :hearts
+                    :trump_suit => :hearts
                   )
                   @round.stub(:remaining_cards).with(:hearts).and_return([@joker, @jack_hearts, @jack_diamonds, @queen_hearts, @ten_hearts, @six_hearts])
 
@@ -121,14 +123,13 @@ module FiveHundred
               end
 
               context "trumps are not led" do
-                before { @trick.stub(:cards => [@ten_clubs]) }
+                before { @trick.stub(:cards => [@ten_clubs], :led_suit => :clubs) }
 
                 context "I can trump" do
                   it "I predict that opponents can't trump, so trump low" do
                     @round.stub(
                       :valid_cards => [@queen_hearts, @six_hearts],
                       :trump_suit => :hearts,
-                      :led_suit => :clubs,
                       :voided_suits => []
                     )
                     @round.stub(:remaining_cards).with(:hearts).and_return([@joker, @queen_hearts, @six_hearts])
@@ -141,7 +142,6 @@ module FiveHundred
                     @round.stub(
                       :valid_cards => [@queen_hearts, @six_hearts],
                       :trump_suit => :hearts,
-                      :led_suit => :clubs,
                       :voided_suits => []
                     )
                     @round.stub(:remaining_cards).with(:hearts).and_return([@joker, @queen_hearts, @ten_hearts, @nine_hearts, @six_hearts])
@@ -159,7 +159,6 @@ module FiveHundred
                     @round.stub(
                       :valid_cards => [@king_clubs, @six_clubs],
                       :trump_suit => :hearts,
-                      :led_suit => :clubs,
                       :voided_suits => [],
                       :remaining_cards_plus_current_trick => [@ace_clubs, @king_clubs, @queen_clubs, @jack_clubs, @ten_clubs, @six_clubs]
                     )
@@ -173,14 +172,19 @@ module FiveHundred
             end
 
             context "playing third initial strategy" do
-              before { @trick.stub(:players => @game.players[0..1], :cards => [@ten_clubs, @queen_clubs]) }
+              before do
+                @trick.stub(
+                  :players => @game.players[0..1],
+                  :cards => [@ten_clubs, @queen_clubs],
+                  :led_suit => :clubs
+                )
+              end
 
               it "my partner played a guaranteed winner (excluding my cards) so play low" do
                 @ai.assign_cards([@ace_clubs, @six_clubs])
                 @round.stub(
                   :valid_cards => [@ace_clubs, @six_clubs],
                   :trump_suit => :hearts,
-                  :led_suit => :clubs,
                   :voided_suits => [],
                   :remaining_cards_plus_current_trick => [@ace_clubs, @queen_clubs, @jack_clubs, @ten_clubs, @six_clubs]
                 )
@@ -194,7 +198,6 @@ module FiveHundred
                 @round.stub(
                   :valid_cards => [@king_clubs, @six_clubs],
                   :trump_suit => :hearts,
-                  :led_suit => :clubs,
                   :voided_suits => [],
                   :remaining_cards_plus_current_trick => [@ace_clubs, @king_clubs, @queen_clubs, @ten_clubs, @six_clubs, @six_clubs]
                 )
@@ -208,7 +211,6 @@ module FiveHundred
                 @round.stub(
                   :valid_cards => [@ace_clubs, @six_clubs],
                   :trump_suit => :hearts,
-                  :led_suit => :clubs,
                   :voided_suits => [],
                   :remaining_cards_plus_current_trick => [@ace_clubs, @king_clubs, @queen_clubs, @ten_clubs, @six_clubs]
                 )
@@ -220,7 +222,12 @@ module FiveHundred
             end
 
             context "playing fourth" do
-              before { @trick.stub(:players => @game.players[0..2]) }
+              before do
+                @trick.stub(
+                  :players => @game.players[0..2],
+                  :led_suit => :clubs
+                )
+              end
 
               context "partner is winning" do
                 it "plays low" do
@@ -230,7 +237,6 @@ module FiveHundred
                   @round.stub(
                     :valid_cards => [@joker, @six_spades],
                     :trump_suit => :hearts,
-                    :led_suit => :clubs,
                     :voided_suits => [],
                     :remaining_cards_plus_current_trick => [@joker, @king_clubs, @queen_clubs, @jack_clubs, @ten_clubs, @six_clubs, @six_spades]
                   )
@@ -248,7 +254,6 @@ module FiveHundred
                   @round.stub(
                     :valid_cards => [@joker, @six_hearts, @six_spades],
                     :trump_suit => :hearts,
-                    :led_suit => :clubs,
                     :voided_suits => [],
                     :remaining_cards_plus_current_trick => [@joker, @king_clubs, @queen_clubs, @jack_clubs, @ten_clubs, @six_clubs, @six_hearts, @six_spades]
                   )
@@ -457,13 +462,13 @@ module FiveHundred
         subject { @ai.trump_suit_led? }
 
         it "returns true if a trump is led" do
-          @round.stub(:led_suit => :hearts)
+          @trick.stub(:led_suit => :hearts)
 
           should be_true
         end
 
         it "returns false if a non-trump card is led" do
-          @round.stub(:led_suit => :clubs)
+          @trick.stub(:led_suit => :clubs)
 
           should be_false
         end

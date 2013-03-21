@@ -178,10 +178,6 @@ module FiveHundred
       end
       private :rank_order
 
-      def led_suit
-        current_trick.led_suit
-      end
-
       # class
       def self.empty
         NullObject.new

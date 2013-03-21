@@ -158,9 +158,5 @@ module FiveHundred
     def voided_suits(player)
       trick_set.voided_suits(player)
     end
-
-    def led_suit
-      trick_set.led_suit
-    end
   end
 end

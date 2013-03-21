@@ -78,7 +78,7 @@ module FiveHundred
 
       def lowest_winner
         max_rank = trick.max_rank
-        round.valid_cards.select {|c| c.rank(round.trump_suit, round.led_suit) > max_rank }.last
+        round.valid_cards.select {|c| c.rank(round.trump_suit, trick.led_suit) > max_rank }.last
       end
 
       def lowest_trump

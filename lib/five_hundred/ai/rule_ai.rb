@@ -26,7 +26,7 @@ module FiveHundred
 
       def playing_second
         return highest_card if trump_suit_led?
-        return lowest_trump if can_use_trump? && opponents_short_trumps_or_have_suit?(round.led_suit)
+        return lowest_trump if can_use_trump? && opponents_short_trumps_or_have_suit?(trick.led_suit)
 
         return highest_card
       end
@@ -96,11 +96,11 @@ module FiveHundred
       end
 
       def trump_suit_led?
-        round.trump_suit == round.led_suit
+        round.trump_suit == trick.led_suit
       end
 
       def winnable_trick?
-        highest_card.rank(round.trump_suit, round.led_suit) > trick.max_rank
+        highest_card.rank(round.trump_suit, trick.led_suit) > trick.max_rank
       end
 
       def can_use_trump?

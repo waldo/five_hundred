@@ -48,7 +48,7 @@ module FiveHundred
         "#{self.class}"
       end
 
-      def valid_card_suits_counts
+      def valid_cards_by_suit
         suits = Hash.new {|h, k| h[k] = [] }
 
         round.valid_cards.each do |c|
@@ -57,16 +57,17 @@ module FiveHundred
 
         suits
       end
+      private :valid_cards_by_suit
 
       def no_trumps_or_only_trumps?
-        !has_trumps?(round.trump_suit) || valid_card_suits_counts.count == 1
+        !has_trumps?(round.trump_suit) || valid_cards_by_suit.count == 1
       end
 
       # actions
       def lowest_card
         return round.valid_cards.last if no_trumps_or_only_trumps?
 
-        suits_hash = valid_card_suits_counts
+        suits_hash = valid_cards_by_suit
         suits_hash.delete(round.trump_suit)
         _suit, cards = suits_hash.min {|a, b| a[1].count <=> b[1].count }
         return cards.last
@@ -82,7 +83,7 @@ module FiveHundred
       end
 
       def lowest_trump
-        valid_card_suits_counts[round.trump_suit].last
+        valid_cards_by_suit[round.trump_suit].last
       end
     end
   end

@@ -28,7 +28,10 @@ module FiveHundred
           :valid_cards => @card_arr,
           :current_trick => @trick
         )
-        @trick.stub(:max_rank => @six_spades.rank)
+        @trick.stub(
+          :led_suit => :clubs,
+          :max_rank => 6
+        )
 
         @ai.game = @game
         @ai.assign_cards(@card_arr)
@@ -87,8 +90,7 @@ module FiveHundred
 
           before do
             @round.stub(:valid_cards => [@jack_diamonds, @seven_hearts, @eight_clubs])
-
-            @trick.stub(:cards => [@seven_clubs, @six_clubs, @six_hearts])
+            @trick.stub(:max_rank => @ace_clubs.rank)
           end
 
           it "returns a winning card lower than your highest ranked" do

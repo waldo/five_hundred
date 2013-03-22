@@ -59,13 +59,14 @@ module FiveHundred
       end
       private :valid_cards_by_suit
 
-      def no_trumps_or_only_trumps?
+      def no_trumps_or_only_one_valid_suit?
         !has_trumps?(round.trump_suit) || valid_cards_by_suit.count == 1
       end
+      private :no_trumps_or_only_one_valid_suit?
 
       # actions
       def lowest_card
-        return round.valid_cards.last if no_trumps_or_only_trumps?
+        return round.valid_cards.last if no_trumps_or_only_one_valid_suit?
 
         suits_hash = valid_cards_by_suit
         suits_hash.delete(round.trump_suit)

@@ -269,7 +269,7 @@ module FiveHundred
 
       describe "one valid choice" do
         subject { @ai.one_valid_choice? }
-        it "returns true when only one cards is valid" do
+        it "returns true when only one card is valid" do
           @round.stub(:valid_cards => [@seven_hearts])
 
           should be_true

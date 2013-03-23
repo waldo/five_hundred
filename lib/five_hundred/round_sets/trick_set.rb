@@ -162,7 +162,7 @@ module FiveHundred
       end
 
       def remaining_cards(suit=nil)
-        cards = Deck.set_of_cards(suit) - played_cards
+        cards = Deck.set_of_cards(suit, @trump_suit) - played_cards
         rank_order(cards)
       end
 

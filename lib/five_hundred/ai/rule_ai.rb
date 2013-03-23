@@ -17,12 +17,14 @@ module FiveHundred
 
         send("playing_#{position_symbols[position]}")
       end
+      private :position_rules
 
       def playing_first
         return highest_card if guaranteed_winner?
 
-        return non_trump_expected_winner || lowest_card
+        return expected_non_trump_winner || lowest_card
       end
+      private :playing_first
 
       def playing_second
         return highest_card if trump_suit_led?
@@ -30,20 +32,23 @@ module FiveHundred
 
         return highest_card
       end
+      private :playing_second
 
       def playing_third
         return lowest_card if partner_played_guaranteed_winner? || top_card_equivalent_to_partners_card?
 
         return playing_second
       end
+      private :playing_third
 
       def playing_fourth
-        return lowest_card if partner_winning_trick?
+        return lowest_card if partner_winning?
 
         return lowest_winner
       end
+      private :playing_fourth
 
-      def non_trump_expected_winner
+      def expected_non_trump_winner
         top_cards_non_trump_suit.each do |card|
           return card if opponents_short_trumps_or_have_suit?(card.suit(round.trump_suit))
         end
@@ -107,7 +112,7 @@ module FiveHundred
         highest_card.suit(round.trump_suit) == round.trump_suit
       end
 
-      def partner_winning_trick?
+      def partner_winning?
         partner == trick.ranked_players.first
       end
     end

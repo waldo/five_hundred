@@ -16,26 +16,18 @@ module FiveHundred
     end
 
     def rank(trump_suit=nil, led_suit=nil)
-      value_given_trumps = rank_given_trumps_are(trump_suit)
-      return value_given_trumps if led_suit.nil?
+      return rank_given_trumps_are(trump_suit) if led_suit.nil? || [led_suit, trump_suit].include?(self.suit(trump_suit))
 
-      val = 0
-      val = value_given_trumps if [led_suit, trump_suit].include?(self.suit(trump_suit))
-
-      val
+      0
     end
 
     def rank_given_trumps_are(trump_suit)
-      val = @rank
-      if right_bower?(trump_suit)
-        val = @@right_bower
-      elsif left_bower?(trump_suit)
-        val = @@left_bower
-      elsif trump?(trump_suit) and !joker?
-        val = @rank + @@ace_rank
-      end
+      return @rank if joker?
+      return @@right_bower if right_bower?(trump_suit)
+      return @@left_bower if left_bower?(trump_suit)
+      return @rank + @@ace_rank if trump?(trump_suit)
 
-      val
+      @rank
     end
     private :rank_given_trumps_are
 
@@ -57,18 +49,20 @@ module FiveHundred
 
     def trump?(trump_suit)
       return false if [:none, :misere].include?(trump_suit)
-      @suit == trump_suit or left_bower?(trump_suit) or right_bower?(trump_suit) or joker?
+      @suit == trump_suit || left_bower?(trump_suit) || joker?
     end
 
     def right_bower?(trump_suit)
-      @suit == trump_suit and @rank == 11
+      @suit == trump_suit && @rank == 11
     end
 
     def left_bower?(trump_suit)
-      bower_check(trump_suit, :spades, :clubs) or
-      bower_check(trump_suit, :clubs, :spades) or
-      bower_check(trump_suit, :diamonds, :hearts) or
-      bower_check(trump_suit, :hearts, :diamonds)
+      @rank == 11 && (
+        bower_check(trump_suit, :spades, :clubs) ||
+        bower_check(trump_suit, :clubs, :spades) ||
+        bower_check(trump_suit, :diamonds, :hearts) ||
+        bower_check(trump_suit, :hearts, :diamonds)
+      )
     end
 
     def to_s
@@ -86,7 +80,7 @@ module FiveHundred
     end
 
     def bower_check(trump_suit, suit_a, suit_b)
-      trump_suit == suit_a and @suit == suit_b and rank == 11
+      trump_suit == suit_a && @suit == suit_b && @rank == 11
     end
     private :bower_check
 

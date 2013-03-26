@@ -2,7 +2,7 @@
 
 module FiveHundred
   class Bid
-    attr_reader :code, :suit
+    attr_reader :code, :suit, :tricks_required
 
     def initialize(code)
       b = Bid.all[code]
@@ -11,6 +11,12 @@ module FiveHundred
       @suit =             b[:suit]
       @tricks_required =  b[:tricks_required]
       @points =           b[:points]
+    end
+
+    def self.create_with_tricks_and_suit(tricks_req, suit)
+      code = "#{tricks_req}#{suit.to_s[0]}"
+
+      Bid.new(code)
     end
 
     def >(other_bid)

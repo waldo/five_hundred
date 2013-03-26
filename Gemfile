@@ -9,5 +9,6 @@ group :test do
   gem "pry-stack_explorer"
   gem "rb-fsevent"
   gem "rspec"
+  gem "ruby-prof"
   gem "terminal-notifier"
 end

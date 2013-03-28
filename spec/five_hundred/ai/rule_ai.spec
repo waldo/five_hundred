@@ -25,7 +25,7 @@ module FiveHundred
           :valid_cards => @card_arr,
           :current_trick => @trick
         )
-        @trick.stub(:max_rank => @six_spades.rank)
+        @trick.stub(:max_rank => @six_spades.rank[:none][nil])
 
         @ai.game = @game
         @ai.assign_cards(@card_arr)
@@ -43,7 +43,7 @@ module FiveHundred
         context "multiple valid cards" do
           context "can't beat existing cards in the trick" do
             before do
-              @trick.stub(:max_rank => @joker.rank)
+              @trick.stub(:max_rank => @joker.rank[:none][nil])
             end
 
             it "plays low" do
@@ -253,7 +253,7 @@ module FiveHundred
       describe "is the trick winnable?" do
         subject { @ai.winnable_trick? }
         before do
-          @trick.stub(:max_rank => @six_hearts.rank(:hearts))
+          @trick.stub(:max_rank => @six_hearts.rank[:hearts][nil])
         end
 
         it "returns true given I have a higher ranked card than those in the trick" do

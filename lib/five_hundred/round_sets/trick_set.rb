@@ -44,7 +44,7 @@ module FiveHundred
       private :valid_play_for_player?
 
       def joker_rules?(card)
-        !card.joker? || joker_as_regular_trump?(card.suit) || valid_no_trump_joker?(card.suit(@trump_suit))
+        !card.joker? || joker_as_regular_trump?(card.suit[nil]) || valid_no_trump_joker?(card.suit[@trump_suit])
       end
 
       def joker_as_regular_trump?(card_suit)
@@ -88,12 +88,12 @@ module FiveHundred
       private :unvoided_suit?
 
       def played_suits(player)
-        played_cards(player).map {|card| card.suit(@trump_suit) }.uniq
+        played_cards(player).map {|card| card.suit[@trump_suit] }.uniq
       end
       private :played_suits
 
       def voided_suits(player)
-        @tricks.map {|t| t.first_card.suit(@trump_suit) unless t.followed_suit?(player)}.compact
+        @tricks.map {|t| t.first_card.suit[@trump_suit] unless t.followed_suit?(player)}.compact
       end
 
       def valid_cards
@@ -102,7 +102,7 @@ module FiveHundred
 
       def valid_cards_from_set(possible_cards, player)
         joker = Deck.card("Jo")
-        possible_cards += joker.joker_suit_variations if [:none, :misere].include?(trump_suit) && possible_cards.include?(joker)
+        possible_cards += joker.variations.values if [:none, :misere].include?(@trump_suit) && possible_cards.include?(joker)
         cards = possible_cards.select {|card| valid_play_for_player?(card, player)}
 
         rank_order(cards)
@@ -174,7 +174,7 @@ module FiveHundred
       end
 
       def rank_order(cards)
-        cards.sort_by {|c| -c.rank(@trump_suit) }
+        cards.sort_by {|c| -c.rank[@trump_suit][nil] }
       end
       private :rank_order
 

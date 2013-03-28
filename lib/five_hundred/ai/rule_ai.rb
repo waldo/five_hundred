@@ -50,7 +50,7 @@ module FiveHundred
 
       def expected_non_trump_winner
         top_cards_non_trump_suit.each do |card|
-          return card if opponents_short_trumps_or_have_suit?(card.suit(round.trump_suit))
+          return card if opponents_short_trumps_or_have_suit?(card.suit[round.trump_suit])
         end
 
         nil
@@ -105,11 +105,11 @@ module FiveHundred
       end
 
       def winnable_trick?
-        highest_card.rank(round.trump_suit, trick.led_suit) > trick.max_rank
+        highest_card.rank[round.trump_suit][trick.led_suit] > trick.max_rank
       end
 
       def can_use_trump?
-        highest_card.suit(round.trump_suit) == round.trump_suit
+        highest_card.suit[round.trump_suit] == round.trump_suit
       end
 
       def partner_winning?

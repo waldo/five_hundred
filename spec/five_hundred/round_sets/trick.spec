@@ -133,7 +133,7 @@ module FiveHundred
 
         it "where Jo is led in NT, other players must follow suit" do
           @trick = Trick.new(:none)
-          @trick.play(@joker.set_joker_suit(:hearts), @players[3])
+          @trick.play(@joker.variations[:hearts], @players[3])
           @trick.valid_play?(@five_clubs, @players[0]).should be_false
           @trick.valid_play?(@five_hearts, @players[0]).should be_true
         end

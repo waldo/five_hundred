@@ -8,6 +8,7 @@ module FiveHundred
       def initialize(trump_suit)
         @card_set = {}
         @trump_suit = trump_suit
+        @led_suit = nil
       end
 
       def play(card, player)
@@ -17,7 +18,7 @@ module FiveHundred
 
       def valid_play?(card, player)
         valid = player.has_card(card)
-        valid &&= card.suit(@trump_suit) == led_suit if !first_card? && has_led_suit?(player)
+        valid &&= card.suit[@trump_suit] == led_suit if !first_card? && has_led_suit?(player)
         valid
       end
 
@@ -30,12 +31,16 @@ module FiveHundred
       def rank(card)
         return 0 if card.nil?
 
-        card.rank(@trump_suit, first_card.suit)
+        card.rank[@trump_suit][first_card.suit[@trump_suit]]
       end
       private :rank
 
       def led_suit
-        first_card.suit(@trump_suit) unless first_card?
+        first_card.suit[@trump_suit] unless first_card?
+      end
+
+      def started?
+        !@card_set.empty? && !complete
       end
 
       def complete?
@@ -59,7 +64,7 @@ module FiveHundred
       end
 
       def followed_suit?(player)
-        @card_set[player].nil? || first_card.suit(@trump_suit) == @card_set[player].suit(@trump_suit)
+        @card_set[player].nil? || first_card.suit[@trump_suit] == @card_set[player].suit[@trump_suit]
       end
 
       def cards

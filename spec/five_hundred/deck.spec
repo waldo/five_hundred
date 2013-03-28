@@ -8,8 +8,8 @@ module FiveHundred
     it "should create a card" do
       card = Deck.card("6s")
       card.code.should == "6s"
-      card.rank.should == 6
-      card.suit.should == :spades
+      card.rank[:none][nil].should == 6
+      card.suit[:none].should == :spades
     end
 
     it "should create several cards" do

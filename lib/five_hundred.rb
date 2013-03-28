@@ -1,5 +1,6 @@
+require "ostruct"
+
 require "five_hundred/bid"
-require "five_hundred/card"
 require "five_hundred/deck"
 require "five_hundred/game"
 require "five_hundred/null_object"

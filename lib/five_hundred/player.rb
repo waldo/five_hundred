@@ -68,11 +68,11 @@ module FiveHundred
     end
 
     def suits(trump_suit)
-      @cards.map {|c| c.suit(trump_suit)}.uniq
+      @cards.map {|c| c.suit[trump_suit]}.uniq
     end
 
     def suits_excluding_joker(trump_suit)
-      @cards.map {|c| c.suit(trump_suit) unless c.joker?}.compact
+      @cards.map {|c| c.suit[trump_suit] unless c.joker?}.compact
     end
 
     def partner

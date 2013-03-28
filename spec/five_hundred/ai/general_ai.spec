@@ -90,7 +90,7 @@ module FiveHundred
 
           before do
             @round.stub(:valid_cards => [@jack_diamonds, @seven_hearts, @eight_clubs])
-            @trick.stub(:max_rank => @ace_clubs.rank)
+            @trick.stub(:max_rank => @ace_clubs.rank[:hearts][nil])
           end
 
           it "returns a winning card lower than your highest ranked" do

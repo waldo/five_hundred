@@ -126,7 +126,7 @@ module FiveHundred
 
         it "suit must be specified if led" do
           @trick_set.joker_rules?(@joker).should be_false
-          @trick_set.joker_rules?(@joker.set_joker_suit(:clubs)).should be_true
+          @trick_set.joker_rules?(@joker.variations[:clubs]).should be_true
         end
 
         it "should auto convert joker where sensible" do
@@ -139,14 +139,14 @@ module FiveHundred
           @trick_set.stub(:first_play_of_suit?).and_return(false)
           @trick_set.stub(:none_remaining_in_suit?).and_return(false)
 
-          @trick_set.joker_rules?(@joker.set_joker_suit(:hearts)).should be_false
+          @trick_set.joker_rules?(@joker.variations[:hearts]).should be_false
         end
 
         it "as last card in suit" do
           @trick_set.stub(:first_play_of_suit?).and_return(false)
           @trick_set.stub(:none_remaining_in_suit?).and_return(true)
 
-          @trick_set.joker_rules?(@joker.set_joker_suit(:hearts)).should be_true
+          @trick_set.joker_rules?(@joker.variations[:hearts]).should be_true
         end
 
         it "shouldn't allow after declaring suit void" do
@@ -154,7 +154,7 @@ module FiveHundred
           @trick_set.stub(:none_remaining_in_suit?).and_return(true)
           @trick_set.stub(:unvoided_suit?).and_return(false)
 
-          @trick_set.joker_rules?(@joker.set_joker_suit(:hearts)).should be_false
+          @trick_set.joker_rules?(@joker.variations[:hearts]).should be_false
         end
       end
 
@@ -216,6 +216,7 @@ module FiveHundred
         end
 
         it "should accept joker with the right suit" do
+          @trick_set = TrickSet.new(:hearts, @players.dup)
           @trick_set.play(@four_hearts)
           @trick_set.stub(:current_player).and_return(@players[1])
           @players[1].stub(:cards) do Deck.cards(%w{Qh Ks Kd As Ad Jo}) end
@@ -225,14 +226,14 @@ module FiveHundred
             @queen_hearts,
           ]
 
-          @trick_set.valid_cards.map {|c| c.suit(@trick_set.trump_suit) }.should == [:hearts, :hearts]
+          @trick_set.valid_cards.map {|c| c.suit[@trick_set.trump_suit] }.should == [:hearts, :hearts]
         end
 
         it "should offer 4 joker suit selection as valid cards when leading (as suit is not implied)" do
           @players[0].stub(:cards) do Deck.cards(%w{Ks Kd As Ad Jo}) end
 
           @trick_set.valid_cards.should == [
-            @joker.joker_suit_variations,
+            @joker.variations.values,
             @ace_diamonds,
             @ace_spades,
             @king_diamonds,

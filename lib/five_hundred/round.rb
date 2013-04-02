@@ -41,7 +41,7 @@ module FiveHundred
       if bidding_complete?
         start_kitty_phase!
       elsif everyone_passed?
-        @state = :complete
+        round_complete!
       end
     end
     private :check_after_bid
@@ -157,6 +157,10 @@ module FiveHundred
 
     def voided_suits(player)
       trick_set.voided_suits(player)
+    end
+
+    def bid_for_player(player)
+      @bidding_set.bid_for_player(player)
     end
   end
 end

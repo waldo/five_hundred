@@ -9,5 +9,9 @@ module FiveHundred
     def nil?
       true
     end
+
+    def coerce(other)
+      [other, 0]
+    end
   end
 end

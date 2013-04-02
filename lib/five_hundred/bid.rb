@@ -122,5 +122,9 @@ module FiveHundred
     def self.all_bids
       Bid.all.map {|key, val| Bid.new(key) }
     end
+
+    def self.pass
+      return Bid.new("pass")
+    end
   end
 end

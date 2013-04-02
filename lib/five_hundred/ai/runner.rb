@@ -31,7 +31,7 @@ module FiveHundred
       def set_results
         @players.each do |p|
           if @results[p.to_s][@players.index(p)].nil?
-            @results[p.to_s][@players.index(p)] = { runs: @runs, victories: 0, positive: 0, negative: 0, tricks_won: 0 }
+            @results[p.to_s][@players.index(p)] = { runs: @runs, victories: 0, positive: 0, negative: 0, tricks_won: 0, bid_succeeded: 0, bid_failed: 0 }
           else
             @results[p.to_s][@players.index(p)][:runs] += @runs
           end
@@ -66,6 +66,8 @@ module FiveHundred
         game.rounds.each do |round|
           @players.each_with_index do |player, i|
             @results[player.to_s][i][:tricks_won] += round.trick_set.tricks_won_by_player(player)
+
+            record_bid_accuracy(player, round, i)
           end
         end
       end
@@ -84,6 +86,15 @@ module FiveHundred
       end
       private :record_win
 
+      def record_bid_accuracy(player, round, results_ix)
+        if player == round.winning_bidder
+          if round.bid_achieved_for?(player.team)
+            @results[player.to_s][results_ix][:bid_succeeded] += 1
+          else
+            @results[player.to_s][results_ix][:bid_failed] += 1
+          end
+        end
+      end
     end
   end
 end

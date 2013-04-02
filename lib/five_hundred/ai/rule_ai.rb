@@ -4,6 +4,100 @@ require "five_hundred/player"
 module FiveHundred
   module AI
     class RuleAI < GeneralAI
+# request bid
+      def request_bid
+        max_bid = bid
+        return max_bid if max_bid.passed?
+
+        stepped_bid(max_bid)
+      end
+
+      def stepped_bid(max_bid)
+        max_req = max_bid.tricks_required
+        min_req = [6, max_req - 1].max
+        range = min_req..max_req
+        range.each do |tricks_req|
+          my_bid = Bid.create_with_tricks_and_suit(tricks_req, max_bid.suit)
+          return my_bid if my_bid > round.highest_bid
+        end
+
+        Bid.pass
+      end
+      private :stepped_bid
+
+      def bid
+        suit_to_bid, score = score_per_suit.first
+        # +0.9 if partner bids the suit
+        score += 0.9 if round.bid_for_player(self.partner).suit == suit_to_bid
+        tricks_req = [score.round, 10].min
+
+        # puts "#{suit_to_bid} (#{score} => #{tricks_req}): #{cards.map(&:code)}"
+
+        if tricks_req < 6
+          return Bid.pass
+        end
+
+        Bid.create_with_tricks_and_suit(tricks_req, suit_to_bid)
+      end
+      private :bid
+
+      def score_per_suit
+        suits_scores_arr = cards_by_suit.map do |suit, cards_in_suit|
+          [suit, score_cards(suit, cards_in_suit)]
+        end
+
+        suits_scores_arr.sort_by {|suit, score| -score }
+      end
+      private :score_per_suit
+
+      def score_cards(suit, cards_in_suit)
+        sum_scores = 0.0
+
+        self.cards.map do |c|
+          sum_scores += rank_to_score(c.rank[suit][nil])
+        end
+
+        sum_scores * card_count_factor(cards_in_suit.count)
+      end
+      private :score_cards
+
+      def rank_to_score(rank)
+        score = 0
+
+        if rank == 31
+          score = 2.0
+        elsif rank >= 29
+          score = 1.8
+        elsif rank >= 26
+          score = 1.2
+        elsif rank >= 14
+          score = 0.9
+        end
+
+        score
+      end
+      private :rank_to_score
+
+      def card_count_factor(card_count)
+        factor = {
+          10 => 0.02,
+           9 => 0.03,
+           8 => 0.05,
+           7 => 0.08,
+           6 => 0.12,
+           5 => 0.17,
+           4 => 0.23,
+           3 => 0.30,
+           2 => 0.50,
+           1 => 0.50,
+           0 => 0.50,
+        }
+
+        (1 - factor[card_count])
+      end
+      private :card_count_factor
+
+# request play
       def request_play
         return highest_card if one_valid_choice?
         return position_rules if winnable_trick?

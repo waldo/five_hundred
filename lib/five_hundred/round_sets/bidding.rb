@@ -72,6 +72,15 @@ module FiveHundred
       def valid_bids
         Bid.all_bids.select {|b| valid_bid?(b) }
       end
+
+      def bid_for_player(player)
+        player_bid_code = "empty"
+        @bids.each do |bid_code, bidding_player|
+          player_bid_code = bid_code if player == bidding_player
+        end
+
+        Bid.new(player_bid_code)
+      end
     end
   end
 end

@@ -31,6 +31,48 @@ module FiveHundred
         @ai.assign_cards(@card_arr)
       end
 
+      describe "request bid" do
+        subject { @ai.request_bid }
+        before { @round.stub(:highest_bid => @bid_empty) }
+
+
+        context "(given a 6♠ hand)" do
+          before { @ai.assign_cards([@nine_spades, @joker, @six_diamonds, @ace_spades, @eight_spades, @five_diamonds, @four_hearts, @ace_hearts, @six_spades, @eight_clubs]) }
+          context "partner hasn't bid spades" do
+            before { @round.stub(:bid_for_player).with(@ai.partner).and_return(@pass) }
+
+            it "should bid 6♠" do
+              should == @bid_6s
+            end
+          end
+
+          context "partner has bid spades" do
+            before do
+              @round.stub(:bid_for_player).with(@ai.partner).and_return(@bid_6s)
+              @round.stub(:highest_bid => @bid_6s)
+            end
+
+            it "should bid 7♠" do
+              should == @bid_7s
+            end
+          end
+        end
+
+        context "stepped bidding (given a 9♥ hand)" do
+          before { @ai.assign_cards([@king_hearts, @ace_clubs, @six_hearts, @four_hearts, @jack_hearts, @ace_spades, @seven_hearts, @jack_diamonds, @five_hearts, @nine_diamonds]) }
+
+          it "should bid 8♥ initially" do
+            should == @bid_8h
+          end
+
+          it "should bid 9♥ if the bid is above 8♥" do
+            @round.stub(:highest_bid => @bid_8h)
+
+            should == @bid_9h
+          end
+        end
+      end
+
       describe "request play (non-misére)" do
         subject { @ai.request_play }
 

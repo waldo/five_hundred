@@ -5,7 +5,7 @@ module FiveHundred
   module AI
     class RandomAI < GeneralAI
       def request_bid
-        [round.valid_bids.sample, Bid.new("pass")].sample
+        [round.valid_bids.sample, Bid.pass].sample
       end
 
       def request_kitty

@@ -31,7 +31,7 @@ module FiveHundred
       @bid_10h    = Bid.new("10h")
       @bid_om     = Bid.new("om")
       @bid_10nt   = Bid.new("10nt")
-      @pass       = Bid.new("pass")
+      @pass       = Bid.pass
     end
   end
 end

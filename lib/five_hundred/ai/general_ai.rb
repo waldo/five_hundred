@@ -9,13 +9,14 @@ module FiveHundred
       end
 
       def request_bid
-        bid_suit_letter = suit_with_most_cards.to_s[0]
-        bid_number = max_cards_for_any_suit + 3
+        bid_suit = suit_with_most_cards
+        bid_number = max_cards_for_any_suit + 2
         bid_number += 1 if @cards.include? Deck.card("Jo")
         bid_number = [10, bid_number].min
-        my_bid = Bid.new("#{bid_number.to_s}#{bid_suit_letter}")
-        return my_bid if my_bid > round.highest_bid
-        return Bid.new("pass")
+        return Bid.pass if bid_number < 6
+
+        my_bid = Bid.create_with_tricks_and_suit(bid_number, bid_suit)
+        my_bid > round.highest_bid ? my_bid : Bid.pass
       end
 
       def request_kitty

@@ -167,7 +167,9 @@ module FiveHundred
       end
 
       def partner_played_guaranteed_winner?
-        top_card = (round.remaining_cards_plus_current_trick - cards).first
+        ranked_cards = round.remaining_cards_plus_current_trick - cards
+        ranked_cards = ranked_cards - round.remaining_cards(round.trump_suit) if round.voided_suits(remaining_opponents.first).include?(round.trump_suit)
+        top_card = ranked_cards.first
         partner_played = trick.card_played_by(self.partner)
 
         top_card == partner_played

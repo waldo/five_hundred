@@ -215,7 +215,8 @@ module FiveHundred
                 @ai.assign_cards([@ace_clubs, @six_clubs])
                 @round.stub(
                   :valid_cards => [@ace_clubs, @six_clubs],
-                  :remaining_cards_plus_current_trick => [@ace_clubs, @queen_clubs, @jack_clubs, @ten_clubs, @six_clubs]
+                  :remaining_cards_plus_current_trick => [@ace_clubs, @queen_clubs, @jack_clubs, @ten_clubs, @six_clubs],
+                  :voided_suits => []
                 )
                 @trick.stub(
                   :players => @game.players[0..1],
@@ -388,7 +389,12 @@ module FiveHundred
         subject { @ai.partner_played_guaranteed_winner? }
 
         before do
-          @round.stub(:remaining_cards_plus_current_trick => [@ace_clubs, @king_clubs, @queen_clubs, @jack_clubs, @ten_clubs])
+          @trick.stub(:players => @game.players[0..1])
+          @round.stub(
+            :remaining_cards_plus_current_trick => [@ace_clubs, @king_clubs, @queen_clubs, @jack_clubs, @ten_clubs],
+            :voided_suits => []
+          )
+          @ai.assign_cards([@ten_clubs])
         end
 
         it "returns true if partner played the top card" do
@@ -410,6 +416,24 @@ module FiveHundred
             @trick.stub(:card_played_by).with(@ai.partner).and_return(@queen_clubs)
 
             should be_true
+          end
+        end
+
+        context "excluding trump voided opponent" do
+          before do
+            @round.stub(:remaining_cards_plus_current_trick => [@joker, @ace_clubs, @king_clubs, @queen_clubs, @jack_clubs, @ten_clubs])
+            @trick.stub(:card_played_by).with(@ai.partner).and_return(@ace_clubs)
+          end
+
+          it "returns true if the remaining opponent is short trumps" do
+            @round.stub(:voided_suits => [:hearts])
+            @round.stub(:remaining_cards).with(:hearts).and_return([@joker])
+
+            should be_true
+          end
+
+          it "returns false if the remaining opponent may have trumps" do
+            should be_false
           end
         end
       end

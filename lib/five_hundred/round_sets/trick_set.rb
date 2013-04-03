@@ -174,7 +174,7 @@ module FiveHundred
       end
 
       def rank_order(cards)
-        cards.sort_by {|c| -c.rank[@trump_suit][nil] }
+        cards.sort_by {|c| -c.rank[@trump_suit][current_trick.led_suit] }
       end
       private :rank_order
 

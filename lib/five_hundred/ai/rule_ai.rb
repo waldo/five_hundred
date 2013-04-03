@@ -31,7 +31,7 @@ module FiveHundred
         score += 0.9 if round.bid_for_player(self.partner).suit == suit_to_bid
         tricks_req = [score.round, 10].min
 
-        # puts "#{suit_to_bid} (#{score} => #{tricks_req}): #{cards.map(&:code)}"
+        puts "#{suit_to_bid} (#{score} => #{tricks_req}): #{cards.map(&:code)}"
 
         if tricks_req < 6
           return Bid.pass
@@ -51,51 +51,34 @@ module FiveHundred
       private :score_per_suit
 
       def score_cards(suit, cards_in_suit)
-        sum_scores = 0.0
+        sum_scores = 1.2
 
         self.cards.map do |c|
           sum_scores += rank_to_score(c.rank[suit][nil])
         end
 
-        sum_scores * card_count_factor(cards_in_suit.count)
+        sum_scores
       end
       private :score_cards
 
       def rank_to_score(rank)
-        score = 0
+        score = -0.5
 
         if rank == 31
-          score = 2.0
+          score = 2.15
         elsif rank >= 29
-          score = 1.8
+          score = 1.65
         elsif rank >= 26
-          score = 1.2
+          score = 1.25
         elsif rank >= 14
           score = 0.9
+        elsif rank >= 12
+          score = 0.00
         end
 
         score
       end
       private :rank_to_score
-
-      def card_count_factor(card_count)
-        factor = {
-          10 => 0.02,
-           9 => 0.03,
-           8 => 0.05,
-           7 => 0.08,
-           6 => 0.12,
-           5 => 0.17,
-           4 => 0.23,
-           3 => 0.30,
-           2 => 0.50,
-           1 => 0.50,
-           0 => 0.50,
-        }
-
-        (1 - factor[card_count])
-      end
-      private :card_count_factor
 
 # request play
       def request_play

@@ -58,22 +58,22 @@ module FiveHundred
           end
         end
 
-        context "stepped bidding (given a 9♥ hand)" do
+        context "stepped bidding (given a 10♥ hand)" do
           before { @ai.assign_cards([@king_hearts, @ace_clubs, @six_hearts, @four_hearts, @jack_hearts, @ace_spades, @seven_hearts, @jack_diamonds, @five_hearts, @nine_diamonds]) }
 
-          it "should bid 8♥ initially" do
-            should == @bid_8h
+          it "should bid 9♥ initially" do
+            should == @bid_9h
           end
 
-          it "should bid 9♥ if the bid is above 8♥" do
-            @round.stub(:highest_bid => @bid_8h)
+          it "should bid 10♥ if the bid is above 9♥" do
+            @round.stub(:highest_bid => @bid_9h)
 
-            should == @bid_9h
+            should == @bid_10h
           end
         end
       end
 
-      describe "request play (non-misére)" do
+      describe "request play" do
         subject { @ai.request_play }
 
         it "plays only valid choice" do
@@ -82,7 +82,7 @@ module FiveHundred
           should == @seven_hearts
         end
 
-        context "multiple valid cards" do
+        context "multiple valid cards (non-misére)" do
           context "can't beat existing cards in the trick" do
             before do
               @trick.stub(:max_rank => @joker.rank[:none][nil])

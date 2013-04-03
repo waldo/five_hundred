@@ -5,7 +5,7 @@ module FiveHundred
     class Runner
       attr_reader :runs, :players, :results
 
-      def initialize(runs, ais)
+      def initialize(runs, *ais)
         @runs = runs
         @results = Hash.new {|h,k| h[k] = {} }
         @players = []
@@ -47,7 +47,7 @@ module FiveHundred
           gw.run!
 
           record_results(gw)
-          print "#{i}-"
+          print "#{i}..."
         end
 
         @results

@@ -23,7 +23,8 @@ module FiveHundred
         @round.stub(
           :trump_suit => :hearts,
           :valid_cards => @card_arr,
-          :current_trick => @trick
+          :current_trick => @trick,
+          :highest_bid => @bid_empty
         )
         @trick.stub(:max_rank => @six_spades.rank[:none][nil])
 
@@ -82,7 +83,17 @@ module FiveHundred
           should == @seven_hearts
         end
 
-        context "multiple valid cards (non-misére)" do
+        context "multiple valid cards (misére))" do
+          before { @round.stub( :highest_bid => @bid_cm) }
+
+          it "plays the lowest card" do
+            @round.stub(:valid_cards => [@joker, @ten_hearts])
+
+            should == @ten_hearts
+          end
+        end
+
+        context "multiple valid cards (trumps)" do
           context "can't beat existing cards in the trick" do
             before do
               @trick.stub(:max_rank => @joker.rank[:none][nil])

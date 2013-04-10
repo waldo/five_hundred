@@ -82,6 +82,16 @@ module FiveHundred
 
 # request play
       def request_play
+        return misere_play if round.highest_bid.misere?
+
+        trumps_play
+      end
+
+      def misere_play
+        lowest_card
+      end
+
+      def trumps_play
         return highest_card if one_valid_choice?
         return position_rules if winnable_trick?
 

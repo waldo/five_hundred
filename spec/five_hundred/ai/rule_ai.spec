@@ -115,7 +115,7 @@ module FiveHundred
                   :led_suit => nil
                 )
                 @round.stub(
-                  :remaining_cards_plus_current_trick => [@joker, @jack_hearts, @jack_diamonds, @seven_hearts, @six_hearts]
+                  :remaining_cards_plus_current_trick => [@joker, @jack_hearts, @jack_diamonds, @ten_hearts, @seven_hearts, @six_hearts]
                 )
               end
 
@@ -128,27 +128,41 @@ module FiveHundred
               end
 
               context "no guaranteed winner" do
-                context "has the highest card in a non-trumps suit and (opponents have cards in this suit or opponents lack trumps)" do
-                  it "plays highest card in a suit" do
-                    @round.stub(:remaining_cards).with(:spades).and_return([@ace_spades, @king_spades, @queen_spades, @ten_spades])
-                    @round.stub(:remaining_cards).with(:clubs).and_return([@king_clubs, @ten_clubs])
-                    @round.stub(:remaining_cards).with(:diamonds).and_return([])
-                    @round.stub(:remaining_cards).with(:hearts).and_return([@joker])
-                    @round.stub(:valid_cards => [@ace_spades, @ten_spades, @ten_clubs])
+                context "I can reverse bleed" do
+                  it "should trump low" do
+                    @round.stub(
+                      :winning_bidder => @ai.partner,
+                      :tricks_count => 3,
+                      :valid_cards => [@jack_diamonds, @ace_clubs, @ten_hearts]
+                    )
 
-                    should == @ace_spades
+                    should == @ten_hearts
                   end
                 end
 
-                context "doesn't have an expected non trump winner or opponents expected to trump" do
-                  it "plays low" do
-                    @round.stub(:remaining_cards).with(:spades).and_return([@ace_spades, @king_spades, @queen_spades, @ten_spades])
-                    @round.stub(:remaining_cards).with(:clubs).and_return([@king_clubs, @ten_clubs])
-                    @round.stub(:remaining_cards).with(:diamonds).and_return([])
-                    @round.stub(:remaining_cards).with(:hearts).and_return([@joker])
-                    @round.stub(:valid_cards => [@king_spades, @ten_spades, @ten_clubs])
+                context "I cannot reverse bleed" do
+                  context "has the highest card in a non-trumps suit and (opponents have cards in this suit or opponents lack trumps)" do
+                    it "plays highest card in a suit" do
+                      @round.stub(:remaining_cards).with(:spades).and_return([@ace_spades, @king_spades, @queen_spades, @ten_spades])
+                      @round.stub(:remaining_cards).with(:clubs).and_return([@king_clubs, @ten_clubs])
+                      @round.stub(:remaining_cards).with(:diamonds).and_return([])
+                      @round.stub(:remaining_cards).with(:hearts).and_return([@joker])
+                      @round.stub(:valid_cards => [@ace_spades, @ten_spades, @ten_clubs])
 
-                    should == @ten_clubs
+                      should == @ace_spades
+                    end
+                  end
+
+                  context "doesn't have an expected non trump winner or opponents expected to trump" do
+                    it "plays low" do
+                      @round.stub(:remaining_cards).with(:spades).and_return([@ace_spades, @king_spades, @queen_spades, @ten_spades])
+                      @round.stub(:remaining_cards).with(:clubs).and_return([@king_clubs, @ten_clubs])
+                      @round.stub(:remaining_cards).with(:diamonds).and_return([])
+                      @round.stub(:remaining_cards).with(:hearts).and_return([@joker])
+                      @round.stub(:valid_cards => [@king_spades, @ten_spades, @ten_clubs])
+
+                      should == @ten_clubs
+                    end
                   end
                 end
               end
@@ -254,7 +268,7 @@ module FiveHundred
               it "otherwise play second position (shared) strategy" do
                 @round.stub(:remaining_cards_plus_current_trick => [@ace_clubs, @king_clubs, @queen_clubs, @jack_clubs, @ten_clubs, @six_clubs])
 
-                @ai.should_receive(:playing_second)
+                @ai.should_receive(:playing_trumps_second)
                 @ai.request_play
               end
             end

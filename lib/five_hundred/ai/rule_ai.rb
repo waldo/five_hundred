@@ -102,38 +102,45 @@ module FiveHundred
         position_symbols = {0 => :first, 1 => :second, 2 => :third, 3 => :fourth}
         position = trick.cards.count
 
-        send("playing_#{position_symbols[position]}")
+        send("playing_trumps_#{position_symbols[position]}")
       end
       private :position_rules
 
-      def playing_first
+      def playing_trumps_first
         return highest_card if guaranteed_winner?
+
+        return lowest_trump if reverse_bleed?
 
         return expected_non_trump_winner || lowest_card
       end
-      private :playing_first
+      private :playing_trumps_first
 
-      def playing_second
+      def playing_trumps_second
         return highest_card if trump_suit_led?
         return lowest_trump if can_use_trump? && opponents_short_trumps_or_have_suit?(trick.led_suit)
 
         return highest_card
       end
-      private :playing_second
+      private :playing_trumps_second
 
-      def playing_third
+      def playing_trumps_third
         return lowest_card if partner_played_guaranteed_winner? || top_card_equivalent_to_partners_card?
 
-        return playing_second
+        return playing_trumps_second
       end
-      private :playing_third
+      private :playing_trumps_third
 
-      def playing_fourth
+      def playing_trumps_fourth
         return lowest_card if partner_winning?
 
         return lowest_winner
       end
-      private :playing_fourth
+      private :playing_trumps_fourth
+
+      def reverse_bleed?
+        has_trumps?(round.trump_suit) && round.winning_bidder.team == self.team && round.tricks_count <= 3
+      end
+      private :reverse_bleed?
 
       def expected_non_trump_winner
         top_cards_non_trump_suit.each do |card|

@@ -162,5 +162,9 @@ module FiveHundred
     def bid_for_player(player)
       @bidding_set.bid_for_player(player)
     end
+
+    def tricks_count
+      trick_set.tricks_count
+    end
   end
 end

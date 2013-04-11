@@ -178,6 +178,10 @@ module FiveHundred
       end
       private :rank_order
 
+      def tricks_count
+        @tricks.count
+      end
+
       # class
       def self.empty
         NullObject.new

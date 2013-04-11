@@ -133,7 +133,8 @@ module FiveHundred
                     @round.stub(
                       :winning_bidder => @ai.partner,
                       :tricks_count => 3,
-                      :valid_cards => [@jack_diamonds, @ace_clubs, @ten_hearts]
+                      :valid_cards => [@jack_diamonds, @ace_clubs, @ten_hearts],
+                      :has_voided_trumps => false
                     )
 
                     should == @ten_hearts
@@ -241,7 +242,8 @@ module FiveHundred
                 @round.stub(
                   :valid_cards => [@ace_clubs, @six_clubs],
                   :remaining_cards_plus_current_trick => [@ace_clubs, @queen_clubs, @jack_clubs, @ten_clubs, @six_clubs],
-                  :voided_suits => []
+                  :voided_suits => [],
+                  :has_voided_trumps => false
                 )
                 @trick.stub(
                   :players => @game.players[0..1],
@@ -417,7 +419,7 @@ module FiveHundred
           @trick.stub(:players => @game.players[0..1])
           @round.stub(
             :remaining_cards_plus_current_trick => [@ace_clubs, @king_clubs, @queen_clubs, @jack_clubs, @ten_clubs],
-            :voided_suits => []
+            :has_voided_trumps => false
           )
           @ai.assign_cards([@ten_clubs])
         end
@@ -451,7 +453,7 @@ module FiveHundred
           end
 
           it "returns true if the remaining opponent is short trumps" do
-            @round.stub(:voided_suits => [:hearts])
+            @round.stub(:has_voided_trumps => true)
             @round.stub(:remaining_cards).with(:hearts).and_return([@joker])
 
             should be_true

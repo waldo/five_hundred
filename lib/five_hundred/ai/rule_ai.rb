@@ -138,7 +138,7 @@ module FiveHundred
       private :playing_trumps_fourth
 
       def reverse_bleed?
-        has_trumps?(round.trump_suit) && round.winning_bidder.team == self.team && round.tricks_count <= 3
+        has_trumps?(round.trump_suit) && round.winning_bidder.team == self.team && round.tricks_count <= 3 && !round.has_voided_trumps(self.partner)
       end
       private :reverse_bleed?
 
@@ -168,7 +168,7 @@ module FiveHundred
 
       def partner_played_guaranteed_winner?
         ranked_cards = round.remaining_cards_plus_current_trick - cards
-        ranked_cards = ranked_cards - round.remaining_cards(round.trump_suit) if round.voided_suits(remaining_opponents.first).include?(round.trump_suit)
+        ranked_cards = ranked_cards - round.remaining_cards(round.trump_suit) if round.has_voided_trumps(remaining_opponents.first)
         top_card = ranked_cards.first
         partner_played = trick.card_played_by(self.partner)
 

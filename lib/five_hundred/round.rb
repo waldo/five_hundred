@@ -166,5 +166,9 @@ module FiveHundred
     def tricks_count
       trick_set.tricks_count
     end
+
+    def has_voided_trumps(player)
+      voided_suits(player).include?(trump_suit)
+    end
   end
 end

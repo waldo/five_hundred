@@ -124,7 +124,11 @@ module FiveHundred
     end
 
     def self.pass
-      return Bid.new("pass")
+      Bid.new("pass")
+    end
+
+    def self.empty
+      Bid.new("empty")
     end
   end
 end

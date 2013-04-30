@@ -8,9 +8,8 @@ module FiveHundred
       def initialize(bidders)
         @bidders = bidders
 
-        @highest_bid = Bid.new("empty")
-        @bids = Hash.new{|h, k| h[k] = []}
-        @bids[@highest_bid.to_s] << Player.empty
+        @highest_bid = Bid.empty
+        @bid_entries = [{ player: Player.empty, bid: Bid.empty }]
       end
 
       def bid(new_bid)
@@ -18,7 +17,7 @@ module FiveHundred
       end
 
       def bid!(new_bid)
-        @bids[new_bid.to_s] << current_bidder
+        @bid_entries << { player: current_bidder, bid: new_bid }
         if new_bid.passed?
           @bidders.shift
         else
@@ -50,13 +49,7 @@ module FiveHundred
       end
 
       def passed_count
-        passes = @bids["pass"]
-
-        if passes.nil?
-          0
-        else
-          passes.count
-        end
+        @bid_entries.count {|entry| entry[:bid].passed? }
       end
       private :passed_count
 
@@ -66,20 +59,21 @@ module FiveHundred
       private :next_bidder!
 
       def winning_bidder
-        @bids[@highest_bid.to_s].first
+        @bid_entries.select {|entry| !entry[:bid].passed? }.last[:player]
       end
 
       def valid_bids
-        Bid.all_bids.select {|b| valid_bid?(b) }
+        Bid.all_bids.select {|bid| valid_bid?(bid) }
       end
 
       def bid_for_player(player)
-        player_bid_code = "empty"
-        @bids.each do |bid_code, bidding_player|
-          player_bid_code = bid_code if player == bidding_player
+        player_bid = Bid.empty
+
+        @bid_entries.each do |bid|
+          player_bid = bid[:bid] if player == bid[:player]
         end
 
-        Bid.new(player_bid_code)
+        player_bid
       end
     end
   end

@@ -3,7 +3,7 @@
 module FiveHundred
   shared_context "named bids" do
     before do
-      @bid_empty  = Bid.new("empty")
+      @bid_empty  = Bid.empty
       @bid_6s     = Bid.new("6s")
       @bid_6c     = Bid.new("6c")
       @bid_6d     = Bid.new("6d")

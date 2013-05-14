@@ -174,7 +174,17 @@ module FiveHundred
       end
 
       def rank_order(cards)
-        cards.sort_by {|c| -c.rank[@trump_suit][current_trick.led_suit] }
+        cards.sort do |a,b|
+          a_rank = -a.rank[@trump_suit][current_trick.led_suit]
+          b_rank = -b.rank[@trump_suit][current_trick.led_suit]
+
+          if a_rank == b_rank
+            a_rank = -a.rank[@trump_suit][nil]
+            b_rank = -b.rank[@trump_suit][nil]
+          end
+
+          a_rank <=> b_rank
+        end
       end
       private :rank_order
 

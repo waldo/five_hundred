@@ -73,6 +73,7 @@ module FiveHundred
 
         suits_hash = valid_cards_by_suit
         suits_hash.delete(round.trump_suit)
+        suits_hash.delete(:none) # remove no-trumps / misére joker suit
         _suit, cards = suits_hash.min {|a, b| a[1].count <=> b[1].count }
         return cards.last
       end

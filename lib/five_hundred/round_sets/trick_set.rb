@@ -60,14 +60,18 @@ module FiveHundred
       end
 
       def valid_no_trump_joker?(joker_suit)
-        joker_suit_supplied_if_required?(joker_suit) && (first_play_of_suit?(joker_suit) || (none_remaining_in_suit?(joker_suit) && unvoided_suit?(joker_suit)))
+        joker_suit_supplied_if_required?(joker_suit) &&
+        (unvoided_suit?(joker_suit) ||
+          (tricks_count == 10 && !current_trick.first_card?)
+        ) &&
+        (first_play_of_suit?(joker_suit) || none_remaining_in_suit?(joker_suit))
       end
 
       def joker_suit_supplied_if_required?(joker_suit)
-        if misere_or_no_trumps? && current_trick.first_card?
+        if current_trick.first_card?
           joker_suit != :none
         else
-          true
+          joker_suit == current_trick.led_suit
         end
       end
       private :joker_suit_supplied_if_required?

@@ -129,10 +129,33 @@ module FiveHundred
           @trick_set.joker_rules?(@joker.variations[:clubs]).should be_true
         end
 
-        it "should auto convert joker where sensible" do
+        it "should allow joker to be played in voided suit if forced to in the last trick" do
+          play!(@four_hearts)
+          @trick_set.stub(:first_play_of_suit?).and_return(false)
+          @trick_set.stub(:none_remaining_in_suit?).and_return(true)
+          @trick_set.stub(:unvoided_suit?).and_return(false)
+          @trick_set.stub(:tricks_count).and_return(10)
+
+          @trick_set.joker_rules?(@joker.variations[:hearts]).should be_true
+        end
+
+        it "shouldn't allow joker to be played in voided suit if leading the last trick" do
+          @trick_set.stub(:first_play_of_suit?).and_return(false)
+          @trick_set.stub(:none_remaining_in_suit?).and_return(true)
+          @trick_set.stub(:unvoided_suit?).and_return(false)
+          @trick_set.stub(:tricks_count).and_return(10)
+
+          @trick_set.joker_rules?(@joker.variations[:hearts]).should be_false
+        end
+
+        it "should follow suit" do
           play!(@four_hearts)
 
-          @trick_set.joker_rules?(@joker).should be_true
+          @trick_set.joker_rules?(@joker).should be_false
+          @trick_set.joker_rules?(@joker.variations[:spades]).should be_false
+          @trick_set.joker_rules?(@joker.variations[:clubs]).should be_false
+          @trick_set.joker_rules?(@joker.variations[:diamonds]).should be_false
+          @trick_set.joker_rules?(@joker.variations[:hearts]).should be_true
         end
 
         it "shouldn't allow as second card in suit" do
